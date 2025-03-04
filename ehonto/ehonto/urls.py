@@ -20,8 +20,8 @@ from app.views import PortfolioView, SignupView, LoginView, HomeView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', PortfolioView.as_view(), name="portfolio"),
-    path('signup/', SignupView.as_view(), name="signup"),
-    path('login/', LoginView.as_view(), name="login"),
-    path('home/', HomeView.as_view(), name="home"),
+    path('', PortfolioView.as_view(), name="portfolio"), #ポートフォリオ
+    path('signup/', SignupView.as_view(), name="signup"), #新規登録ページ
+    path('login/', LoginView.as_view(), name="login"), #ログインページ
+    path('home/', HomeView.as_view(), name="home"), #ホーム
 ]
