@@ -3,114 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ホーム</title>
+    <title>ehonto</title>
     <style>
-         /* 全体のスタイル */
-         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            text-align: center;
-        }
-
-        /* ヘッダー */
         .header {
-            background-color: #5cb85c;
-            color: white;
-            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            left: 0;
-            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
+            padding: 10px 20px;
+            background-color: #0ded93b3;
+            color: white;
         }
 
         .menu-icon {
-            display: block;
-            cursor: pointer;
             font-size: 24px;
+            cursor: pointer;
         }
 
         .nav-links {
-            display: none;
+            display: none; /* 初期状態では隠す */
+            flex-direction: column;
+            background: #444;
             position: absolute;
             top: 60px;
             right: 20px;
-            background-color: white;
-            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+            padding: 10px;
             border-radius: 5px;
-            width: 150px;
         }
 
         .nav-links a {
-            display: block;
-            color: #333;
+            color: white;
             text-decoration: none;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
+            padding: 8px;
+            display: block;
         }
 
         .nav-links a:hover {
-            background-color: #f4f4f4;
+            background: #555;
         }
 
-        .nav-links.active {
-            display: block;
-        }
-
-        /* メインコンテンツ */
-        .main-content {
-            margin-top: 80px; /* ヘッダーの高さ分を確保 */
-            padding: 20px;
-        }
-
-        .title {
-            font-size: 28px;
-            margin-bottom: 20px;
-        }
-
-        .btn {
-            display: inline-block;
-            background-color: #5cb85c;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 16px;
-        }
-
-        .btn:hover {
-            background-color: #4cae4c;
-        }
-
-        /* フッター */
-        .footer {
-            background-color: #ddd;
-            padding: 10px;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            text-align: center;
+        /* メニュー表示時 */
+        .show {
+            display: flex;
         }
     </style>
 </head>
 <body>
 
-    <!-- ヘッダー -->
     <div class="header">
         <div class="logo">ehonto</div>
-        <div class="menu-icon" onclick="toggleMenu()">☰</div>
-        <nav class="nav-links" id="navMenu">
+        <div class="menu-icon" id="menu-button">☰</div>
+        <nav class="nav-links" id="nav-menu">
             <a href="#">お気に入り</a>
             <a href="#">ふりかえり</a>
             <a href="#">もっとよんで</a>
@@ -119,22 +61,21 @@
         </nav>
     </div>
 
-    <!-- メインコンテンツ -->
     <div class="main-content">
         <h1 class="title">ようこそ！</h1>
         <p>絵本の読み聞かせを記録しよう</p>
     </div>
 
-    <!-- フッター -->
-    <div class="footer">
-        © 2025 絵本記録
-    </div>
-
     <script>
-        function toggleMenu() {
-            var menu = document.getElementById("navMenu");
-            menu.classList.toggle("active");
-        }
-    </script> 
+        document.addEventListener("DOMContentLoaded", function () {
+            const menuButton = document.getElementById("menu-button");
+            const navMenu = document.getElementById("nav-menu");
+
+            menuButton.addEventListener("click", function () {
+                navMenu.classList.toggle("show"); // メニューの表示・非表示を切り替え
+            });
+        });
+    </script>
+
 </body>
 </html>
