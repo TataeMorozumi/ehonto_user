@@ -3,35 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ehonto</title>
+    <title>ehonto</title>  
     <style>
         body {
             font-family: Arial, sans-serif;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            flex-direction: column; /* 縦方向に配置 */
+            justify-content: center; 
+            align-items: center;/* 中央揃え */
             height: 100vh;
             background-color: #f4f4f4;
+        }
+        h2 {
+            font-size: 30px;
+            margin-top: 20px; /* 上から少し余白をつける */
+            margin-bottom: 5px;
         }
         .signup-container {
             background: white;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
-            text-align: center;
+            margin-top: 20px;
+            width: 300px; /* フォームの幅を指定 */
+            text-align: center; /* 中央揃え */
         }
         form {
             display: flex;
             flex-direction: column;
+            margin-bottom: 10px;
+        }
+        label {
+            text-align: left;
+            display: block;
+            margin-bottom: 5px; /* ラベルと入力欄の間隔を調整 */
         }
         input {
             margin-bottom: 10px;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
-            width: 100%;
         }
         button {
             background-color: #5cb85c;
@@ -44,17 +55,50 @@
         button:hover {
             background-color: #4cae4c;
         }
+        .register-container {
+            margin-top: 20px; /* フォームとの間隔を作る */
+        }  
+        .register-btn {
+            background-color: #337ab7;
+            color: white;
+            text-decoration: none !important;
+            padding: 8px; /* 余白を少し小さくする */
+            border-radius: 5px;
+            display: block;
+            width: 100%;
+            text-align: center;
+            font-size: 10px; /* フォントサイズを小さくする */
+        } 
+        .register-btn:hover {
+            background-color: #286090;
+        }
     </style>
-</head>
+</head> 
 <body>
-    <h1>新規アカウント登録</h1>
-    <div class="signup-container"></div> 
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }} 
-            <button type="submit">登録</button>
+
+    <h2>新規アカウント登録</h2>
+
+    <div class="signup-container">
+       <form method="post">
+           {% csrf_token %}
+           <label for="name">名前/ニックネーム</label>
+           <input type="text" id="name" name="name" placeholder="名前" required>
+
+           <label for="email">メールアドレス</label>
+           <input type="email" id="email" name="email" placeholder="メールアドレス" required>
+
+           <label for="password">パスワード</label>
+           <input type="password" id="password" name="password1" placeholder="パスワード" required>
+
+           <label for="password2">確認用パスワード</label>
+           <input type="password" id="password2" name="password2" placeholder="確認用パスワード" required>
+
+           <button type="submit">登録</button>
         </form>
-        <a href="{% url 'login' %}">ログインに戻る</a> 
+
+    <div class="login-container">
+        <a class="login-btn" href="{% url 'login' %}">ログインに戻る</a>
     </div>
+</div>
 </body>
 </html>
