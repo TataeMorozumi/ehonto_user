@@ -46,4 +46,39 @@ def settings(request):
 
 def family_invite(request):
     return render(request, 'family_invite.html')
+
+def add_book(request):
+    return render(request, 'add_book.html')
+
+
+from django.core.paginator import Paginator
+from django.shortcuts import render
+from django.views import View
+from app.models import Book
+
+class HomeView(View):
+    def get(self, request):
+        book_list = Book.objects.all()  # 全データを取得
+        paginator = Paginator(book_list, 6)  # 1ページに6件ずつ表示
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
+        return render(request, "home.html", {"page_obj": page_obj})
+
+from django.shortcuts import render, redirect
+from .models import Book  # Bookモデルをインポート
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt  # 一時的にCSRFチェックを無効化（テスト用）
+def add_book(request):
+    if request.method == "POST":
+        title = request.POST['title']
+        author = request.POST['author']
+        published_date = request.POST['published_date']
         
+        Book.objects.create(title=title, author=author, published_date=published_date)
+        return redirect('home')  # 登録後にホームへリダイレクト
+
+    return render(request, 'add_book.html')
+def home(request):
+    books = Book.objects.all().order_by('-id')  # 新しい順に取得
+    return render(request, 'home.html', {'books': books})

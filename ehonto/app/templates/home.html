@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+    {% load static %}
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ehonto</title>
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+
     <style>
         .header {
             display: flex;
@@ -66,6 +71,32 @@
         <p>絵本の読み聞かせを記録しよう</p>
     </div>
 
+    <div class="book-list">
+        {% for book in books %}
+            <div class="book">
+                <h3>{{ book.title }}</h3>
+                <p>著者: {{ book.author }}</p>
+                <p>発行日: {{ book.published_date }}</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">最初</a>
+            <a href="?page={{ page_obj.previous_page_number }}">前へ</a>
+        {% endif %}
+    
+        <span>ページ {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">次へ</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">最後</a>
+        {% endif %}
+    </div>
+
+    <a href="{% url 'add_book' %}" class="add-button">＋</a>
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const menuButton = document.getElementById("menu-button");
@@ -79,3 +110,5 @@
 
 </body>
 </html>
+
+
