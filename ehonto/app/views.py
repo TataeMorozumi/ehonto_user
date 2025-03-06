@@ -64,21 +64,20 @@ class HomeView(View):
         page_obj = paginator.get_page(page_number)
         return render(request, "home.html", {"page_obj": page_obj})
 
-from django.shortcuts import render, redirect
-from .models import Book  # Bookモデルをインポート
-from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.shortcuts import render
+from .models import Book
 
-@csrf_exempt  # 一時的にCSRFチェックを無効化（テスト用）
 def add_book(request):
     if request.method == "POST":
-        title = request.POST['title']
-        author = request.POST['author']
-        published_date = request.POST['published_date']
+        title = request.POST.get('title')
+        author = request.POST.get('author')
+        published_date = request.POST.get('published_date')
         
-        Book.objects.create(title=title, author=author, published_date=published_date)
-        return redirect('home')  # 登録後にホームへリダイレクト
+        if title and author and published_date:  # 必須データがあるか確認
+            Book.objects.create(title=title, author=author, published_date=published_date)
+            return JsonResponse({"success": True})  # ✅ JSON を返す
 
-    return render(request, 'add_book.html')
-def home(request):
-    books = Book.objects.all().order_by('-id')  # 新しい順に取得
-    return render(request, 'home.html', {'books': books})
+        return JsonResponse({"success": False, "error": "データが不足しています"})
+
+    return JsonResponse({"success": False, "error": "無効なリクエスト"})

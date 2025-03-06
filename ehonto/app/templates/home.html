@@ -66,10 +66,24 @@
         </nav>
     </div>
 
+{% block content %}
     <div class="main-content">
         <h1 class="title">ようこそ！</h1>
         <p>絵本の読み聞かせを記録しよう</p>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const menuButton = document.getElementById("menu-button");
+            const navMenu = document.getElementById("nav-menu");
+
+            menuButton.addEventListener("click", function () {
+                navMenu.classList.toggle("show"); // メニューの表示・非表示を切り替え
+            });
+        });
+
+        
+    </script>
 
     <div class="book-list">
         {% for book in books %}
@@ -94,21 +108,88 @@
             <a href="?page={{ page_obj.paginator.num_pages }}">最後</a>
         {% endif %}
     </div>
+    <!-- ✅ 「＋」ボタンを押すとモーダルを開く -->
+    <a href="#" class="add-button" onclick="openModal()">＋</a>
+ {% endblock %}
 
-    <a href="{% url 'add_book' %}" class="add-button">＋</a>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const menuButton = document.getElementById("menu-button");
-            const navMenu = document.getElementById("nav-menu");
-
-            menuButton.addEventListener("click", function () {
-                navMenu.classList.toggle("show"); // メニューの表示・非表示を切り替え
-            });
-        });
-    </script>
-
-</body>
-</html>
-
-
+     <!-- ✅ モーダルウィンドウ -->
+     <div id="addBookModal" class="modal">
+         <div class="modal-content">
+             <span class="close" onclick="closeModal()">&times;</span>
+             <h2>絵本を登録</h2>
+             <form id="addBookForm" method="post">
+                 {% csrf_token %}
+                 <div class="form-group">
+                     <label for="title">タイトル:</label>
+                     <input type="text" id="title" name="title" required>
+                 </div>
+ 
+                 <div class="form-group">
+                     <label for="author">作者:</label>
+                     <input type="text" id="author" name="author" required>
+                 </div>
+ 
+                 <div class="form-group">
+                     <label for="published_date">発行日:</label>
+                     <input type="date" id="published_date" name="published_date" required>
+                 </div>
+ 
+                 <button type="submit" class="submit-button">登録</button>
+             </form>
+         </div>
+     </div>
+     {% block scripts %}
+     <script>
+         // ✅ モーダルの開閉処理
+         function openModal() {
+             document.getElementById("addBookModal").style.display = "flex";
+         }
+     
+         function closeModal() {
+             document.getElementById("addBookModal").style.display = "none";
+         }
+     
+         // ✅ フォーム送信の非同期処理（AJAX）
+         document.getElementById("addBookForm").addEventListener("submit", function(event) {
+             event.preventDefault();
+     
+             let formData = new FormData(this);
+     
+             fetch("{% url 'add_book' %}", {
+                 method: "POST",
+                 body: formData,
+                 headers: {
+                     "X-Requested-With": "XMLHttpRequest",
+                     "X-CSRFToken": getCookie("csrftoken")
+                 }
+             })
+             .then(response => response.json())
+             .then(data => {
+                 if (data.success) {
+                     closeModal();
+                     location.reload();
+                 } else {
+                     alert("エラー: " + data.error);
+                 }
+             })
+             .catch(error => console.error("エラー:", error));
+         });
+     
+         // ✅ CSRF トークンを取得する関数
+         function getCookie(name) {
+             let cookieValue = null;
+             if (document.cookie && document.cookie !== "") {
+                 let cookies = document.cookie.split(";");
+                 for (let i = 0; i < cookies.length; i++) {
+                     let cookie = cookies[i].trim();
+                     if (cookie.substring(0, name.length + 1) === (name + "=")) {
+                         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                         break;
+                     }
+                 }
+             }
+             return cookieValue;
+         }
+     </script>
+     {% endblock %}
+      
