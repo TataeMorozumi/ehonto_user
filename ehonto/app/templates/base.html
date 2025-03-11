@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ehonto{% endblock %}</title>
@@ -34,7 +35,20 @@
         <a href="{% url 'home' %}" style="color: white; text-decoration: none;">ehonto</a>
     </div>
     <div class="content">
-        {% block content %}{% endblock %}
+        {% block content %}
+
+
+        
+        {% endblock %}
     </div>
 </body>
 </html>
+
+<div class="nav-links" id="nav-menu">
+    <a href="{% url 'favorite' %}">お気に入り</a>
+    <a href="{% url 'review' %}">ふりかえり</a>
+    <a href="{% url 'more_read' %}">もっとよんで</a>
+    <a href="{% url 'settings' %}">設定</a>
+    <a href="{% url 'family_invite' %}">家族招待</a>
+</div>
+
