@@ -16,18 +16,27 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from app.views import PortfolioView, SignupView, LoginView, HomeView
+from app.views import PortfolioView, SignupView, LoginView, HomeView, settings_view
+from django.contrib.auth import views as auth_views
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('app.urls')), 
-    path('', PortfolioView.as_view(), name="portfolio"), #ポートフォリオ
-    path('signup/', SignupView.as_view(), name="signup"), #新規登録ページ
-    path('login/', LoginView.as_view(), name="login"), #ログインページ
-    path('home/', HomeView.as_view(), name="home"), #ホーム
+    path('portfolio/', PortfolioView.as_view(), name="portfolio"),  # ✅ ポートフォリオをデフォルトページに設定
+    path('signup/', SignupView.as_view(), name="signup"),  # ✅ 新規登録ページ
+    path('login/', LoginView.as_view(), name="login"),  # ✅ ログインページ
+    path('', HomeView.as_view(), name="home"),  # ✅ `/home/` にアクセスできるようにする
+    path('settings/', settings_view, name="settings_view"),
+    path('', include('app.urls')),  # ✅ `app/urls.py` でURLを管理
+
+    # ✅ Django標準のログイン・ログアウト
+    path('accounts/login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
+    path('accounts/logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 ]
 
+# ✅ メディアファイルの配信設定
 from django.conf import settings
 from django.conf.urls.static import static
 
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

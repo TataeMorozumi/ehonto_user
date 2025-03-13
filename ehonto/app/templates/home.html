@@ -61,17 +61,37 @@
             <a href="{% url 'favorite' %}">お気に入り</a>
             <a href="{% url 'review' %}">ふりかえり</a>
             <a href="{% url 'more_read' %}">もっとよんで</a>
-            <a href="{% url 'settings' %}">設定</a>
+            <a href="{% url 'settings_view' %}">設定</a>
             <a href="{% url 'family_invite' %}">家族招待</a>
         </nav>
     </div>
-    
+    <script src="{% static 'js/script.js' %}"></script>    
 </body>
 
 {% block content %}
     <div class="main-content">
         <h1 class="title">ようこそ！</h1>
         <p>絵本の読み聞かせを記録しよう</p>
+    </div>
+
+    <!-- ✅ 登録された絵本の表示エリア -->
+    <div class="book-list">
+        <h2 class="text-center">登録された絵本</h2>
+        <div class="book-container">
+            {% for book in books %}
+                <div class="book-item">
+                    <h3>{{ book.title }}</h3>
+                    <p>著者: {{ book.author }}</p>
+                    {% if book.image %}
+                        <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-image">
+                    {% else %}
+                        <p>画像なし</p>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <p class="text-center">まだ登録された絵本はありません。</p>
+            {% endfor %}
+        </div>
     </div>
 
     <div class="pagination">

@@ -1,28 +1,40 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    {% load static %}
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>絵本を追加</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
-</head>
-<body>
+{% extends 'base.html' %}
 
-    <h1>絵本を登録</h1>
+{% block title %}絵本を登録{% endblock %}
 
-    <form method="post">
-        {% csrf_token %}
-        <label for="title">タイトル:</label>
-        <input type="text" id="title" name="title" required><br><br>
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">絵本を登録</h2>
 
-        <label for="author">作者:</label>
-        <input type="text" id="author" name="author" required><br><br>
+    <div class="card mx-auto" style="max-width: 400px;">
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
 
-        <button type="submit">登録</button>
-    </form>
+                <div class="mb-3">
+                    <label for="title" class="form-label">タイトル:</label>
+                    <input type="text" id="title" name="title" class="form-control" required>
+                </div>
 
-    <a href="{% url 'home' %}">ホームに戻る</a>
+                <div class="mb-3">
+                    <label for="author" class="form-label">作者:</label>
+                    <input type="text" id="author" name="author" class="form-control" required>
+                </div>
 
-</body>
-</html>
+                <div class="mb-3">
+                    <label for="image" class="form-label">画像:</label>
+                    <input type="file" id="image" name="image" class="form-control" accept="image/*">
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-success px-4 py-2">登録</button>
+                </div>
+            </form>
+
+            <div class="text-center mt-3">
+                <a href="{% url 'home' %}" class="btn btn-secondary">ホームに戻る</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

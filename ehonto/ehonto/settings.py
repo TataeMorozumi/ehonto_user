@@ -129,5 +129,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 import os
 
+# 画像アップロードのための設定
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# `DEBUG = False` の場合、静的ファイルとメディアファイルを配信できるようにする
+if DEBUG:
+    STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+else:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+LOGIN_URL = '/login/'  # ✅ Djangoがリダイレクトするログインページ
+LOGIN_REDIRECT_URL = '/home/'  # ✅ ログイン後のリダイレクト先
+LOGOUT_REDIRECT_URL = '/login/'  # ✅ ログアウト後のリダイレクト先
