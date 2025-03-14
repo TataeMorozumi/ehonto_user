@@ -20,14 +20,15 @@ from app.views import PortfolioView, SignupView, LoginView, HomeView, settings_v
 from django.contrib.auth import views as auth_views
 
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('portfolio/', PortfolioView.as_view(), name="portfolio"),  # ✅ ポートフォリオをデフォルトページに設定
+    path('', PortfolioView.as_view(), name="portfolio"),  # ✅ ポートフォリオをデフォルトページに設定
     path('signup/', SignupView.as_view(), name="signup"),  # ✅ 新規登録ページ
     path('login/', LoginView.as_view(), name="login"),  # ✅ ログインページ
-    path('', HomeView.as_view(), name="home"),  # ✅ `/home/` にアクセスできるようにする
+    path('home/', HomeView.as_view(), name="home"),  # ✅ `/home/` にアクセスできるようにする
     path('settings/', settings_view, name="settings_view"),
-    path('', include('app.urls')),  # ✅ `app/urls.py` でURLを管理
+    path('app/', include('app.urls')),  # ✅ `app/urls.py` でURLを管理
 
     # ✅ Django標準のログイン・ログアウト
     path('accounts/login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),

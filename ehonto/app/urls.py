@@ -3,6 +3,7 @@ from django.conf.urls.static import static
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views  # ✅ views モジュール全体をインポート
+from .views import HomeView
 
 urlpatterns = [
     path('favorite/', views.favorite, name='favorite'),
@@ -21,13 +22,8 @@ urlpatterns = [
     path('signup/', views.signup_view, name='signup'),
 
     # ✅ ホーム & 絵本登録
-    path('home/', views.home_view, name='home'),  # ✅ `/home/` でもアクセス可能
+    path('home/', HomeView.as_view(), name='home'),  # ✅ `/home/` でもアクセス可能
+    path('', HomeView.as_view(), name='home'),
     path('add_book/', views.add_book, name='add_book'),
-
-    # ✅ デフォルトのルート（`/` にアクセスするとホーム画面）
-    path('', views.home_view, name='home'),
 ]
 
-# ✅ メディアファイルの配信設定
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

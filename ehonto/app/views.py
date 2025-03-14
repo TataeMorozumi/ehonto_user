@@ -9,7 +9,8 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.conf import settings 
 from .forms import SignupForm, BookForm, UserUpdateForm
-from app.models import Book
+from .models import Book
+from django.views.generic import ListView
 
 
 # ✅ ポートフォリオ画面（最初に表示するページ）
@@ -41,14 +42,21 @@ class LoginView(View):
         return render(request, "login.html")  
 
 # ✅ ホーム画面（絵本一覧を表示）
-class HomeView(View):
-    def get(self,request):
-        book_list = Book.objects.all()  # ✅ 全データを取得
-        paginator = Paginator(book_list, 6)  # ✅ 1ページに6件ずつ表示
-        page_number = request.GET.get("page")
-        page_obj = paginator.get_page(page_number)
+class HomeView(ListView):
+    model = Book
+    template_name = "home.html"  # ✅ home.html をテンプレートとして指定
+    context_object_name = "books"  # ✅ テンプレート内で使用する変数名を定義
+    paginate_by = 6  # ✅ 1ページに6件ずつ表示
 
-        return render(request, "home.html", {"books": page_obj, "page_obj": page_obj})  # ✅ books を追加    
+    def get_queryset(self):
+        books = Book.objects.all().order_by('-created_at')  # ✅ 登録順に取得
+        print(f"📌 デバッグ: HomeView に渡されたデータの数: {books.count()}")  
+        return books
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["MEDIA_URL"] = settings.MEDIA_URL
+        return context 
 
 # ✅ お気に入りページ
 def favorite(request):
@@ -73,13 +81,20 @@ def family_invite(request):
 # ✅ 絵本登録ページ
 def add_book(request):
     if request.method == "POST":
+        print("📌 登録リクエストを受信しました")
+        print(f"📌 リクエストデータ: {request.POST}")
+        print(f"📌 リクエストファイル: {request.FILES}")
+
         form = BookForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            return redirect('home')  # ✅ ホーム画面へリダイレクト
+            book = form.save()
+            print(f"✅ 登録成功: {book.title}, 画像: {book.image}")  
+            return redirect('home') 
+        else:
+            print("❌ フォームエラー:", form.errors)  
+
     else:
         form = BookForm()
-
     return render(request, "add_book.html", {"form": form})
 
 # ✅ パスワード変更ビュー
@@ -101,7 +116,3 @@ def signup_view(request):
         form = SignupForm()
     
     return render(request, 'signup.html', {'form': form})
-
-# ✅ ホーム画面（関数ベースビュー）
-def home_view(request):
-    return render(request, 'home.html')  # ✅ ホーム画面のテンプレートを表示

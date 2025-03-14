@@ -139,17 +139,16 @@
     </div>
 {% endblock %}
 
+<p>デバッグ: books の件数 {{ books|length }}</p>
 {% for book in books %}
     <div class="book-item">
         <h2>{{ book.title }}</h2>
         <p>著者: {{ book.author }}</p>
-
-        {% if book.image %}
-            <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-image">
-        {% else %}
-            <p>画像なし</p>
-        {% endif %}
+        <p>画像パス: {{ book.image.url }}</p>
+        <img src="{{ book.image.url|default:'' }}" alt="{{ book.title }}" class="book-image">
     </div>
+{% empty %}
+    <p class="text-center">データベースに登録された本がありません。</p>
 {% endfor %}
 
 
