@@ -2,13 +2,14 @@
 <html lang="ja">
 <head>
     {% load static %}
-
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ehonto</title>
 
+    <!-- ✅ `style.css` の読み込み -->
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
-
+    
     <style>
         .header {
             display: flex;
@@ -65,35 +66,32 @@
             <a href="{% url 'family_invite' %}">家族招待</a>
         </nav>
     </div>
-    <script src="{% static 'js/script.js' %}"></script>    
-</body>
 
-{% block content %}
-    <div class="main-content">
-        <h1 class="title">ようこそ！</h1>
-        <p>絵本の読み聞かせを記録しよう</p>
-    </div>
-
+    {% block content %}
     <!-- ✅ 登録された絵本の表示エリア -->
     <div class="book-list">
         <h2 class="text-center">登録された絵本</h2>
         <div class="book-container">
             {% for book in books %}
                 <div class="book-item">
-                    <h3>{{ book.title }}</h3>
-                    <p>著者: {{ book.author }}</p>
                     {% if book.image %}
-                        <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-image">
+                        <a href="{% url 'book_detail' book.id %}">
+                            <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-image">
+                        </a>
                     {% else %}
-                        <p>画像なし</p>
+                        <p>画像がありません</p>  <!-- 画像がない場合のデフォルト表示 -->
                     {% endif %}
+    
+                    <h3 class="book-title">{{ book.title }}</h3>
+                    <p class="book-author">著者: {{ book.author }}</p>
                 </div>
             {% empty %}
                 <p class="text-center">まだ登録された絵本はありません。</p>
             {% endfor %}
-        </div>
+        </div>            
     </div>
-
+    
+    <!-- ✅ ページネーション -->
     <div class="pagination">
         {% if page_obj.has_previous %}
             <a href="?page=1">最初</a>
@@ -107,120 +105,83 @@
             <a href="?page={{ page_obj.paginator.num_pages }}">最後</a>
         {% endif %}
     </div>
-
+    
     <!-- ✅ 「＋」ボタンを押すとモーダルを開く -->
-    <a href="#" class="add-button" onclick="openModal()">＋</a>
-
+    <a href="#" class="add-button" onclick="loadAddBookModal()">＋</a>
+    
     <!-- ✅ モーダルウィンドウ -->
     <div id="addBookModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
-            <h2>絵本を登録</h2>
-            <form id="addBookForm" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="title">タイトル:</label>
-                    <input type="text" id="title" name="title" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="author">作者:</label>
-                    <input type="text" id="author" name="author" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="image">画像:</label>
-                    <input type="file" id="image" name="image" accept="image/*">
-                </div>
-
-                <button type="submit" class="submit-button">登録</button>
-            </form>
+            <div id="modal-body">
+                <!-- ここに `/add_book/` のフォームがロードされる -->
+            </div>
         </div>
     </div>
-{% endblock %}
+    {% endblock %}
+    
 
-<p>デバッグ: books の件数 {{ books|length }}</p>
-{% for book in books %}
-    <div class="book-item">
-        <h2>{{ book.title }}</h2>
-        <p>著者: {{ book.author }}</p>
-        <p>画像パス: {{ book.image.url }}</p>
-        <img src="{{ book.image.url|default:'' }}" alt="{{ book.title }}" class="book-image">
-    </div>
-{% empty %}
-    <p class="text-center">データベースに登録された本がありません。</p>
-{% endfor %}
+    <!-- ✅ スクリプト読み込み -->
+    {% block scripts %}
+    <script>
+        function loadAddBookModal() {
+            console.log("📌 モーダルを開き、フォームをロードします");
+            const modal = document.getElementById("addBookModal");
+            const modalBody = document.getElementById("modal-body");
 
-
-{% block scripts %}
-<script>
-// ✅ モーダルを開く関数（グローバル定義）
-window.openModal = function() {
-    console.log("モーダルを開く");  // ✅ 確実に呼ばれているか確認
-    const modal = document.getElementById("addBookModal");
-    if (modal) {
-        modal.classList.add("modal-show");
-    } else {
-        console.error("モーダルが見つかりません");
-    }
-}
-
-// ✅ モーダルを閉じる関数（グローバル定義）
-window.closeModal = function() {
-    console.log("モーダルを閉じる");
-    document.getElementById("addBookModal").classList.remove("show");
-
-    console.log("モーダルを閉じる");  // ✅ 確実に呼ばれているか確認
-    const modal = document.getElementById("addBookModal");
-    if (modal) {
-        modal.classList.remove("modal-show");
-    } else {
-        console.error("モーダルが見つかりません");
-    }
-}
-// ✅ 「×」ボタンのクリックイベントを設定
-document.addEventListener("DOMContentLoaded", function () {
-    const modal = document.getElementById("addBookModal");
-    const closeButton = document.querySelector(".close");
-
-    if (closeButton) {
-        closeButton.addEventListener("click", function() {
-            console.log("× ボタンを押した");
-            closeModal();
-        });
-    } else {
-        console.error("closeButton が見つかりません");
-    }
-
-    // ✅ モーダルの外側をクリックしたら閉じる
-    modal.addEventListener("click", function(event) {
-        if (event.target === modal) {
-            console.log("モーダルの外側をクリック");
-            closeModal();
+            // ✅ `/add_book/` のフォームを取得してモーダルに表示
+            fetch("{% url 'add_book' %}")
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, "text/html");
+                    const form = doc.querySelector("form");  // `form` タグを抽出
+                    modalBody.innerHTML = form.outerHTML;  // ✅ フォームを挿入
+                    modal.style.display = "flex";  // ✅ モーダルを表示（中央）
+                    window.history.pushState({}, '', "{% url 'add_book' %}"); // ✅ URL変更
+                })
+                .catch(error => {
+                    console.error("❌ フォームのロードに失敗:", error);
+                    modalBody.innerHTML = "<p>フォームを読み込めませんでした。</p>";
+                });
         }
-    });
-});
 
-document.addEventListener("DOMContentLoaded", function () {
-    const menuButton = document.getElementById("menu-button");
-    const navMenu = document.getElementById("nav-menu");
-
-    if (menuButton && navMenu) {
-        menuButton.addEventListener("click", function () {
-            console.log("ハンバーガーメニューをクリック"); // ✅ デバッグ用
+        function closeModal() {
+            console.log("📌 モーダルを閉じます");
+            const modal = document.getElementById("addBookModal");
+            modal.style.display = "none";
+            modal.classList.remove("modal-show");
+            window.history.pushState({}, '', "{% url 'home' %}");  // ✅ URLを元に戻す
+        }
             
-            navMenu.classList.toggle("active");
+        window.onclick = function(event) {
+            const modal = document.getElementById("addBookModal");
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
 
-            if (navMenu.style.display === "none" || navMenu.style.display === "") {
-                navMenu.style.display = "block";
+        document.addEventListener("DOMContentLoaded", function () {
+            const menuButton = document.getElementById("menu-button");
+            const navMenu = document.getElementById("nav-menu");
+
+            if (menuButton && navMenu) {
+                menuButton.addEventListener("click", function () {
+                    console.log("ハンバーガーメニューをクリック");
+                    
+                    navMenu.classList.toggle("active");
+
+                    if (navMenu.style.display === "none" || navMenu.style.display === "") {
+                        navMenu.style.display = "block";
+                    } else {
+                        navMenu.style.display = "none";
+                    }
+                });
             } else {
-                navMenu.style.display = "none";
+                console.error("menuButton または navMenu が見つかりません");
             }
         });
-    } else {
-        console.error("menuButton または navMenu が見つかりません");
-    }
-});
-</script>
-{% endblock %}
+    </script>
+    {% endblock %}
 </body>
+</html>

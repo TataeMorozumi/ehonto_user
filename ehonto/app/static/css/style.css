@@ -39,7 +39,7 @@
     right: 20px;
     width: 50px;
     height: 50px;
-    background-color: #007bff;
+    background-color: #5cb85c;
     color: white;
     font-size: 30px;
     text-align: center;
@@ -54,74 +54,93 @@
     background-color: #0056b3;
 }
 
-/* ✅ モーダルのデザイン */
+/* ✅ モーダル全体のデザイン */
 .modal {
     display: none;
     position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    align-items: center;
-    justify-content: center;
-}
-
-.modal-content {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 400px;
     background: white;
     padding: 20px;
     border-radius: 10px;
-    width: 90%;
-    max-width: 400px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
     text-align: center;
 }
 
-.modal.show {
-    display: flex;
+/* ✅ モーダルのコンテンツ */
+.modal-content {
+    padding: 20px;
+    text-align: center;
 }
 
-/* ✅ モーダルの閉じるボタン */
-.close {
-    float: right;
-    font-size: 24px;
-    cursor: pointer;
+/* ✅ モーダル内フォーム */
+.modal-form-container {
+    width: 100%;
+    padding: 10px;
 }
 
-/* ✅ フォームのデザイン */
-.form-group {
+/* ✅ 入力フォームのデザイン */
+.modal-content .form-group {
     margin-bottom: 15px;
 }
 
-.form-group label {
-    display: block;
+.modal-content label {
+    font-size: 14px;
     font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
 }
 
-.form-group input {
+.modal-content input {
     width: 100%;
     padding: 8px;
-    margin-top: 5px;
     border: 1px solid #ccc;
     border-radius: 5px;
 }
 
+/* ✅ 登録ボタン */
 .submit-button {
-    display: block;
     width: 100%;
     padding: 10px;
     background: #5cb85c;
     color: white;
+    font-size: 16px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    text-align: center;
 }
 
 .submit-button:hover {
     background: #4cae4c;
 }
+
+/* ✅ 「×」ボタン */
+.modal .close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 20px;
+    cursor: pointer;
+    color: #333;
+}
+
+
+/* ✅ モーダルの背景 */
+.modal-show {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
 
 /* ✅ ハンバーガーメニューの表示切り替え */
 .nav-links {
@@ -158,19 +177,22 @@
 .modal {
     display: none;
     position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    align-items: center;
-    justify-content: center;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 400px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
 }
 
 /* ✅ モーダルが開いた時の表示 */
 .modal-show {
     display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 /* ✅ 「×」ボタンのデザイン */
@@ -178,4 +200,32 @@
     float: right;
     font-size: 24px;
     cursor: pointer;
+}
+
+/* ✅ 画像の表示方法 */
+.book-container {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr); /* ✅ 横に4冊並ぶように指定 */
+    gap: 10px !important; /* ✅ 画像間の余白 */
+    justify-items: center; /* ✅ 画像を中央揃え */
+    padding: 10px !important;
+}
+
+.book-item {
+    width: 100px !important;  /* ✅ 1冊のブロックの幅 */
+    text-align: center;
+}
+
+.book-image {
+    width: 140px !important;  /* ✅ 画像の幅 */
+    height: 200px !important ; /* ✅ 画像の高さ */
+    object-fit: cover ; /* ✅ アスペクト比を維持しつつトリミング */
+    border-radius: 8px ; /* ✅ 角を丸く */
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2) !important; /* ✅ 影をつける */
+}
+
+
+.book-list {
+    max-height: 80vh; /* 画面の80%の高さまでに制限 */
+    overflow-y: auto; /* 縦スクロール可能にする */
 }

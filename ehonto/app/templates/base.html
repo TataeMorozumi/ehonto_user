@@ -34,21 +34,22 @@
     <div class="header">
         <a href="{% url 'home' %}" style="color: white; text-decoration: none;">ehonto</a>
     </div>
+    
     <div class="content">
         {% block content %}
-
-
-        
         {% endblock %}
     </div>
+
+    <div class="nav-links" id="nav-menu">
+        <a href="{% url 'favorite' %}">お気に入り</a>
+        <a href="{% url 'review' %}">ふりかえり</a>
+        <a href="{% url 'more_read' %}">もっとよんで</a>
+        <a href="{% url 'settings_view' %}">設定</a>
+        <a href="{% url 'family_invite' %}">家族招待</a>
+    </div>
+
+    <!-- ✅ ページごとのスクリプトを挿入するブロック -->
+    {% block scripts %}{% endblock %}
 </body>
 </html>
-
-<div class="nav-links" id="nav-menu">
-    <a href="{% url 'favorite' %}">お気に入り</a>
-    <a href="{% url 'review' %}">ふりかえり</a>
-    <a href="{% url 'more_read' %}">もっとよんで</a>
-    <a href="{% url 'settings_view' %}">設定</a>
-    <a href="{% url 'family_invite' %}">家族招待</a>
-</div>
 

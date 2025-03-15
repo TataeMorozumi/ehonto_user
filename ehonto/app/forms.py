@@ -3,12 +3,12 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
 class SignupForm(UserCreationForm):
-    user_name = forms.CharField(max_length=30, required=True, label="名前")
+    first_name = forms.CharField(max_length=30, required=True, label="名前")
     email = forms.EmailField(required=True, label="メールアドレス")
 
     class Meta:
         model = User
-        fields = ["user_name", "email", "password1", "password2"]
+        fields = ["first_name", "email", "password1", "password2"]
 
 from django import forms
 from .models import Book
@@ -17,6 +17,12 @@ class BookForm(forms.ModelForm):
     class Meta:
         model = Book
         fields = ['title', 'author', 'image']  # ✅ 画像フィールドを含める
+
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+        if not image:
+            raise forms.ValidationError("画像を選択してください。")
+        return image    
 
 #設定画面
 from django import forms
