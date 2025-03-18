@@ -49,11 +49,19 @@ class HomeView(ListView):
     paginate_by = 14  # ✅ 7列×2段（14冊表示）
 
     def get_queryset(self):
-        return Book.objects.exclude(image='').exclude(image=None).order_by('-created_at')  # ✅ 画像があるデータのみ取得
+        selected_child_id = self.request.GET.get("child_id")  # ✅ URLのパラメータから子どものIDを取得
+        if selected_child_id:
+            selected_child = get_object_or_404(Child, id=selected_child_id)
+            books = Book.objects.filter(child=selected_child).order_by('-created_at')  # ✅ 選択した子の本棚
+        else:
+            books = Book.objects.filter(child=None).order_by('-created_at')  # ✅ 共通の本棚
+        return books
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["MEDIA_URL"] = settings.MEDIA_URL
-        context["children"] = Child.objects.all()  # ✅ 子どもの本棚を取得
+        context["children"] = Child.objects.all()  # ✅ 子どもの一覧を取得
+        context["selected_child_id"] = self.request.GET.get("child_id", "")  # ✅ 選択中の子のID
         return context
 
 # ✅ お気に入りページ

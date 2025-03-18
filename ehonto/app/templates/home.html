@@ -4,15 +4,22 @@
 
 {% block content %}
 
-<!-- ✅ 子どもごとの本棚選択ドロップダウン -->
+<!-- ✅ 子どもごとの本棚選択ドロップダウン + アイコン -->
 <div class="child-selector">
     <label for="child">本棚を選択:</label>
     <select name="child_id" id="child" onchange="changeBookshelf()">
         <option value="">共通の本棚</option>
         {% for child in children %}
-            <option value="{{ child.id }}">{{ child.name }}</option>
+            <option value="{{ child.id }}" {% if selected_child_id == child.id|stringformat:"s" %}selected{% endif %}>
+                {{ child.name }}
+            </option>
         {% endfor %}
     </select>
+
+    <!-- ✅ アイコンボタンを追加 -->
+    <a href="{% url 'child_edit' %}" class="child-edit-icon">
+        📝
+    </a>
 </div>
 
 <!-- ✅ 登録された絵本の表示エリア -->
@@ -26,7 +33,7 @@
             </div>
         {% endif %}
     {% empty %}
-        <p class="text-center">まだ登録された絵本はありません。</p>
+        <p class="text-center">この本棚にはまだ絵本がありません。</p>
     {% endfor %}
 </div>    
 
@@ -118,8 +125,8 @@
     });
 
     function changeBookshelf() {
-        var selectedBookshelf = document.getElementById("child").value;
-        window.location.href = "/home/?bookshelf=" + selectedBookshelf;
+        var selectedChild = document.getElementById("child").value;
+        window.location.href = "/home/?child_id=" + selectedChild;  // ✅ 選択した子どもの本棚を表示
     }
 </script>
 {% endblock %}

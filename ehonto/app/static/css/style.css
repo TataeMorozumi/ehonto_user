@@ -275,12 +275,12 @@
 }
 
 .child-selector {
-    position: absolute;
-    top: 90px;  /* ヘッダーの下に配置 */
-    left: 10px;
-    z-index: 10;
     display: flex;
     align-items: center;
+    justify-content: flex-start; /* 左寄せ */
+    margin-left: 20px; /* 左端に配置 */
+    margin-top: 10px; /* ヘッダーの下に配置 */
+    z-index: 10; /* 他の要素の上に表示 */
 }
 
 .child-selector select {
@@ -290,16 +290,16 @@
     border: 1px solid #aaa;
     border-radius: 5px;
     background-color: white;
+    margin-right: 10px; /* アイコンとの間隔 */
 }
 
-/* ✅ 編集アイコンのデザイン */
-.edit-icon {
-    width: 24px;
-    height: 24px;
-    margin-left: 10px;
+.child-edit-icon {
+    font-size: 20px;
+    text-decoration: none;
+    color: #5cb85c;
     cursor: pointer;
 }
 
 .child-edit-icon:hover {
-    color: #007bff;  /* ✅ ホバー時に色を変更 */
+    color: #4a9c4a;
 }

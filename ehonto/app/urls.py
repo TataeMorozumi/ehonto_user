@@ -3,7 +3,7 @@ from django.conf.urls.static import static
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views  # ✅ views モジュール全体をインポート
-from .views import HomeView, book_detail, delete_book, add_book
+from .views import HomeView, book_detail, delete_book, add_book, child_edit
 
 urlpatterns = [
     path('favorite/', views.favorite, name='favorite'),
