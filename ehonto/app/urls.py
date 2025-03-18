@@ -30,6 +30,9 @@ urlpatterns = [
     path('book/<int:book_id>/', views.book_detail, name='book_detail'), 
     path('book/<int:book_id>/delete/', views.delete_book, name='delete_book'),  # ✅ 統一
 
+    # ✅ 子ども情報編集画面
+    path('child/edit/', views.child_edit, name='child_edit'), 
+    path('child/add/', views.child_add, name='child_add'),
 ]
 
 # ✅ メディアファイルの配信設定（画像を正しく表示するために必要）

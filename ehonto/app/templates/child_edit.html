@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>子ども情報編集</h2>
+
+    <!-- ✅ 登録済みの子ども一覧 -->
+    <ul>
+        {% for child in children %}
+            <li>{{ child.name }}</li>
+        {% empty %}
+            <p>登録された子どもがいません。</p>
+        {% endfor %}
+    </ul>
+
+    <hr>
+
+    <!-- ✅ 新しい子どもを追加するフォーム -->
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">登録</button>
+        <a href="{% url 'home' %}" class="btn btn-secondary">キャンセル</a>
+    </form>
+</div>
+{% endblock %}

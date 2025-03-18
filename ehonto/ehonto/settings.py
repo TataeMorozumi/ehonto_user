@@ -83,7 +83,9 @@ USE_TZ = True
 # ✅ 静的ファイル（CSS, JS, 画像）設定
 STATIC_URL = '/static/'  # ✅ スラッシュを修正
 
-STATICFILES_DIRS = [BASE_DIR / "app/static"]  # ✅ ここで統一
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'app/static'),
+]
 
 # ✅ 本番環境用（collectstatic の保存先）
 if not DEBUG:

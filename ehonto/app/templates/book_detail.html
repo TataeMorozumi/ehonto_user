@@ -4,18 +4,24 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2>{{ book.title }}</h2>
-    <p>著者: {{ book.author }}</p>
-    
-    {% if book.image %}
-        <img src="{{ book.image.url }}" alt="{{ book.title }}" class="img-fluid">
-    {% endif %}
+    <h1 class="mb-3">{{ book.title }}</h1>
+    <p><strong>作者:</strong> {{ book.author }}</p>
+    <p><strong>登録日:</strong> {{ book.created_at|date:"Y年m月d日" }}</p>  <!-- ✅ 登録日を追加 -->
 
+    <!-- ✅ 画像の表示 -->
+
+{% if book.image %}
+    <img src="{{ book.image.url }}" alt="{{ book.title }}" class="img-fluid">
+{% else %}
+    <p class="text-muted">画像がありません</p>
+{% endif %}
+
+    <!-- ✅ 戻るボタンと削除ボタン -->
     <div class="mt-4">
         <a href="{% url 'home' %}" class="btn btn-secondary">戻る</a>
 
-        <!-- ✅ 削除ボタン -->
-        <form action="{% url 'delete_book' book.id %}" method="POST" style="display: inline;">
+        <!-- ✅ 削除ボタン（横並び） -->
+        <form action="{% url 'delete_book' book.id %}" method="POST" class="d-inline">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">削除</button>
         </form>

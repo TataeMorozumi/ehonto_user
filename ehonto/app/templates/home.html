@@ -1,187 +1,125 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    {% load static %}
-    
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ehonto</title>
+{% extends "base.html" %}  <!-- ✅ 最初に配置 -->
 
-    <!-- ✅ `style.css` の読み込み -->
-    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
-    
-    <style>
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background-color: #5cb85c;
-            color: white;
-        }
+{% load static %}  <!-- ✅ `extends` のすぐ後に配置 -->
 
-        .menu-icon {
-            font-size: 24px;
-            cursor: pointer;
-        }
+{% block content %}
 
-        .nav-links {
-            display: none; /* 初期状態では隠す */
-            flex-direction: column;
-            background: #444;
-            position: absolute;
-            top: 60px;
-            right: 20px;
-            padding: 10px;
-            border-radius: 5px;
-        }
+<!-- ✅ 子どもごとの本棚選択ドロップダウン -->
+<div class="child-selector">
+    <label for="child">本棚を選択:</label>
+    <select name="child_id" id="child" onchange="changeBookshelf()">
+        <option value="">共通の本棚</option>
+        {% for child in children %}
+            <option value="{{ child.id }}">{{ child.name }}</option>
+        {% endfor %}
+    </select>
+</div>
 
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            padding: 8px;
-            display: block;
-        }
-
-        .nav-links a:hover {
-            background: #555;
-        }
-
-        /* メニュー表示時 */
-        .show {
-            display: flex;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="header">
-        <div class="logo">ehonto</div>
-        <div class="menu-icon" id="menu-button">☰</div>
-        <nav class="nav-links" id="nav-menu">
-            <a href="{% url 'favorite' %}">お気に入り</a>
-            <a href="{% url 'review' %}">ふりかえり</a>
-            <a href="{% url 'more_read' %}">もっとよんで</a>
-            <a href="{% url 'settings_view' %}">設定</a>
-            <a href="{% url 'family_invite' %}">家族招待</a>
-        </nav>
-    </div>
-
-    {% block content %}
-    <!-- ✅ 登録された絵本の表示エリア -->
-    <div class="book-list">
-        <h2 class="text-center">登録された絵本</h2>
-        <div class="book-container">
-            {% for book in books %}
-                <div class="book-item">
-                    {% if book.image %}
-                        <a href="{% url 'book_detail' book.id %}">
-                            <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-image">
-                        </a>
-                    {% else %}
-                        <p>画像がありません</p>  <!-- 画像がない場合のデフォルト表示 -->
-                    {% endif %}
-    
-                    <h3 class="book-title">{{ book.title }}</h3>
-                    <p class="book-author">著者: {{ book.author }}</p>
-                </div>
-            {% empty %}
-                <p class="text-center">まだ登録された絵本はありません。</p>
-            {% endfor %}
-        </div>            
-    </div>
-    
-    <!-- ✅ ページネーション -->
-    <div class="pagination">
-        {% if page_obj.has_previous %}
-            <a href="?page=1">最初</a>
-            <a href="?page={{ page_obj.previous_page_number }}">前へ</a>
-        {% endif %}
-    
-        <span>ページ {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
-    
-        {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}">次へ</a>
-            <a href="?page={{ page_obj.paginator.num_pages }}">最後</a>
-        {% endif %}
-    </div>
-    
-    <!-- ✅ 「＋」ボタンを押すとモーダルを開く -->
-    <a href="#" class="add-button" onclick="loadAddBookModal()">＋</a>
-    
-    <!-- ✅ モーダルウィンドウ -->
-    <div id="addBookModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <div id="modal-body">
-                <!-- ここに `/add_book/` のフォームがロードされる -->
+<!-- ✅ 登録された絵本の表示エリア -->
+<div class="book-container">
+    {% for book in books %}
+        {% if book.image %}
+            <div class="book-item">
+                <a href="{% url 'book_detail' book.id %}">
+                    <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-image">
+                </a>
             </div>
+        {% endif %}
+    {% empty %}
+        <p class="text-center">まだ登録された絵本はありません。</p>
+    {% endfor %}
+</div>    
+
+<!-- ✅ ページネーション -->
+<div class="pagination">
+    {% if page_obj.has_previous %}
+        <a href="?page=1">最初</a>
+        <a href="?page={{ page_obj.previous_page_number }}">前へ</a>
+    {% endif %}
+
+    <span>ページ {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">次へ</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}">最後</a>
+    {% endif %}
+</div>
+
+<!-- ✅ 「＋」ボタンを押すとモーダルを開く -->
+<a href="#" class="add-button" onclick="loadAddBookModal()">＋</a>
+
+<!-- ✅ モーダルウィンドウ -->
+<div id="addBookModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div id="modal-body">
+            <!-- ここに `/add_book/` のフォームがロードされる -->
         </div>
     </div>
-    {% endblock %}
-    
+</div>
+{% endblock %}
 
-    <!-- ✅ スクリプト読み込み -->
-    {% block scripts %}
-    <script>
-        function loadAddBookModal() {
-            console.log("📌 モーダルを開き、フォームをロードします");
-            const modal = document.getElementById("addBookModal");
-            const modalBody = document.getElementById("modal-body");
+{% block scripts %}
+<script>
+    function loadAddBookModal() {
+        console.log("📌 モーダルを開き、フォームをロードします");
+        const modal = document.getElementById("addBookModal");
+        const modalBody = document.getElementById("modal-body");
 
-            // ✅ `/add_book/` のフォームを取得してモーダルに表示
-            fetch("{% url 'add_book' %}")
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, "text/html");
-                    const form = doc.querySelector("form");  // `form` タグを抽出
-                    modalBody.innerHTML = form.outerHTML;  // ✅ フォームを挿入
-                    modal.style.display = "flex";  // ✅ モーダルを表示（中央）
-                    window.history.pushState({}, '', "{% url 'add_book' %}"); // ✅ URL変更
-                })
-                .catch(error => {
-                    console.error("❌ フォームのロードに失敗:", error);
-                    modalBody.innerHTML = "<p>フォームを読み込めませんでした。</p>";
-                });
+        fetch("{% url 'add_book' %}")
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, "text/html");
+                const form = doc.querySelector("form");
+                modalBody.innerHTML = form.outerHTML;
+                modal.style.display = "flex";
+                window.history.pushState({}, '', "{% url 'add_book' %}");
+            })
+            .catch(error => {
+                console.error("❌ フォームのロードに失敗:", error);
+                modalBody.innerHTML = "<p>フォームを読み込めませんでした。</p>";
+            });
+    }
+
+    function closeModal() {
+        console.log("📌 モーダルを閉じます");
+        const modal = document.getElementById("addBookModal");
+        modal.style.display = "none";
+        modal.classList.remove("modal-show");
+        window.history.pushState({}, '', "{% url 'home' %}");
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById("addBookModal");
+        if (event.target === modal) {
+            closeModal();
         }
+    };
 
-        function closeModal() {
-            console.log("📌 モーダルを閉じます");
-            const modal = document.getElementById("addBookModal");
-            modal.style.display = "none";
-            modal.classList.remove("modal-show");
-            window.history.pushState({}, '', "{% url 'home' %}");  // ✅ URLを元に戻す
+    document.addEventListener("DOMContentLoaded", function () {
+        const menuButton = document.getElementById("menu-button");
+        const navMenu = document.getElementById("nav-menu");
+
+        if (menuButton && navMenu) {
+            menuButton.addEventListener("click", function () {
+                console.log("ハンバーガーメニューをクリック");
+                navMenu.classList.toggle("active");
+
+                if (navMenu.style.display === "none" || navMenu.style.display === "") {
+                    navMenu.style.display = "block";
+                } else {
+                    navMenu.style.display = "none";
+                }
+            });
+        } else {
+            console.error("menuButton または navMenu が見つかりません");
         }
-            
-        window.onclick = function(event) {
-            const modal = document.getElementById("addBookModal");
-            if (event.target === modal) {
-                closeModal();
-            }
-        };
+    });
 
-        document.addEventListener("DOMContentLoaded", function () {
-            const menuButton = document.getElementById("menu-button");
-            const navMenu = document.getElementById("nav-menu");
-
-            if (menuButton && navMenu) {
-                menuButton.addEventListener("click", function () {
-                    console.log("ハンバーガーメニューをクリック");
-                    
-                    navMenu.classList.toggle("active");
-
-                    if (navMenu.style.display === "none" || navMenu.style.display === "") {
-                        navMenu.style.display = "block";
-                    } else {
-                        navMenu.style.display = "none";
-                    }
-                });
-            } else {
-                console.error("menuButton または navMenu が見つかりません");
-            }
-        });
-    </script>
-    {% endblock %}
-</body>
-</html>
+    function changeBookshelf() {
+        var selectedBookshelf = document.getElementById("child").value;
+        window.location.href = "/home/?bookshelf=" + selectedBookshelf;
+    }
+</script>
+{% endblock %}

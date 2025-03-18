@@ -9,8 +9,9 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.conf import settings 
 from .forms import SignupForm, BookForm, UserUpdateForm
-from .models import Book
+from .models import Book, Child
 from django.views.generic import ListView
+from .forms import ChildForm
 
 # ✅ ポートフォリオ画面（最初に表示するページ）
 class PortfolioView(View):
@@ -45,26 +46,15 @@ class HomeView(ListView):
     model = Book
     template_name = "home.html"
     context_object_name = "books"
-    paginate_by = 6
+    paginate_by = 14  # ✅ 7列×2段（14冊表示）
 
     def get_queryset(self):
-        try:
-            books = Book.objects.all().order_by('-created_at')
-            print(f"📌 デバッグ: HomeView に渡されたデータの数: {books.count()}")  
-            return books
-        except Exception as e:
-            print(f"❌ HomeView のエラー: {e}")
-            return Book.objects.none()  # 空のクエリセットを返す
-
+        return Book.objects.exclude(image='').exclude(image=None).order_by('-created_at')  # ✅ 画像があるデータのみ取得
     def get_context_data(self, **kwargs):
-        try:
-            context = super().get_context_data(**kwargs)
-            context["MEDIA_URL"] = settings.MEDIA_URL
-            return context 
-        except Exception as e:
-            print(f"❌ HomeView のコンテキストエラー: {e}")
-            return {"books": [], "MEDIA_URL": settings.MEDIA_URL}
-
+        context = super().get_context_data(**kwargs)
+        context["MEDIA_URL"] = settings.MEDIA_URL
+        context["children"] = Child.objects.all()  # ✅ 子どもの本棚を取得
+        return context
 
 # ✅ お気に入りページ
 def favorite(request):
@@ -154,3 +144,45 @@ def delete_book(request, book_id):
     except Exception as e:
         print(f"❌ delete_book のエラー: {e}")
         return render(request, "error.html", {"error_message": "絵本の削除中にエラーが発生しました。"})
+
+def home_view(request):
+    children = Child.objects.all()  # 子ども一覧
+    selected_child_id = request.GET.get("child_id")  # 選択された子ども
+    selected_child = None
+
+    if selected_child_id:
+        selected_child = get_object_or_404(Child, id=selected_child_id)
+        books = Book.objects.filter(child=selected_child)
+    else:
+        books = Book.objects.filter(child=None)  # 共通の本棚を表示
+
+    return render(request, "home.html", {
+        "books": books,
+        "children": children,
+        "selected_child": selected_child,
+    })    
+
+# ✅ 子ども情報編集画面
+def child_edit(request):
+    children = Child.objects.all()  # 登録済みの子どもを取得
+    form = ChildForm()  # 新規追加用のフォーム
+
+    if request.method == "POST":
+        form = ChildForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('child_edit')  # ✅ 追加後にページを更新
+
+    return render(request, 'child_edit.html', {'children': children, 'form': form})
+
+# ✅ 子ども追加処理
+def child_add(request):
+    if request.method == "POST":
+        form = ChildForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('child_edit')  # ✅ 追加後に「子ども情報編集画面」へ戻る
+    else:
+        form = ChildForm()
+
+    return render(request, 'child_edit.html', {'form': form})

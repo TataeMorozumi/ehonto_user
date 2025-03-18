@@ -68,3 +68,16 @@ class BookForm(forms.ModelForm):
             'author': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '作者を入力'}),
             'image': forms.FileInput(attrs={'class': 'form-control'}),
         }
+
+#こども情報登録
+from django import forms
+from .models import Child
+
+class ChildForm(forms.ModelForm):
+    class Meta:
+        model = Child
+        fields = ['name']
+        labels = {'name': '子どもの名前'}
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '子どもの名前を入力'}),
+        }

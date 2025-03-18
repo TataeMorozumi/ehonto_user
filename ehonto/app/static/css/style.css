@@ -205,27 +205,101 @@
 /* ✅ 画像の表示方法 */
 .book-container {
     display: grid;
-    grid-template-columns: repeat(6, 1fr); /* ✅ 横に4冊並ぶように指定 */
-    gap: 10px !important; /* ✅ 画像間の余白 */
-    justify-items: center; /* ✅ 画像を中央揃え */
-    padding: 10px !important;
+    grid-template-columns: repeat(7, 1fr);  /* ✅ 7列にする */
+    grid-template-rows: repeat(2, auto);   /* ✅ 2行にする */
+    gap: 8px;  /* ✅ 画像間の余白 */
+    justify-items: center;
+    align-items: end;  /* ✅ 画像の下のラインを揃える */
+    padding: 20px;
+    margin-top: 100px;  /* ✅ ヘッダーとかぶらないように調整 */
 }
 
+/* ✅ 1冊分のブロック */
 .book-item {
-    width: 100px !important;  /* ✅ 1冊のブロックの幅 */
-    text-align: center;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* ✅ 画像の下のラインを揃える */
 }
 
+/* ✅ 画像の表示設定 */
 .book-image {
-    width: 140px !important;  /* ✅ 画像の幅 */
-    height: 200px !important ; /* ✅ 画像の高さ */
-    object-fit: cover ; /* ✅ アスペクト比を維持しつつトリミング */
-    border-radius: 8px ; /* ✅ 角を丸く */
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2) !important; /* ✅ 影をつける */
+    width: auto;  /* ✅ アスペクト比を保持 */
+    max-width: 100%;  /* ✅ 画像の最大幅を調整 */
+    max-height: 200px;  /* ✅ 最大高さを統一 */
+    object-fit: contain;  /* ✅ 画像を縮小して表示 */
+    border-radius: 10px;  /* ✅ 角を丸く */
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);  /* ✅ 影をつける */
 }
 
 
 .book-list {
     max-height: 80vh; /* 画面の80%の高さまでに制限 */
     overflow-y: auto; /* 縦スクロール可能にする */
+    margin-top: 80px; /* ✅ ヘッダーとの間に余白を確保 */
+}
+
+.book-detail-image {
+    max-width: 300px;  /* ✅ 画像の最大幅を制限 */
+    height: auto;
+    display: block;
+    margin: 20px auto;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* ✅ ドロップダウンリストのスタイル */
+.dropdown-container {
+    position: absolute;
+    top: 70px;  /* ヘッダーの下に配置 */
+    left: 10px;  /* 左端に配置 */
+    background-color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* ✅ ドロップダウンのラベル */
+.dropdown-container label {
+    font-size: 14px;
+    margin-right: 5px;
+}
+
+/* ✅ ドロップダウンメニュー */
+.dropdown-container select {
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.child-selector {
+    position: absolute;
+    top: 90px;  /* ヘッダーの下に配置 */
+    left: 10px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+}
+
+.child-selector select {
+    width: 180px;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    background-color: white;
+}
+
+/* ✅ 編集アイコンのデザイン */
+.edit-icon {
+    width: 24px;
+    height: 24px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.child-edit-icon:hover {
+    color: #007bff;  /* ✅ ホバー時に色を変更 */
 }
