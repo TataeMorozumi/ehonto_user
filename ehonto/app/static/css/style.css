@@ -205,32 +205,29 @@
 /* ✅ 画像の表示方法 */
 .book-container {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);  /* ✅ 7列にする */
-    grid-template-rows: repeat(2, auto);   /* ✅ 2行にする */
-    gap: 8px;  /* ✅ 画像間の余白 */
-    justify-items: center;
-    align-items: end;  /* ✅ 画像の下のラインを揃える */
-    padding: 20px;
-    margin-top: 100px;  /* ✅ ヘッダーとかぶらないように調整 */
+    grid-template-columns: repeat(7, 1fr); /* 7列 */
+    grid-template-rows: repeat(4, auto);  /* 4行（高さは内容に応じて調整） */
+    gap: 10px;  /* 画像間のスペース */
+    max-height: 80vh; /* 縦スクロールのための高さ制限 */
+    overflow-y: auto; /* 縦スクロールを有効化 */
+    padding: 10px;
+    margin: 0 auto;
 }
 
-/* ✅ 1冊分のブロック */
 .book-item {
     width: 100%;
     display: flex;
     justify-content: center;
-    align-items: flex-end; /* ✅ 画像の下のラインを揃える */
+    align-items: center;
 }
 
-/* ✅ 画像の表示設定 */
 .book-image {
-    width: auto;  /* ✅ アスペクト比を保持 */
-    max-width: 100%;  /* ✅ 画像の最大幅を調整 */
-    max-height: 200px;  /* ✅ 最大高さを統一 */
-    object-fit: contain;  /* ✅ 画像を縮小して表示 */
-    border-radius: 10px;  /* ✅ 角を丸く */
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);  /* ✅ 影をつける */
+    width: 100%;
+    height: auto;
+    max-height: 180px; /* 画像の最大高さを設定 */
+    object-fit: contain; /* 画像が切れないように */
 }
+
 
 
 .book-list {

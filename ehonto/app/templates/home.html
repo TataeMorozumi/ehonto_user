@@ -15,11 +15,8 @@
             </option>
         {% endfor %}
     </select>
-
     <!-- ✅ アイコンボタンを追加 -->
-    <a href="{% url 'child_edit' %}" class="child-edit-icon">
-        📝
-    </a>
+    <a href="{% url 'child_edit' %}" class="child-edit-icon">📝</a>
 </div>
 
 <!-- ✅ 登録された絵本の表示エリア -->
@@ -35,7 +32,8 @@
     {% empty %}
         <p class="text-center">この本棚にはまだ絵本がありません。</p>
     {% endfor %}
-</div>    
+</div>
+
 
 <!-- ✅ ページネーション -->
 <div class="pagination">
@@ -51,6 +49,7 @@
         <a href="?page={{ page_obj.paginator.num_pages }}">最後</a>
     {% endif %}
 </div>
+
 
 <!-- ✅ 「＋」ボタンを押すとモーダルを開く -->
 <a href="#" class="add-button" onclick="loadAddBookModal()">＋</a>
@@ -124,9 +123,15 @@
         }
     });
 
-    function changeBookshelf() {
-        var selectedChild = document.getElementById("child").value;
-        window.location.href = "/home/?child_id=" + selectedChild;  // ✅ 選択した子どもの本棚を表示
+function changeBookshelf() {
+    var selectedChildId = document.getElementById("child").value.trim();  // ✅ 選択された値を取得し、空白を除去
+
+    if (selectedChildId !== "") {  // ✅ `""` の場合を防ぐ
+        window.location.href = "/app/bookshelf/" + selectedChildId + "/";
+    } else {
+        window.location.href = "/home/";
     }
+}
+
 </script>
 {% endblock %}

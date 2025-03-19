@@ -19,9 +19,23 @@
             color: white;
             padding: 15px;
             font-size: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .content {
-            padding: 20px;
+        .menu-icon {
+            font-size: 24px;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+        .nav-links {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            background: #444;
+            padding: 10px;
+            border-radius: 5px;
         }
         .nav-links a {
             display: block;
@@ -29,12 +43,21 @@
             text-decoration: none;
             color: white;
         }
+        .nav-links a:hover {
+            background: #555;
+        }
+        .show {
+            display: block !important;
+        }
     </style>
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
 </head>
 <body>
     <div class="header">
         <a href="{% url 'home' %}" style="color: white; text-decoration: none;">ehonto</a>
+
+        <!-- ✅ ハンバーガーメニューを再追加 -->
+        <div class="menu-icon" id="menu-button">☰</div>
     </div>
     
     <div class="content">
@@ -50,8 +73,24 @@
         <a href="{% url 'family_invite' %}">家族招待</a>
     </div>
 
+    <!-- ✅ JavaScriptを `</body>` の直前に追加 -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const menuButton = document.getElementById("menu-button");
+            const navMenu = document.getElementById("nav-menu");
+
+            if (menuButton && navMenu) {
+                menuButton.addEventListener("click", function () {
+                    console.log("📌 ハンバーガーメニューをクリック");
+                    navMenu.classList.toggle("show");
+                });
+            } else {
+                console.error("❌ menuButton または navMenu が見つかりません");
+            }
+        });
+    </script>
+
     <!-- ✅ ページごとのスクリプトを挿入するブロック -->
     {% block scripts %}{% endblock %}
 </body>
 </html>
-

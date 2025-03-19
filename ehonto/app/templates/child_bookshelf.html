@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>{{ selected_child.name }} の本棚</h2>
+
+<div class="book-container">
+    {% for book in books %}
+        {% if book.image %}
+            <div class="book-item">
+                <a href="{% url 'book_detail' book.id %}">
+                    <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-image">
+                </a>
+            </div>
+        {% endif %}
+    {% empty %}
+        <p class="text-center">この本棚にはまだ絵本がありません。</p>
+    {% endfor %}
+</div>
+
+<!-- ✅ 「＋」ボタン（子どもの本棚用） -->
+<a href="#" class="add-button" onclick="loadAddBookModal('{{ selected_child.id }}')">＋</a>
+
+<!-- ✅ モーダルウィンドウ -->
+<div id="addBookModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div id="modal-body">
+            <!-- ここに `/add_book/` のフォームがロードされる -->
+        </div>
+    </div>
+</div>
+
+<!-- ✅ 共通の本棚へ戻るボタン -->
+<a href="{% url 'home' %}" class="btn btn-secondary">共通の本棚へ戻る</a>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function loadAddBookModal(childId) {
+        console.log("📌 モーダルを開き、フォームをロードします");
+        const modal = document.getElementById("addBookModal");
+        const modalBody = document.getElementById("modal-body");
+
+        fetch("{% url 'add_book' %}")
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, "text/html");
+                const form = doc.querySelector("form");
+
+                // ✅ 隠しフィールドを追加して子どものIDをフォームに渡す
+                const hiddenInput = document.createElement("input");
+                hiddenInput.type = "hidden";
+                hiddenInput.name = "child_id";
+                hiddenInput.value = childId;
+                form.appendChild(hiddenInput);
+
+                modalBody.innerHTML = form.outerHTML;
+                modal.style.display = "flex";
+                window.history.pushState({}, '', "{% url 'add_book' %}");
+            })
+            .catch(error => {
+                console.error("❌ フォームのロードに失敗:", error);
+                modalBody.innerHTML = "<p>フォームを読み込めませんでした。</p>";
+            });
+    }
+
+    function closeModal() {
+        console.log("📌 モーダルを閉じます");
+        const modal = document.getElementById("addBookModal");
+        modal.style.display = "none";
+        modal.classList.remove("modal-show");
+        window.history.pushState({}, '', "{% url 'child_bookshelf' child_id=selected_child.id %}");
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById("addBookModal");
+        if (event.target === modal) {
+            closeModal();
+        }
+    };
+</script>
+{% endblock %}

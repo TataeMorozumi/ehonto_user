@@ -46,23 +46,34 @@ class HomeView(ListView):
     model = Book
     template_name = "home.html"
     context_object_name = "books"
-    paginate_by = 14  # ✅ 7列×2段（14冊表示）
+    paginate_by = 28  # ✅ 7列×4段
 
     def get_queryset(self):
-        selected_child_id = self.request.GET.get("child_id")  # ✅ URLのパラメータから子どものIDを取得
-        if selected_child_id:
-            selected_child = get_object_or_404(Child, id=selected_child_id)
-            books = Book.objects.filter(child=selected_child).order_by('-created_at')  # ✅ 選択した子の本棚
-        else:
-            books = Book.objects.filter(child=None).order_by('-created_at')  # ✅ 共通の本棚
+        # ✅ すべての本棚の絵本を取得（個人の本棚の絵本も含める）
+        books = Book.objects.exclude(image='').exclude(image=None).order_by('-created_at')
         return books
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["MEDIA_URL"] = settings.MEDIA_URL
-        context["children"] = Child.objects.all()  # ✅ 子どもの一覧を取得
-        context["selected_child_id"] = self.request.GET.get("child_id", "")  # ✅ 選択中の子のID
+        context["children"] = Child.objects.all()  # ✅ 子どもの本棚を取得
+        context["selected_child_id"] = self.request.GET.get("child_id", "")
         return context
+
+
+# ✅ 子どもの本棚ページ
+def child_bookshelf(request, child_id):
+    selected_child = get_object_or_404(Child, id=child_id)
+
+    # ✅ その子どもの本棚に登録された絵本を取得
+    books = Book.objects.filter(child=selected_child)
+
+    return render(request, "child_bookshelf.html", {
+        "books": books,
+        "selected_child": selected_child,
+        "children": Child.objects.all(),  # プルダウンリスト用
+    })
+
 
 # ✅ お気に入りページ
 def favorite(request):
@@ -87,22 +98,28 @@ def family_invite(request):
 
 # ✅ 絵本登録ページ
 def add_book(request):
-    print("📌 add_book 関数が呼ばれました")  # ✅ デバッグ
+    print("📌 add_book 関数が呼ばれました")
 
     try:
         if request.method == "POST":
-            print("📌 POST メソッドが呼ばれました")
-            print(f"📌 リクエストデータ: {request.POST}")
-            print(f"📌 アップロードされたファイル: {request.FILES}")
-
             form = BookForm(request.POST, request.FILES)
             if form.is_valid():
-                book = form.save()
-                print(f"✅ 登録成功: {book.title}, 画像: {book.image}")
-                return redirect('home')
-            else:
-                print("❌ フォームエラー:", form.errors)
-                return render(request, "add_book.html", {"form": form, "errors": form.errors})  # エラー情報を渡す
+                book = form.save(commit=False)
+
+                # ✅ URLに `child_id` が含まれている場合は、その子の本棚に登録
+                child_id = request.POST.get("child_id")  # hidden フィールドで取得
+                if child_id:
+                    book.child_id = child_id  # その子どもの本棚に登録
+
+                book.save()
+                print(f"✅ 登録成功: {book.title}, 画像: {book.image}, 子どもID: {child_id}")
+                
+                # ✅ 本棚のページにリダイレクト
+                if child_id:
+                    return redirect('child_bookshelf', child_id=child_id)
+                else:
+                    return redirect('home')
+
         else:
             form = BookForm()
 
@@ -111,6 +128,7 @@ def add_book(request):
     except Exception as e:
         print(f"❌ 予期しないエラー: {e}")
         return render(request, "add_book.html", {"form": BookForm(), "error_message": "登録中にエラーが発生しました。"})
+
 
 # ✅ パスワード変更ビュー
 class CustomPasswordChangeView(PasswordChangeView):

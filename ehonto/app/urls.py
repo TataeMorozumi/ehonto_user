@@ -3,13 +3,15 @@ from django.conf.urls.static import static
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views  # ✅ views モジュール全体をインポート
-from .views import HomeView, book_detail, delete_book, add_book, child_edit
 
 urlpatterns = [
+    # ✅ お気に入り・履歴ページ
     path('favorite/', views.favorite, name='favorite'),
     path('review/', views.review, name='review'),
     path('more_read/', views.more_read, name='more_read'),
-    path('settings/', views.settings_view, name='settings_view'),  # ✅ 設定画面
+
+    # ✅ 設定・家族招待
+    path('settings/', views.settings_view, name='settings_view'),
     path('family_invite/', views.family_invite, name='family_invite'),
 
     # ✅ パスワード変更関連
@@ -21,17 +23,19 @@ urlpatterns = [
     path('signup/', views.signup_view, name='signup'),
 
     # ✅ ホーム & 絵本登録
-    path('home/', HomeView.as_view(), name='home'),  # `/home/` でアクセス可能
-    path('', HomeView.as_view(), name='home'),  # `/` にアクセスしたときホーム画面を表示
-    path('add_book/', add_book, name='add_book'),  # ✅ `add_book` のURLを `/add_book/` に修正
+    path('home/', views.HomeView.as_view(), name='home'),
+    path('', views.HomeView.as_view(), name='home'),  # `/` でホーム画面にアクセス
+    path('add_book/', views.add_book, name='add_book'),
 
+    # ✅ 子どもの本棚ページ（修正）
+    path('bookshelf/<int:child_id>/', views.child_bookshelf, name='child_bookshelf'),
 
-    # ✅ 詳細ページ & 削除
-    path('book/<int:book_id>/', views.book_detail, name='book_detail'), 
-    path('book/<int:book_id>/delete/', views.delete_book, name='delete_book'),  # ✅ 統一
+    # ✅ 絵本の詳細 & 削除
+    path('book/<int:book_id>/', views.book_detail, name='book_detail'),
+    path('book/<int:book_id>/delete/', views.delete_book, name='delete_book'),
 
-    # ✅ 子ども情報編集画面
-    path('child/edit/', views.child_edit, name='child_edit'), 
+    # ✅ 子ども情報編集・追加
+    path('child/edit/', views.child_edit, name='child_edit'),
     path('child/add/', views.child_add, name='child_add'),
 ]
 
