@@ -4,6 +4,15 @@
 <div class="container">
     <h2>子ども情報編集</h2>
 
+    <!-- ✅ エラーメッセージを表示 -->
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
     <!-- ✅ 登録済みの子ども一覧 -->
     <ul>
         {% for child in children %}
@@ -15,12 +24,17 @@
 
     <hr>
 
-    <!-- ✅ 新しい子どもを追加するフォーム -->
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-success">登録</button>
-        <a href="{% url 'home' %}" class="btn btn-secondary">キャンセル</a>
-    </form>
-</div>
+    <!-- ✅ 3人以上ならフォームを非表示にする -->
+{% if children|length < max_children %}
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">登録</button>
+</form>
+{% else %}
+<p style="color: red;">※ 子どもの登録は最大3人までです。</p>
+{% endif %}
+
+<a href="{% url 'home' %}" class="btn btn-secondary">キャンセル</a>
+
 {% endblock %}

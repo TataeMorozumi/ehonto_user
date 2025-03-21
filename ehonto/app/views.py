@@ -5,13 +5,18 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordChangeView
 from django.urls import reverse_lazy
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.conf import settings 
 from .forms import SignupForm, BookForm, UserUpdateForm
-from .models import Book, Child
+from .models import Book, Child, Memo
 from django.views.generic import ListView
 from .forms import ChildForm
+from django.db import models
+from django.db.models import Q
+
 
 # ✅ ポートフォリオ画面（最初に表示するページ）
 class PortfolioView(View):
@@ -56,7 +61,7 @@ class HomeView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["MEDIA_URL"] = settings.MEDIA_URL
-        context["children"] = Child.objects.all()  # ✅ 子どもの本棚を取得
+        context["children"] = Child.objects.all() .distinct() # ✅ 子どもの本棚を取得
         context["selected_child_id"] = self.request.GET.get("child_id", "")
         return context
 
@@ -65,13 +70,20 @@ class HomeView(ListView):
 def child_bookshelf(request, child_id):
     selected_child = get_object_or_404(Child, id=child_id)
 
-    # ✅ その子どもの本棚に登録された絵本を取得
-    books = Book.objects.filter(child=selected_child)
+# ✅ 共通の本棚 + 選択した子どもの本棚の絵本を取得
+    books = Book.objects.filter(models.Q(child=selected_child) | models.Q(child=None)).order_by("-created_at")
+
+# ✅ ページネーション設定 (7列 × 4行 = 28冊)
+    paginator = Paginator(books, 28)  # 1ページ28冊まで
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     return render(request, "child_bookshelf.html", {
-        "books": books,
         "selected_child": selected_child,
-        "children": Child.objects.all(),  # プルダウンリスト用
+        "selected_child_id": str(child_id),
+        "books": page_obj,  # ✅ ページネーションを適用
+        "children": Child.objects.all().distinct(),
+        "page_obj": page_obj,  # ✅ ページネーション情報を渡す
     })
 
 
@@ -97,38 +109,33 @@ def family_invite(request):
 
 
 # ✅ 絵本登録ページ
+from django.http import JsonResponse
+
 def add_book(request):
-    print("📌 add_book 関数が呼ばれました")
+    if request.method == "POST":
+        form = BookForm(request.POST, request.FILES)
+        if form.is_valid():
+            book = form.save(commit=False)
+            book.save()
 
-    try:
-        if request.method == "POST":
-            form = BookForm(request.POST, request.FILES)
-            if form.is_valid():
-                book = form.save(commit=False)
+            # child_id があれば、ManyToManyとしてセット
+            child_id = request.POST.get("child_id")
+            if child_id:
+                try:
+                    selected_child = Child.objects.get(id=int(child_id))
+                    book.child.set([selected_child])  # ✅ 修正ポイント
+                except Child.DoesNotExist:
+                    pass
 
-                # ✅ URLに `child_id` が含まれている場合は、その子の本棚に登録
-                child_id = request.POST.get("child_id")  # hidden フィールドで取得
-                if child_id:
-                    book.child_id = child_id  # その子どもの本棚に登録
-
-                book.save()
-                print(f"✅ 登録成功: {book.title}, 画像: {book.image}, 子どもID: {child_id}")
-                
-                # ✅ 本棚のページにリダイレクト
-                if child_id:
-                    return redirect('child_bookshelf', child_id=child_id)
-                else:
-                    return redirect('home')
-
+            return JsonResponse({"success": True})
         else:
-            form = BookForm()
+            return JsonResponse({"success": False, "error": "フォームが無効です"})
 
+    else:
+        form = BookForm()
         return render(request, "add_book.html", {"form": form})
 
-    except Exception as e:
-        print(f"❌ 予期しないエラー: {e}")
-        return render(request, "add_book.html", {"form": BookForm(), "error_message": "登録中にエラーが発生しました。"})
-
+    
 
 # ✅ パスワード変更ビュー
 class CustomPasswordChangeView(PasswordChangeView):
@@ -161,18 +168,17 @@ def book_detail(request, book_id):
 
 # ✅ 絵本削除ビュー
 def delete_book(request, book_id):
-    try:
-        book = get_object_or_404(Book, id=book_id)
-        if request.method == "POST":
-            book.delete()
-            return redirect('home')  # ✅ 削除後はホーム画面にリダイレクト
-        return render(request, "book_detail.html", {"book": book})
-    except Exception as e:
-        print(f"❌ delete_book のエラー: {e}")
-        return render(request, "error.html", {"error_message": "絵本の削除中にエラーが発生しました。"})
+    book = get_object_or_404(Book, id=book_id)
+
+    if request.method == "POST":
+        book.delete()
+        messages.success(request, "絵本を削除しました。")
+        return redirect('home')  # ✅ 削除後はホーム画面へリダイレクト
+
+    return render(request, "book_detail.html", {"book": book})
 
 def home_view(request):
-    children = Child.objects.all()  # 子ども一覧
+    children = Child.objects.all().distinct()  # 子ども一覧
     selected_child_id = request.GET.get("child_id")  # 選択された子ども
     selected_child = None
 
@@ -186,7 +192,22 @@ def home_view(request):
         "books": books,
         "children": children,
         "selected_child": selected_child,
-    })    
+    })  
+
+# ✅ メモを保存するAPI（非同期リクエスト対応）
+@csrf_exempt
+def save_memo(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            child = Child.objects.get(id=data["child_id"])
+            book = Book.objects.get(id=data["book_id"])
+            memo = Memo.objects.create(book=book, child=child, content=data["memo"])
+            return JsonResponse({"status": "success", "memo": memo.content})
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)})
+
+    return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)  
 
 # ✅ 子ども情報編集画面
 def child_edit(request):
@@ -194,10 +215,14 @@ def child_edit(request):
     form = ChildForm()  # 新規追加用のフォーム
 
     if request.method == "POST":
-        form = ChildForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('child_edit')  # ✅ 追加後にページを更新
+        if children.count() >= 3:
+            messages.error(request, "子どもの登録は最大3人までです。")
+        else:
+            form = ChildForm(request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "子どもが登録されました。")
+                return redirect('child_edit')  # ✅ 追加後にページを更新
 
     return render(request, 'child_edit.html', {'children': children, 'form': form})
 

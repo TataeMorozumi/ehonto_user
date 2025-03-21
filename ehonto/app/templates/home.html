@@ -8,13 +8,16 @@
 <div class="child-selector">
     <label for="child">本棚を選択:</label>
     <select name="child_id" id="child" onchange="changeBookshelf()">
-        <option value="">共通の本棚</option>
+        <option value="{% url 'home' %}" {% if not selected_child_id %}selected{% endif %}>共通の本棚</option>
+    
         {% for child in children %}
-            <option value="{{ child.id }}" {% if selected_child_id == child.id|stringformat:"s" %}selected{% endif %}>
+            <option value="{% url 'child_bookshelf' child.id %}" {% if selected_child_id == child.id|stringformat:"s" %}selected{% endif %}>
                 {{ child.name }}
             </option>
         {% endfor %}
     </select>
+    
+
     <!-- ✅ アイコンボタンを追加 -->
     <a href="{% url 'child_edit' %}" class="child-edit-icon">📝</a>
 </div>
@@ -34,7 +37,6 @@
     {% endfor %}
 </div>
 
-
 <!-- ✅ ページネーション -->
 <div class="pagination">
     {% if page_obj.has_previous %}
@@ -50,9 +52,8 @@
     {% endif %}
 </div>
 
-
 <!-- ✅ 「＋」ボタンを押すとモーダルを開く -->
-<a href="#" class="add-button" onclick="loadAddBookModal()">＋</a>
+<a href="#" class="add-button" onclick="event.preventDefault(); loadAddBookModal('{{ selected_child.id }}');">＋</a>
 
 <!-- ✅ モーダルウィンドウ -->
 <div id="addBookModal" class="modal">
@@ -63,75 +64,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-    function loadAddBookModal() {
-        console.log("📌 モーダルを開き、フォームをロードします");
-        const modal = document.getElementById("addBookModal");
-        const modalBody = document.getElementById("modal-body");
-
-        fetch("{% url 'add_book' %}")
-            .then(response => response.text())
-            .then(html => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, "text/html");
-                const form = doc.querySelector("form");
-                modalBody.innerHTML = form.outerHTML;
-                modal.style.display = "flex";
-                window.history.pushState({}, '', "{% url 'add_book' %}");
-            })
-            .catch(error => {
-                console.error("❌ フォームのロードに失敗:", error);
-                modalBody.innerHTML = "<p>フォームを読み込めませんでした。</p>";
-            });
-    }
-
-    function closeModal() {
-        console.log("📌 モーダルを閉じます");
-        const modal = document.getElementById("addBookModal");
-        modal.style.display = "none";
-        modal.classList.remove("modal-show");
-        window.history.pushState({}, '', "{% url 'home' %}");
-    }
-
-    window.onclick = function(event) {
-        const modal = document.getElementById("addBookModal");
-        if (event.target === modal) {
-            closeModal();
-        }
-    };
-
-    document.addEventListener("DOMContentLoaded", function () {
-        const menuButton = document.getElementById("menu-button");
-        const navMenu = document.getElementById("nav-menu");
-
-        if (menuButton && navMenu) {
-            menuButton.addEventListener("click", function () {
-                console.log("ハンバーガーメニューをクリック");
-                navMenu.classList.toggle("active");
-
-                if (navMenu.style.display === "none" || navMenu.style.display === "") {
-                    navMenu.style.display = "block";
-                } else {
-                    navMenu.style.display = "none";
-                }
-            });
-        } else {
-            console.error("menuButton または navMenu が見つかりません");
-        }
-    });
-
-function changeBookshelf() {
-    var selectedChildId = document.getElementById("child").value.trim();  // ✅ 選択された値を取得し、空白を除去
-
-    if (selectedChildId !== "") {  // ✅ `""` の場合を防ぐ
-        window.location.href = "/app/bookshelf/" + selectedChildId + "/";
-    } else {
-        window.location.href = "/home/";
-    }
-}
-
-</script>
 {% endblock %}

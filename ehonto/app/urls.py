@@ -3,6 +3,14 @@ from django.conf.urls.static import static
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views  # ✅ views モジュール全体をインポート
+from .views import (
+    HomeView, book_detail, delete_book, add_book,
+    child_edit, child_add, child_bookshelf,
+    favorite, review, more_read,
+    settings_view, family_invite,
+    signup_view, save_memo
+)
+
 
 urlpatterns = [
     # ✅ お気に入り・履歴ページ
@@ -37,6 +45,9 @@ urlpatterns = [
     # ✅ 子ども情報編集・追加
     path('child/edit/', views.child_edit, name='child_edit'),
     path('child/add/', views.child_add, name='child_add'),
+
+    # ✅ メモ
+    path('save_memo/', views.save_memo, name='save_memo'),
 ]
 
 # ✅ メディアファイルの配信設定（画像を正しく表示するために必要）

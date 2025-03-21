@@ -1,21 +1,12 @@
-<h2>絵本を登録</h2>
-<form method="POST" enctype="multipart/form-data">
+<form method="POST" action="{% url 'add_book' %}" enctype="multipart/form-data">
     {% csrf_token %}
+    {{ form.as_p }}
 
-    <div class="form-group">
-        <label for="title">タイトル:</label>
-        <input type="text" id="title" name="title" required>
-    </div>
+    <!-- ✅ hidden input：モーダルから渡された child_id を受け取る用 -->
+    {% if request.GET.child_id %}
+        <input type="hidden" name="child_id" value="{{ request.GET.child_id }}">
+    {% endif %}
 
-    <div class="form-group">
-        <label for="author">作者:</label>
-        <input type="text" id="author" name="author" required>
-    </div>
-
-    <div class="form-group">
-        <label for="image">画像:</label>
-        <input type="file" id="image" name="image" accept="image/*">
-    </div>
-
-    <button type="submit" class="submit-button">登録</button>
+    <button type="submit" class="btn btn-success">登録</button>
+    <a href="{% url 'home' %}" class="btn btn-secondary">キャンセル</a>
 </form>

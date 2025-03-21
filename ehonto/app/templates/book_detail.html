@@ -1,30 +1,63 @@
-{% extends 'base.html' %}
-
-{% block title %}{{ book.title }}{% endblock %}
+{% extends "base.html" %}
+{% load static %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1 class="mb-3">{{ book.title }}</h1>
-    <p><strong>作者:</strong> {{ book.author }}</p>
-    <p><strong>登録日:</strong> {{ book.created_at|date:"Y年m月d日" }}</p>  <!-- ✅ 登録日を追加 -->
+<div class="book-detail-container">
 
-    <!-- ✅ 画像の表示 -->
+  <!-- ✅ 左側（表紙画像・タイトル・著者・登録日） -->
+  <div class="book-info">
+    <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-cover">
+    <h2>{{ book.title }}</h2>
+    <p>著者: {{ book.author }}</p>
+    <p>登録日: {{ book.created_at|date:"Y年m月d日" }}</p>
 
-{% if book.image %}
-    <img src="{{ book.image.url }}" alt="{{ book.title }}" class="img-fluid">
-{% else %}
-    <p class="text-muted">画像がありません</p>
-{% endif %}
-
-    <!-- ✅ 戻るボタンと削除ボタン -->
-    <div class="mt-4">
-        <a href="{% url 'home' %}" class="btn btn-secondary">戻る</a>
-
-        <!-- ✅ 削除ボタン（横並び） -->
-        <form action="{% url 'delete_book' book.id %}" method="POST" class="d-inline">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger">削除</button>
-        </form>
-    </div>
+    <!-- ✅ 削除ボタン -->
+    <form method="POST" action="{% url 'delete_book' book.id %}" onsubmit="return confirmDelete();">
+        {% csrf_token %}
+        <button type="submit" class="delete-button">削除</button>
+    </form>
 </div>
+
+<!-- ✅ 右側（登録した子どもの情報 + メモ入力） -->
+<div class="book-owners">   
+    {% for child in book.children.all %}
+        <div class="child-box">
+            <div class="child-info">
+                <span class="child-icon">👦</span>
+                <span class="child-name">{{ child.name }}</span>
+            </div>
+            
+            <!-- ✅ メモ入力欄 -->
+            <textarea class="memo-box" id="memo-{{ child.id }}" placeholder="メモを入力..."></textarea>
+
+            <!-- ✅ 保存ボタン -->
+            <button onclick="saveMemo({{ child.id }})" class="memo-save-btn">保存</button>
+        </div>
+    {% endfor %}
+</div>
+
 {% endblock %}
+
+{% block scripts %}
+<script>
+function saveMemo(childId) {
+    let memoContent = document.getElementById("memo-" + childId).value;
+    console.log("保存されたメモ: " + memoContent);
+
+    // ✅ メモを保存するためのAjaxリクエスト
+    fetch('/save_memo/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'  // ✅ CSRF対策
+        },
+        body: JSON.stringify({ child_id: childId, memo: memoContent })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert("メモが保存されました！");
+    })
+    .catch(error => console.error("メモ保存エラー:", error));
+}
+</script>
+{% endblock %}   

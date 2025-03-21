@@ -205,30 +205,30 @@
 /* ✅ 画像の表示方法 */
 .book-container {
     display: grid;
-    grid-template-columns: repeat(7, 1fr); /* 7列 */
-    grid-template-rows: repeat(4, auto);  /* 4行（高さは内容に応じて調整） */
-    gap: 10px;  /* 画像間のスペース */
-    max-height: 80vh; /* 縦スクロールのための高さ制限 */
-    overflow-y: auto; /* 縦スクロールを有効化 */
-    padding: 10px;
-    margin: 0 auto;
+    grid-template-columns: repeat(7, 1fr);  /* ✅ 7列 */
+    grid-auto-rows: 1fr;  /* ✅ 行の高さを均等にする */
+    gap: 10px;  /* ✅ 画像間の余白 */
+    justify-items: center;
+    align-items: end;  /* ✅ 下のラインを揃える */
+    padding: 20px;
 }
 
 .book-item {
-    width: 100%;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: flex-end;  /* ✅ 上下の整列 */
     align-items: center;
+    width: 100%;
+    height: 100%;
+    text-align: center;
 }
 
 .book-image {
     width: 100%;
-    height: auto;
-    max-height: 180px; /* 画像の最大高さを設定 */
-    object-fit: contain; /* 画像が切れないように */
+    height: auto;  /* ✅ 高さを自動調整 */
+    max-height: 250px;  /* ✅ 高さの最大値を指定 */
+    object-fit: contain;  /* ✅ 画像の比率を保ちつつ表示 */
 }
-
-
 
 .book-list {
     max-height: 80vh; /* 画面の80%の高さまでに制限 */
@@ -272,7 +272,7 @@
 }
 
 .child-selector {
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: flex-start; /* 左寄せ */
     margin-left: 20px; /* 左端に配置 */
@@ -299,4 +299,157 @@
 
 .child-edit-icon:hover {
     color: #4a9c4a;
+}
+
+.book-detail-container {
+    display: flex !important; /* ✅ flex 指定を強制 */
+    align-items: flex-start;
+    justify-content: space-between;
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* ✅ 左側（絵本情報） */
+.book-info {
+    width: 40% !important; /* ✅ 幅を明確に指定 */
+    text-align: left;
+}
+
+/* ✅ 右側（登録された子ども情報） */
+.book-owners {
+    width: 55% !important; /* ✅ 幅を明確に指定 */
+    text-align: left;
+}
+
+/* ✅ メモ入力欄の幅を調整 */
+.memo-box {
+    width: 100%;
+    height: 60px;
+    margin-top: 5px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+/* ✅ ブラウザキャッシュの影響を防ぐ */
+.book-detail-container::after {
+    content: "CSSリロード";
+    display: none;
+}
+
+/* ✅ メモ欄のスタイル */
+.memo-box {
+    width: 100%;
+    height: 60px;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: none;
+}
+
+/* ✅ 保存ボタンのスタイル */
+.memo-save-btn {
+    display: block;
+    margin-top: 5px;
+    padding: 8px 12px;
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.memo-save-btn:hover {
+    background-color: #4cae4c;
+}
+
+/* ✅ この絵本を登録した子どもはいません */
+.child-message-container {
+    display: flex;
+    justify-content: flex-end;  /* 右寄せ */
+    padding-right: 20px;  /* 右側の余白調整 */
+}
+
+.book-owners {
+    display: flex;
+    flex-wrap: wrap;  /* 必要に応じて折り返し */
+    gap: 20px; /* 子どもごとの間隔を調整 */
+}
+
+.child-box {
+    width: 250px; /* 必要に応じて調整 */
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background: #f9f9f9;
+}
+
+.child-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.no-child-message {
+    display: flex;
+    justify-content: flex-end;  /* ✅ 右寄せ */
+    width: 100%;
+    padding-right: 20px; /* ✅ 右端に寄せる余白を調整 */
+}
+
+.no-child-message p {
+    font-weight: bold;
+    color: #555;
+}
+
+/* ✅ 設定画面のスタイル */
+.settings-container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.settings-title {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 24px;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.btn-primary {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background-color: #4cae4c;
 }

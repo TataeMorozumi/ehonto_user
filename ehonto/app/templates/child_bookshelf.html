@@ -1,8 +1,24 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+<!-- ✅ 本棚選択プルダウン -->
+<div class="child-selector">
+    <label for="child">本棚を選択:</label>
+    <select name="child_id" id="child" onchange="changeBookshelf()">
+        <option value="{% url 'home' %}" {% if not selected_child_id %}selected{% endif %}>共通の本棚</option>
+        {% for child in children %}
+            <option value="{% url 'child_bookshelf' child.id %}" {% if selected_child_id == child.id|stringformat:"s" %}selected{% endif %}>
+                {{ child.name }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
+
 <h2>{{ selected_child.name }} の本棚</h2>
 
+<!-- ✅ 7列×4段のグリッドレイアウト -->
 <div class="book-container">
     {% for book in books %}
         {% if book.image %}
@@ -17,8 +33,8 @@
     {% endfor %}
 </div>
 
-<!-- ✅ 「＋」ボタン（子どもの本棚用） -->
-<a href="#" class="add-button" onclick="loadAddBookModal('{{ selected_child.id }}')">＋</a>
+<!-- ✅ 「＋」ボタン -->
+<a href="#" class="add-button" onclick="loadAddBookModal('{{ selected_child.id }}'); event.preventDefault();">＋</a>
 
 <!-- ✅ モーダルウィンドウ -->
 <div id="addBookModal" class="modal">
@@ -30,55 +46,20 @@
     </div>
 </div>
 
-<!-- ✅ 共通の本棚へ戻るボタン -->
-<a href="{% url 'home' %}" class="btn btn-secondary">共通の本棚へ戻る</a>
+<!-- ✅ ページネーション -->
+<div class="pagination">
+    {% if page_obj.has_previous %}
+        <a href="?page=1">最初</a>
+        <a href="?page={{ page_obj.previous_page_number }}">前へ</a>
+    {% endif %}
+
+    <span>ページ {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">次へ</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}">最後</a>
+    {% endif %}
+</div>
 
 {% endblock %}
 
-{% block scripts %}
-<script>
-    function loadAddBookModal(childId) {
-        console.log("📌 モーダルを開き、フォームをロードします");
-        const modal = document.getElementById("addBookModal");
-        const modalBody = document.getElementById("modal-body");
-
-        fetch("{% url 'add_book' %}")
-            .then(response => response.text())
-            .then(html => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, "text/html");
-                const form = doc.querySelector("form");
-
-                // ✅ 隠しフィールドを追加して子どものIDをフォームに渡す
-                const hiddenInput = document.createElement("input");
-                hiddenInput.type = "hidden";
-                hiddenInput.name = "child_id";
-                hiddenInput.value = childId;
-                form.appendChild(hiddenInput);
-
-                modalBody.innerHTML = form.outerHTML;
-                modal.style.display = "flex";
-                window.history.pushState({}, '', "{% url 'add_book' %}");
-            })
-            .catch(error => {
-                console.error("❌ フォームのロードに失敗:", error);
-                modalBody.innerHTML = "<p>フォームを読み込めませんでした。</p>";
-            });
-    }
-
-    function closeModal() {
-        console.log("📌 モーダルを閉じます");
-        const modal = document.getElementById("addBookModal");
-        modal.style.display = "none";
-        modal.classList.remove("modal-show");
-        window.history.pushState({}, '', "{% url 'child_bookshelf' child_id=selected_child.id %}");
-    }
-
-    window.onclick = function(event) {
-        const modal = document.getElementById("addBookModal");
-        if (event.target === modal) {
-            closeModal();
-        }
-    };
-</script>
-{% endblock %}
