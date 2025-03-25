@@ -6,20 +6,21 @@
 
 <!-- ✅ 子どもごとの本棚選択ドロップダウン + アイコン -->
 <div class="child-selector">
-    <label for="child">本棚を選択:</label>
-    <select name="child_id" id="child" onchange="changeBookshelf()">
-        <option value="{% url 'home' %}" {% if not selected_child_id %}selected{% endif %}>共通の本棚</option>
+    <form method="get" action="{% url 'home' %}" id="childSelectForm">
+        <label for="child">本棚を選択:</label>
+        <select name="child_id" id="child" onchange="document.getElementById('childSelectForm').submit()">
+            <option value="" {% if not selected_child_id %}selected{% endif %}>共通の本棚</option>
+            {% for child in children %}
+                <option value="{{ child.id }}" {% if selected_child_id == child.id|stringformat:"s" %}selected{% endif %}>
+                    {{ child.name }}
+                </option>
+            {% endfor %}
+        </select>
     
-        {% for child in children %}
-            <option value="{% url 'child_bookshelf' child.id %}" {% if selected_child_id == child.id|stringformat:"s" %}selected{% endif %}>
-                {{ child.name }}
-            </option>
-        {% endfor %}
-    </select>
+        <!-- ✅ アイコンボタンをそのまま -->
+        <a href="{% url 'child_edit' %}" class="child-edit-icon">📝</a>
+    </form>
     
-
-    <!-- ✅ アイコンボタンを追加 -->
-    <a href="{% url 'child_edit' %}" class="child-edit-icon">📝</a>
 </div>
 
 <!-- ✅ 登録された絵本の表示エリア -->
@@ -64,4 +65,11 @@
         </div>
     </div>
 </div>
+
+{% endblock %}  <!-- ✅ content ブロックの終了 -->
+
+{% block scripts %}
+<script>
+// ✅ base.html にすでにモーダルやドロップダウンのJSがあれば、ここは空でもOK
+</script>
 {% endblock %}

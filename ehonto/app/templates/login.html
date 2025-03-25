@@ -77,18 +77,23 @@
 <body>
     <h2>ehonto</h2> 
     <div class="login-container">
-        <form method="post">
+        <form method="post" action="{% url 'login' %}">
             {% csrf_token %}
+            {% if form.errors %}
+              <p style="color: red;">ログインに失敗しました。メールアドレスまたはパスワードが間違っています。</p>
+            {% endif %}
+            
             <label for="id_username">メールアドレス</label>
             <input type="text" name="username" id="id_username" required>
             
             <label for="id_password">パスワード</label>
             <input type="password" name="password" id="id_password" required>
-
-            <button type ="{% url 'home' %}">ログイン</button> 
+    
+            <button type="submit">ログイン</button>
         </form>
-    </div class="signup-container">
-         <a href="{% url 'signup' %}" class="signup-btn">新規登録画面へ</a>
     </div>
-</body>    
-</html>
+    
+    <div class="signup-container">
+        <a href="{% url 'signup' %}" class="signup-btn">新規登録画面へ</a>
+    </div>
+    

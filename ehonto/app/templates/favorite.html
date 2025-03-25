@@ -1,54 +1,60 @@
-{% extends 'base.html' %}
-
-{% block title %}お気に入り{% endblock %}
+{% extends "base.html" %}
+{% load static %}
 
 {% block content %}
-<h1>お気に入り</h1>
-<p>ここにお気に入りの本が表示されます。</p>
+<!-- ✅ 子どもごとの本棚選択ドロップダウン -->
+<div class="child-selector">
+    <label for="child">お気に入りを表示:</label>
+    <select name="child_id" id="child" onchange="changeBookshelf()">
+        <option value="{% url 'favorite' %}" {% if not selected_child_id %}selected{% endif %}>全員のお気に入り</option>
+        {% for child in children %}
+            <option value="{{ child.id }}" {% if selected_child_id == child.id|stringformat:"s" %}selected{% endif %}>
+                {{ child.name }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
 
+<!-- ✅ 絵本の表示 -->
+<div class="book-container">
+    {% for book in books %}
+        {% if book.image %}
+            <div class="book-item">
+                <a href="{% url 'book_detail' book.id %}">
+                    <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-image">
+                </a>
+            </div>
+        {% endif %}
+    {% empty %}
+        <p class="text-center">お気に入りに登録された絵本はありません。</p>
+    {% endfor %}
+</div>
 
-{% for book in page_obj %}
-    <div class="book-item">
-        <h2>{{ book.title }}</h2>
-        <p>著者: {{ book.author }}</p>
-    </div>
-{% empty %}
-    <p>お気に入りの本はまだありません。</p>    
-{% endfor %}
-
-<!-- ページネーション -->
+<!-- ✅ ページネーション -->
 <div class="pagination">
     {% if page_obj.has_previous %}
-        <a href="?page=1">最初</a>
-        <a href="?page={{ page_obj.previous_page_number }}">前へ</a>
+        <a href="?page=1{% if selected_child_id %}&child_id={{ selected_child_id }}{% endif %}">最初</a>
+        <a href="?page={{ page_obj.previous_page_number }}{% if selected_child_id %}&child_id={{ selected_child_id }}{% endif %}">前へ</a>
     {% endif %}
 
     <span>ページ {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
 
     {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}">次へ</a>
-        <a href="?page={{ page_obj.paginator.num_pages }}">最後</a>
+        <a href="?page={{ page_obj.next_page_number }}{% if selected_child_id %}&child_id={{ selected_child_id }}{% endif %}">次へ</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}{% if selected_child_id %}&child_id={{ selected_child_id }}{% endif %}">最後</a>
     {% endif %}
 </div>
-
 {% endblock %}
 
-<form id="addBookForm" method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <div class="form-group">
-        <label for="title">タイトル:</label>
-        <input type="text" id="title" name="title" required>
-    </div>
-
-    <div class="form-group">
-        <label for="author">作者:</label>
-        <input type="text" id="author" name="author" required>
-    </div>
-
-    <div class="form-group">
-        <label for="image">画像:</label>
-        <input type="file" id="image" name="image" accept="image/*">
-    </div>
-
-    <button type="submit" class="submit-button">登録</button>
-</form>
+{% block scripts %}
+<script>
+function changeBookshelf() {
+    const selectedChildId = document.getElementById("child").value;
+    if (selectedChildId === "") {
+        window.location.href = "{% url 'favorite' %}";
+    } else {
+        window.location.href = "{% url 'favorite' %}?child_id=" + selectedChildId;
+    }
+}
+</script>
+{% endblock %}

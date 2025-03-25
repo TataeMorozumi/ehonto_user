@@ -2,10 +2,10 @@
 <html lang="ja">
 <head>
     {% load static %}
-    <link href="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ehonto{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -28,7 +28,7 @@
             cursor: pointer;
             margin-right: 15px;
         }
-        .nav-links {
+        #nav-menu {
             display: none;
             position: absolute;
             top: 60px;
@@ -37,56 +37,63 @@
             padding: 10px;
             border-radius: 5px;
         }
-        .nav-links a {
+        #nav-menu a {
             display: block;
             padding: 10px;
             text-decoration: none;
             color: white;
         }
-        .nav-links a:hover {
+        #nav-menu a:hover {
             background: #555;
         }
         .show {
             display: block !important;
         }
     </style>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
 </head>
 <body>
+    <!-- ✅ ヘッダー -->
     <div class="header">
         <a href="{% url 'home' %}" style="color: white; text-decoration: none;">ehonto</a>
-
-        <!-- ✅ ハンバーガーメニューを追加 -->
         <div class="menu-icon" id="menu-button">☰</div>
-    </div>
-    
-    <div class="content">
-        {% block content %}
-        {% endblock %}
-    </div>
 
-    <div class="nav-links" id="nav-menu">
-        <a href="{% url 'favorite' %}">お気に入り</a>
-        <a href="{% url 'review' %}">ふりかえり</a>
-        <a href="{% url 'more_read' %}">もっとよんで</a>
-        <a href="{% url 'settings_view' %}">設定</a>
-        <a href="{% url 'family_invite' %}">家族招待</a>
-    </div>
-
-    <!-- ✅ モーダルウィンドウ -->
-    <div id="addBookModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <div id="modal-body">
-                <!-- ✅ ここに `/add_book/` のフォームがロードされる -->
-            </div>
+        <!-- ✅ ハンバーガーメニュー -->
+        <div id="nav-menu">
+            <a href="{% url 'favorite' %}">お気に入り</a>
+            <a href="{% url 'review' %}">ふりかえり</a>
+            <a href="{% url 'more_read' %}">もっとよんで</a>
+            <a href="{% url 'settings_view' %}">設定</a>
+            <a href="{% url 'family_invite' %}">家族招待</a>
         </div>
     </div>
 
-    {% block scripts %}
+    <!-- ✅ 各ページの中身 -->
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- ✅ モーダル -->
+    <div id="addBookModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- ✅ JavaScript -->
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const menuButton = document.getElementById("menu-button");
+            const navMenu = document.getElementById("nav-menu");
+
+            if (menuButton && navMenu) {
+                menuButton.addEventListener("click", function () {
+                    navMenu.classList.toggle("show");
+                });
+            }
+        });
+
         function loadAddBookModal(childId = null) {
-            console.log("📌 モーダルを開きます 子どもID:", childId);
             const modal = document.getElementById("addBookModal");
             const modalBody = document.getElementById("modal-body");
 
@@ -97,7 +104,6 @@
                     const doc = parser.parseFromString(html, "text/html");
                     const form = doc.querySelector("form");
 
-                    // ✅ `child_id` を hidden input に追加
                     if (childId) {
                         const hiddenInput = document.createElement("input");
                         hiddenInput.type = "hidden";
@@ -106,7 +112,6 @@
                         form.appendChild(hiddenInput);
                     }
 
-                     // ✅ ここで submit イベントを上書き
                     form.addEventListener("submit", function (event) {
                         event.preventDefault();
                         submitAddBookForm(form, childId);
@@ -117,77 +122,59 @@
                     modal.style.display = "flex";
                 })
                 .catch(error => {
-                    console.error("❌ フォームのロードに失敗:", error);
                     modalBody.innerHTML = "<p>フォームを読み込めませんでした。</p>";
                 });
         }
 
-        function changeBookshelf() {
-            var selectedUrl = document.getElementById("child").value;
-            console.log("📌 選択されたURL: ", selectedUrl);
-            if (selectedUrl) {
-                window.location.href = selectedUrl;
-            
-            }
+        function closeModal() {
+            document.getElementById("addBookModal").style.display = "none";
         }
 
         function submitAddBookForm(form, childId) {
-            console.log("📌 submitAddBookForm に渡された childId:", childId);  // ← ここに追加！
-            
             const formData = new FormData(form);
-
             if (childId) {
                 formData.append("child_id", childId);
             }
 
             fetch(form.action, {
                 method: "POST",
-                body: formData,
+                body: formData
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    console.log("✅ 絵本の登録成功");
                     closeModal();
                     window.location.href = childId ? `/app/bookshelf/${childId}/` : "{% url 'home' %}";
                 } else {
-                    console.error("❌ 絵本の登録に失敗:", data.error);
+                    console.error("登録失敗:", data.error);
                 }
             })
             .catch(error => {
-                console.error("❌ フォーム送信エラー:", error);
+                console.error("送信エラー:", error);
             });
         }
 
-                function closeModal() {
-            const modal = document.getElementById("addBookModal");
-            modal.style.display = "none";
-            modal.classList.remove("modal-show");
+        function toggleFavorite(el) {
+            const bookId = el.getAttribute("data-book-id");
+            const childId = el.getAttribute("data-child-id");
+
+            fetch("/toggle_favorite/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({ book_id: bookId, child_id: childId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                el.textContent = data.favorited ? "★" : "☆";
+                el.classList.toggle("favorited", data.favorited);
+            })
+            .catch(error => console.error("お気に入りトグル失敗:", error));
         }
-
-        window.onclick = function(event) {
-            const modal = document.getElementById("addBookModal");
-            if (event.target === modal) {
-                closeModal();
-            }
-        }
-
-        
-        document.addEventListener("DOMContentLoaded", function () {
-            const menuButton = document.getElementById("menu-button");
-            const navMenu = document.getElementById("nav-menu");
-
-            if (menuButton && navMenu) {
-                menuButton.addEventListener("click", function () {
-                    console.log("📌 ハンバーガーメニューをクリック");
-                    navMenu.classList.toggle("show");
-                });
-            } else {
-                console.error("❌ menuButton または navMenu が見つかりません");
-            }
-        });
     </script>
 
-    {% endblock %}
+    {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordChangeView
 from django.urls import reverse_lazy
@@ -11,11 +11,14 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.conf import settings 
 from .forms import SignupForm, BookForm, UserUpdateForm
-from .models import Book, Child, Memo
+from .models import Book, Child, Memo, Favorite
 from django.views.generic import ListView
 from .forms import ChildForm
 from django.db import models
 from django.db.models import Q
+from django.contrib.auth.models import AnonymousUser, User
+from django.views.decorators.csrf import csrf_exempt
+
 
 
 # ✅ ポートフォリオ画面（最初に表示するページ）
@@ -24,6 +27,9 @@ class PortfolioView(View):
         return render(request, "portfolio.html")
 
 # ✅ 新規登録画面
+from django.contrib.auth.models import User
+from django.contrib import messages
+
 class SignupView(View):
     def get(self, request):
         form = SignupForm()
@@ -32,13 +38,19 @@ class SignupView(View):
     def post(self, request):
         form = SignupForm(request.POST)
         if form.is_valid():
+            email = form.cleaned_data["email"]
+            if User.objects.filter(username=email).exists():
+                messages.error(request, "このメールアドレスはすでに使用されています。")
+                return render(request, "signup.html", {"form": form})
+
             user = form.save(commit=False)
             user.first_name = form.cleaned_data["first_name"]
-            user.last_name = form.cleaned_data["last_name"]
-            user.email = form.cleaned_data["email"]
+            user.email = email
+            user.username = email  # ← これがないとusername未設定になる
             user.save()
-            login(request, user)  # 自動ログイン
-            return redirect("home")  # ホーム画面へリダイレクト
+            login(request, user)
+            return redirect("home")
+
         return render(request, "signup.html", {"form": form})
 
 # ✅ ログイン画面
@@ -65,7 +77,6 @@ class HomeView(ListView):
         context["selected_child_id"] = self.request.GET.get("child_id", "")
         return context
 
-
 # ✅ 子どもの本棚ページ
 def child_bookshelf(request, child_id):
     selected_child = get_object_or_404(Child, id=child_id)
@@ -88,8 +99,32 @@ def child_bookshelf(request, child_id):
 
 
 # ✅ お気に入りページ
+from django.core.paginator import Paginator
+
+@login_required
 def favorite(request):
-    return render(request, 'favorite.html')
+    selected_child_id = request.GET.get("child_id")
+    selected_child = None
+
+    if selected_child_id:
+        selected_child = get_object_or_404(Child, id=selected_child_id)
+        favorites = Favorite.objects.filter(user=request.user, child=selected_child)
+    else:
+        favorites = Favorite.objects.filter(user=request.user)
+
+    books = Book.objects.filter(id__in=favorites.values_list("book_id", flat=True)).order_by("-created_at")
+
+    # ✅ ページネーション（7x4）
+    paginator = Paginator(books, 28)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "favorite.html", {
+        "books": page_obj,
+        "children": Child.objects.all(),
+        "selected_child_id": selected_child_id,
+        "page_obj": page_obj,
+    })
 
 # ✅ ふりかえりページ
 def review(request):
@@ -109,23 +144,24 @@ def family_invite(request):
 
 
 # ✅ 絵本登録ページ
-from django.http import JsonResponse
-
 def add_book(request):
     if request.method == "POST":
         form = BookForm(request.POST, request.FILES)
         if form.is_valid():
             book = form.save(commit=False)
-            book.save()
+            book.save()  # 先に保存してから child をセット
 
-            # child_id があれば、ManyToManyとしてセット
             child_id = request.POST.get("child_id")
+            print("✅ POSTされたchild_id:", child_id)
             if child_id:
                 try:
                     selected_child = Child.objects.get(id=int(child_id))
-                    book.child.set([selected_child])  # ✅ 修正ポイント
+                    print("✅ 受け取った child_id:", child_id)
+                    book.child.set([selected_child])  # ✅ ManyToMany 関連付け
                 except Child.DoesNotExist:
                     pass
+
+            print("✅ 登録された子ども:", list(book.child.all()))
 
             return JsonResponse({"success": True})
         else:
@@ -135,7 +171,6 @@ def add_book(request):
         form = BookForm()
         return render(request, "add_book.html", {"form": form})
 
-    
 
 # ✅ パスワード変更ビュー
 class CustomPasswordChangeView(PasswordChangeView):
@@ -145,26 +180,53 @@ class CustomPasswordChangeView(PasswordChangeView):
 password_change_view = login_required(CustomPasswordChangeView.as_view())
 
 # ✅ Django標準の新規登録ビュー
+
 def signup_view(request):
     if request.method == "POST":
-        form = SignupForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)  # ✅ 登録後にログイン
-            return redirect('home')  # ✅ ホーム画面へリダイレクト
-    else:
-        form = SignupForm()
+        # 手書きフォームから直接値を取得
+        name = request.POST.get("name")
+        email = request.POST.get("email")
+        password1 = request.POST.get("password1")
+        password2 = request.POST.get("password2")
+
+        if password1 == password2:
+            # ユーザー作成
+            user = User.objects.create_user(username=email, email=email, password=password1)
+            user.first_name = name
+            user.save()
+
+            # 自動ログイン
+            login(request, user)
+            return redirect('home')
+        else:
+            messages.error(request, "パスワードが一致しません")
     
-    return render(request, 'signup.html', {'form': form})
+    return render(request, 'signup.html')
 
 # ✅ 絵本詳細ビュー
+
 def book_detail(request, book_id):
-    try:
-        book = get_object_or_404(Book, id=book_id)
-        return render(request, "book_detail.html", {"book": book})
-    except Exception as e:
-        print(f"❌ book_detail のエラー: {e}")
-        return render(request, "error.html", {"error_message": "絵本の詳細を取得できませんでした。"})
+    book = get_object_or_404(Book, id=book_id)
+
+    if book.child.exists():
+        registered_children = book.child.all()
+    else:
+        registered_children = Child.objects.all()
+
+     # ✅ ログインユーザーに紐づくお気に入りのみ取得
+    if request.user.is_authenticated:
+        favorites = Favorite.objects.filter(user=request.user, book=book)
+        favorited_child_ids = favorites.values_list('child_id', flat=True)
+    else:
+        favorited_child_ids = []
+    print("✅ お気に入り child_ids:", list(favorited_child_ids))
+
+    return render(request, 'book_detail.html', {
+        'book': book,
+        'registered_children': registered_children,
+        'favorited_child_ids': list(favorited_child_ids),  # ← 明示的に list に変換
+    })
+
 
 # ✅ 絵本削除ビュー
 def delete_book(request, book_id):
@@ -177,25 +239,44 @@ def delete_book(request, book_id):
 
     return render(request, "book_detail.html", {"book": book})
 
+
+@login_required
 def home_view(request):
-    children = Child.objects.all().distinct()  # 子ども一覧
-    selected_child_id = request.GET.get("child_id")  # 選択された子ども
+    selected_child_id = request.GET.get("child_id")
     selected_child = None
 
     if selected_child_id:
-        selected_child = get_object_or_404(Child, id=selected_child_id)
-        books = Book.objects.filter(child=selected_child)
+        selected_child = get_object_or_404(Child, id=selected_child_id, user=request.user)
+        books_qs = Book.objects.filter(child=selected_child)
     else:
-        books = Book.objects.filter(child=None)  # 共通の本棚を表示
+        # ✅ すべての本棚（共通＆子ども両方）を対象に表示
+        books_qs = Book.objects.all()
 
-    return render(request, "home.html", {
-        "books": books,
+    # ✅ 画像が空でないものだけを表示
+    books_qs = books_qs.exclude(image='').exclude(image=None).order_by("-created_at")
+
+    # ✅ ページネーション（7x4 = 28件/ページ）
+    paginator = Paginator(books_qs, 28)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    # ✅ 子どもリストをコンテキストに追加（ドロップダウン用）
+    children = Child.objects.filter(user=request.user).distinct()
+
+    context = {
+        "books": page_obj,
+        "page_obj": page_obj,
+        "MEDIA_URL": settings.MEDIA_URL,
         "children": children,
-        "selected_child": selected_child,
-    })  
+        "selected_child_id": selected_child_id,
+    }
+    return render(request, "home.html", context)
+
+  
 
 # ✅ メモを保存するAPI（非同期リクエスト対応）
 @csrf_exempt
+@login_required
 def save_memo(request):
     if request.method == "POST":
         try:
@@ -228,12 +309,77 @@ def child_edit(request):
 
 # ✅ 子ども追加処理
 def child_add(request):
+    # 登録済みの子どもをカウント
+    existing_children = Child.objects.all()
+    if existing_children.count() >= 3:
+        messages.error(request, "子どもは最大3人まで登録できます。")
+        return redirect("child_edit")
+
     if request.method == "POST":
         form = ChildForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('child_edit')  # ✅ 追加後に「子ども情報編集画面」へ戻る
+            return redirect('child_edit')
     else:
         form = ChildForm()
 
-    return render(request, 'child_edit.html', {'form': form})
+    return render(request, 'child_edit.html', {'form': form, 'children': existing_children, 'max_children': 3})
+
+
+
+# ✅ お気に入り
+@csrf_exempt
+@login_required
+def toggle_favorite(request):
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            print("❌ 未ログインのユーザーがアクセス")
+            return JsonResponse({"favorited": False, "error": "ログインが必要です"})
+
+        data = json.loads(request.body)
+        print("✅ 受信したデータ:", data)
+
+        book_id = data.get("book_id")
+        child_id = data.get("child_id")
+
+        try:
+            book = Book.objects.get(id=book_id)
+            child = Child.objects.get(id=child_id)
+        except (Book.DoesNotExist, Child.DoesNotExist):
+            return JsonResponse({"favorited": False, "error": "該当データなし"})
+
+        user = request.user
+        print("✅ ログインユーザー:", user)
+
+        favorite, created = Favorite.objects.get_or_create(user=user, book=book, child=child)
+
+        if not created:
+            favorite.delete()
+            print("⭐ お気に入りを解除しました")
+            return JsonResponse({"favorited": False})
+        else:
+            print("⭐ お気に入りに登録しました")
+            return JsonResponse({"favorited": True})
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+# ✅ こども情報編集画面
+def child_update(request, child_id):
+    child = get_object_or_404(Child, id=child_id)
+    if request.method == "POST":
+        form = ChildForm(request.POST, instance=child)
+        if form.is_valid():
+            form.save()
+            return redirect('child_edit')
+    else:
+        form = ChildForm(instance=child)
+    return render(request, 'child_update.html', {'form': form})
+
+def child_delete(request, child_id):
+    child = get_object_or_404(Child, id=child_id)
+    if request.method == "POST":
+        child.delete()
+        return redirect('child_edit')
+    return render(request, 'child_delete_confirm.html', {'child': child})
+

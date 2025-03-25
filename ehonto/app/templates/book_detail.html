@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load custom_filters %}
 
 {% block content %}
 <div class="book-detail-container">
@@ -12,52 +13,63 @@
     <p>登録日: {{ book.created_at|date:"Y年m月d日" }}</p>
 
     <!-- ✅ 削除ボタン -->
-    <form method="POST" action="{% url 'delete_book' book.id %}" onsubmit="return confirmDelete();">
+    <form method="POST" action="{% url 'delete_book' book.id %}" onsubmit="return confirm('本当に削除しますか？');">
         {% csrf_token %}
         <button type="submit" class="delete-button">削除</button>
     </form>
-</div>
+  </div>
 
-<!-- ✅ 右側（登録した子どもの情報 + メモ入力） -->
-<div class="book-owners">   
-    {% for child in book.children.all %}
-        <div class="child-box">
-            <div class="child-info">
-                <span class="child-icon">👦</span>
-                <span class="child-name">{{ child.name }}</span>
-            </div>
-            
-            <!-- ✅ メモ入力欄 -->
-            <textarea class="memo-box" id="memo-{{ child.id }}" placeholder="メモを入力..."></textarea>
+  <!-- ✅ 右側：登録した子どもの名前表示 -->
+  <div class="book-owners" style="text-align: right;">
+    {% for child in registered_children %}
+      <div class="child-name with-icon" data-child-id="{{ child.id }}">
+        <span class="icon">🧑</span>
+        {{ child.name }}
 
-            <!-- ✅ 保存ボタン -->
-            <button onclick="saveMemo({{ child.id }})" class="memo-save-btn">保存</button>
-        </div>
+        <!-- ⭐ お気に入りトグル -->
+        <span class="favorite-star"
+              data-book-id="{{ book.id }}"
+              data-child-id="{{ child.id }}">
+            {% if child.id in favorited_child_ids %}★{% else %}☆{% endif %}
+        </span>
+      </div>
     {% endfor %}
-</div>
+  </div>
 
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-function saveMemo(childId) {
-    let memoContent = document.getElementById("memo-" + childId).value;
-    console.log("保存されたメモ: " + memoContent);
+document.addEventListener("DOMContentLoaded", function () {
+    const stars = document.querySelectorAll(".favorite-star");
 
-    // ✅ メモを保存するためのAjaxリクエスト
-    fetch('/save_memo/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'  // ✅ CSRF対策
-        },
-        body: JSON.stringify({ child_id: childId, memo: memoContent })
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert("メモが保存されました！");
-    })
-    .catch(error => console.error("メモ保存エラー:", error));
-}
+    stars.forEach(star => {
+        star.addEventListener("click", function () {
+            const bookId = this.dataset.bookId;
+            const childId = this.dataset.childId;
+
+            fetch("{% url 'toggle_favorite' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}",
+                },
+                body: JSON.stringify({ book_id: bookId, child_id: childId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.favorited) {
+                    this.textContent = "★";
+                    this.classList.add("favorited");
+                } else {
+                    this.textContent = "☆";
+                    this.classList.remove("favorited");
+                }
+            })
+            .catch(error => console.error("❌ 通信エラー:", error));
+        });
+    });
+});
 </script>
-{% endblock %}   
+{% endblock %}

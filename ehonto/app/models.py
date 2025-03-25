@@ -1,7 +1,10 @@
 from django.db import models
-from django.utils.timezone import now  # 追加
+from django.utils.timezone import now 
+from django.contrib.auth.models import User
+ 
 
 class Child(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # null=True を削除
     name = models.CharField(max_length=100)
     created_at = models.DateTimeField(default=now)  # ✅ デフォルトを追加
 
@@ -9,15 +12,19 @@ class Child(models.Model):
         return self.name
 
 
+# models.py
 class Book(models.Model):
-    title = models.CharField(max_length=255)
-    author = models.CharField(max_length=255)
-    image = models.ImageField(upload_to="book_images/", null=True, blank=True)  # ✅ NULL を許可
+    title = models.CharField(max_length=100)
+    author = models.CharField(max_length=100, blank=True)
+    image = models.ImageField(upload_to='books/')
     created_at = models.DateTimeField(auto_now_add=True)
-    child = models.ManyToManyField(Child, blank=True, related_name="books")  # ✅ 多対多に変更
-   
+
+    # ✅ 多対多関係を定義（共通本棚対応）
+    child = models.ManyToManyField(Child, related_name="books")
+
     def __str__(self):
         return self.title
+
 
 class Memo(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="memos")
@@ -27,3 +34,12 @@ class Memo(models.Model):
 
     def __str__(self):
         return f"{self.child.name} のメモ: {self.book.title}"    
+    
+
+class Favorite(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    child = models.ForeignKey(Child, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('user', 'book', 'child')

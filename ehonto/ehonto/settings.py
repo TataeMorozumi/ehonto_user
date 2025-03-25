@@ -97,5 +97,5 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # ✅ 認証関連
 LOGIN_URL = '/login/'  # ログインページ
-LOGIN_REDIRECT_URL = '/home/'  # ログイン後にリダイレクトするページ
-LOGOUT_REDIRECT_URL = '/login/'  # ログアウト後にリダイレクトするページ
+LOGIN_REDIRECT_URL = '/app/home/'  # ログイン後にリダイレクトするページ
+LOGOUT_REDIRECT_URL = '/app/login/'  # ログアウト後にリダイレクトするページ

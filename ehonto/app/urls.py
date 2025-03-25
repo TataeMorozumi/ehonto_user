@@ -8,7 +8,7 @@ from .views import (
     child_edit, child_add, child_bookshelf,
     favorite, review, more_read,
     settings_view, family_invite,
-    signup_view, save_memo
+    signup_view, save_memo, home_view
 )
 
 
@@ -27,12 +27,11 @@ urlpatterns = [
     path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(template_name='password_change_done.html'), name='password_change_done'),
 
     # ✅ 認証関連
-    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('signup/', views.signup_view, name='signup'),
 
     # ✅ ホーム & 絵本登録
-    path('home/', views.HomeView.as_view(), name='home'),
-    path('', views.HomeView.as_view(), name='home'),  # `/` でホーム画面にアクセス
+    path('', home_view, name='home'),  
+    path('home/', home_view, name='home_alt'),  
     path('add_book/', views.add_book, name='add_book'),
 
     # ✅ 子どもの本棚ページ（修正）
@@ -45,11 +44,20 @@ urlpatterns = [
     # ✅ 子ども情報編集・追加
     path('child/edit/', views.child_edit, name='child_edit'),
     path('child/add/', views.child_add, name='child_add'),
+    path('child/<int:child_id>/edit/', views.child_update, name='child_update'),
+    path('child/<int:child_id>/delete/', views.child_delete, name='child_delete'),
+
 
     # ✅ メモ
     path('save_memo/', views.save_memo, name='save_memo'),
+
+    # ✅ お気に入り
+    path('toggle_favorite/', views.toggle_favorite, name='toggle_favorite'),
+
 ]
 
 # ✅ メディアファイルの配信設定（画像を正しく表示するために必要）
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+

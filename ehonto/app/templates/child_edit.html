@@ -3,6 +3,7 @@
 {% block content %}
 <div class="container">
     <h2>子ども情報編集</h2>
+    <a href="{% url 'child_add' %}" class="btn btn-success">＋ 子どもを追加</a>
 
     <!-- ✅ エラーメッセージを表示 -->
     {% if messages %}
@@ -16,7 +17,11 @@
     <!-- ✅ 登録済みの子ども一覧 -->
     <ul>
         {% for child in children %}
-            <li>{{ child.name }}</li>
+            <li>
+                {{ child.name }}
+                <a href="{% url 'child_update' child.id %}">編集</a> |
+                <a href="{% url 'child_delete' child.id %}" onclick="return confirm('本当に削除しますか？');">削除</a>
+            </li>
         {% empty %}
             <p>登録された子どもがいません。</p>
         {% endfor %}
@@ -25,16 +30,22 @@
     <hr>
 
     <!-- ✅ 3人以上ならフォームを非表示にする -->
-{% if children|length < max_children %}
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-success">登録</button>
-</form>
-{% else %}
-<p style="color: red;">※ 子どもの登録は最大3人までです。</p>
-{% endif %}
+    {% if children|length < max_children %}
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">登録</button>
+    </form>
+    {% else %}
+    <p style="color: red;">※ 子どもの登録は最大3人までです。</p>
+    {% endif %}
 
-<a href="{% url 'home' %}" class="btn btn-secondary">キャンセル</a>
+    <a href="{% url 'home' %}" class="btn btn-secondary">キャンセル</a>
+</div>
+{% endblock %}
 
+{% block scripts %}
+<script>
+// 今後の拡張用スクリプトを書く場所
+</script>
 {% endblock %}

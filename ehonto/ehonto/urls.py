@@ -23,14 +23,12 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', PortfolioView.as_view(), name="portfolio"),  # ✅ ポートフォリオをデフォルトページに設定
     path('signup/', SignupView.as_view(), name="signup"),
-    path('login/', LoginView.as_view(), name="login"),
-    path('home/', HomeView.as_view(), name="home"),
     path('settings/', settings_view, name="settings_view"),
     path('app/', include('app.urls')),  # ✅ `app/urls.py` でURLを管理
 
     # ✅ Django標準のログイン・ログアウト
-    path('accounts/login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
-    path('accounts/logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
+    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 ]
 
 # ✅ メディアファイルの配信設定

@@ -1,12 +1,17 @@
-<form method="POST" action="{% url 'add_book' %}" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
+{% extends "base.html" %}
 
-    <!-- ✅ hidden input：モーダルから渡された child_id を受け取る用 -->
-    {% if request.GET.child_id %}
-        <input type="hidden" name="child_id" value="{{ request.GET.child_id }}">
-    {% endif %}
+{% block content %}
+<div class="container">
+    <h2>絵本を追加</h2>
 
-    <button type="submit" class="btn btn-success">登録</button>
-    <a href="{% url 'home' %}" class="btn btn-secondary">キャンセル</a>
-</form>
+    <form method="POST" action="{% url 'add_book' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit" class="btn btn-success">登録</button>
+        <a href="{% url 'home' %}" class="btn btn-secondary">キャンセル</a>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}{% endblock %}
