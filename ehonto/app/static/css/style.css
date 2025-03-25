@@ -381,14 +381,25 @@
 
 /* ✅ メモ欄のスタイル */
 .memo-box {
-    width: 100%;
-    height: 60px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
     padding: 10px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    resize: none;
+    background-color: #f9f9f9;
+    margin-top: 8px;
+    width: 100%;
 }
+
+.memo-box textarea {
+    width: 100%;
+    padding: 6px;
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    resize: vertical;
+    box-sizing: border-box;
+    margin-bottom: 6px;
+}
+
 
 /* ✅ 保存ボタンのスタイル */
 .memo-save-btn {
@@ -421,6 +432,7 @@
     width: 100%;
     padding-right: 40px;   /* ✅ 右端に余白を少し追加 */
 }
+
 
 .child-box {
     width: auto;
@@ -498,19 +510,26 @@
 }
 
 /* ✅ ★マーク */
-.favorite-btn {
-    font-size: 1.8rem;
+
+.favorite-star {
+    font-size: 24px;         /* 大きくする */
     cursor: pointer;
-    transition: color 0.2s;
-    user-select: none;
-  }
-  
-  .favorite-btn:hover {
-    color: #facc15; /* Tailwindのyellow-400相当 */
-  }
-  
-  .favorite-star {
-    cursor: pointer !important;
-    user-select: none;
-  }
+    padding: 4px 8px;
+    border-radius: 50%;      /* 丸く見せる */
+    color: #f1c40f;          /* 星の色 */
+    display: inline-block;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.2s ease-in-out;
+}
+
+.favorite-star.favorited {
+    background-color: #ffeaa7;
+    color: #e67e22;
+    transform: scale(1.1);
+}
+
+.favorite-star:hover {
+    background-color: #fff8dc;
+    transform: scale(1.15);
+}
   

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load dict_extras %}
 {% load static %}
 {% load custom_filters %}
 
@@ -22,19 +23,36 @@
   <!-- ✅ 右側：登録した子どもの名前表示 -->
   <div class="book-owners" style="text-align: right;">
     {% for child in registered_children %}
-      <div class="child-name with-icon" data-child-id="{{ child.id }}">
-        <span class="icon">🧑</span>
-        {{ child.name }}
-
-        <!-- ⭐ お気に入りトグル -->
-        <span class="favorite-star"
-              data-book-id="{{ book.id }}"
-              data-child-id="{{ child.id }}">
+      <div class="child-entry" data-child-id="{{ child.id }}">
+  
+        <!-- 👧 名前＋星＋よんだ -->
+        <div class="child-header">
+          <span class="child-icon">🧑</span>
+          <span class="child-name">{{ child.name }}</span>
+  
+          <!-- ⭐ お気に入り -->
+          <span class="favorite-star" data-book-id="{{ book.id }}" data-child-id="{{ child.id }}">
             {% if child.id in favorited_child_ids %}★{% else %}☆{% endif %}
-        </span>
+          </span>
+  
+          <!-- 📖 よんだ -->
+          <button class="read-button" data-book-id="{{ book.id }}" data-child-id="{{ child.id }}">よんだ</button>
+          <span id="read-count-{{ child.id }}">
+            {{ read_counts|get_item:child.id|default:"0" }} 回
+          </span>
+        </div>
+  
+        <!-- ✏️ メモ欄（↓名前・ボタンの下に配置）-->
+        <div class="memo-box">
+          <textarea id="memo-{{ child.id }}">{{ memos|get_item:child.id }}</textarea>
+          <button class="memo-save-btn" onclick="saveMemo({{ book.id }}, {{ child.id }})">メモ保存</button>
+        </div>
+        
+  
       </div>
     {% endfor %}
   </div>
+  
 
 </div>
 {% endblock %}
@@ -70,6 +88,55 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => console.error("❌ 通信エラー:", error));
         });
     });
+
+
+    // 📖 よんだボタンの処理
+      const readButtons = document.querySelectorAll(".read-button");
+
+      readButtons.forEach(button => {
+          button.addEventListener("click", function () {
+              const bookId = this.dataset.bookId;
+              const childId = this.dataset.childId;
+
+              fetch("{% url 'increment_read_count' %}", {
+                  method: "POST",
+                  headers: {
+                      "Content-Type": "application/x-www-form-urlencoded",
+                      "X-CSRFToken": "{{ csrf_token }}",
+                  },
+                  body: `book_id=${bookId}&child_id=${childId}`
+              })
+              .then(response => response.json())
+              .then(data => {
+                  console.log("✅ 取得したデータ:", data); 
+                  const countSpan = document.getElementById(`read-count-${childId}`);
+                  countSpan.textContent = `${data.count}回`;
+                  
+              })
+              .catch(error => console.error("❌ 通信エラー:", error));
+          });
+    });
+
+    function saveMemo(bookId, childId) {
+      const content = document.getElementById(`memo-${childId}`).value;
+
+      fetch("{% url 'save_memo' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": "{{ csrf_token }}",
+        },
+        body: `book_id=${bookId}&child_id=${childId}&content=${encodeURIComponent(content)}`
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert("💾 メモが保存されました！");
+      })
+      .catch(error => {
+        console.error("❌ メモ保存エラー:", error);
+      });
+    }
+
 });
 </script>
 {% endblock %}

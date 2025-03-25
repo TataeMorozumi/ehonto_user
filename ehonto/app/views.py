@@ -11,13 +11,13 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.conf import settings 
 from .forms import SignupForm, BookForm, UserUpdateForm
-from .models import Book, Child, Memo, Favorite
+from .models import Book, Child, Memo, Favorite, ReadCount
 from django.views.generic import ListView
 from .forms import ChildForm
 from django.db import models
-from django.db.models import Q
 from django.contrib.auth.models import AnonymousUser, User
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 
 
 
@@ -219,14 +219,24 @@ def book_detail(request, book_id):
         favorited_child_ids = favorites.values_list('child_id', flat=True)
     else:
         favorited_child_ids = []
-    print("✅ お気に入り child_ids:", list(favorited_child_ids))
+    
+     # ✅ 各子どもに対する読んだ回数を取得
+    from .models import ReadCount
+    read_counts_qs = ReadCount.objects.filter(book=book)
+    read_counts = {rc.child.id: rc.count for rc in read_counts_qs}
+
+     # ✅ メモを渡すための追加処理
+    from .models import Memo
+    memos_qs = Memo.objects.filter(book=book)
+    memos = {memo.child.id: memo.content for memo in memos_qs}
 
     return render(request, 'book_detail.html', {
         'book': book,
         'registered_children': registered_children,
-        'favorited_child_ids': list(favorited_child_ids),  # ← 明示的に list に変換
+        'favorited_child_ids': list(favorited_child_ids),  
+        'read_counts': read_counts,
+        'memos': memos,
     })
-
 
 # ✅ 絵本削除ビュー
 def delete_book(request, book_id):
@@ -275,20 +285,21 @@ def home_view(request):
   
 
 # ✅ メモを保存するAPI（非同期リクエスト対応）
-@csrf_exempt
+@require_POST
 @login_required
 def save_memo(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            child = Child.objects.get(id=data["child_id"])
-            book = Book.objects.get(id=data["book_id"])
-            memo = Memo.objects.create(book=book, child=child, content=data["memo"])
-            return JsonResponse({"status": "success", "memo": memo.content})
-        except Exception as e:
-            return JsonResponse({"status": "error", "message": str(e)})
+    book_id = request.POST.get("book_id")
+    child_id = request.POST.get("child_id")
+    content = request.POST.get("content")
 
-    return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)  
+    book = get_object_or_404(Book, id=book_id)
+    child = get_object_or_404(Child, id=child_id)
+
+    memo, created = Memo.objects.get_or_create(book=book, child=child)
+    memo.content = content
+    memo.save()
+
+    return JsonResponse({"status": "ok", "content": memo.content})
 
 # ✅ 子ども情報編集画面
 def child_edit(request):
@@ -383,3 +394,18 @@ def child_delete(request, child_id):
         return redirect('child_edit')
     return render(request, 'child_delete_confirm.html', {'child': child})
 
+# ✅ よんだ回数
+@require_POST
+@login_required
+def increment_read_count(request):
+    book_id = request.POST.get("book_id")
+    child_id = request.POST.get("child_id")
+
+    book = get_object_or_404(Book, id=book_id)
+    child = get_object_or_404(Child, id=child_id)
+
+    read_count, created = ReadCount.objects.get_or_create(book=book, child=child)
+    read_count.count += 1
+    read_count.save()
+
+    return JsonResponse({"count": read_count.count})

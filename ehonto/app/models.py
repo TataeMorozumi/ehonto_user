@@ -43,3 +43,14 @@ class Favorite(models.Model):
 
     class Meta:
         unique_together = ('user', 'book', 'child')
+
+class ReadCount(models.Model):
+    child = models.ForeignKey(Child, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    count = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = ('child', 'book')
+
+        def __str__(self):
+            return f"{self.child.name} - {self.book.title}: {self.count}回"

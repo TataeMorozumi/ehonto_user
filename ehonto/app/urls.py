@@ -54,6 +54,9 @@ urlpatterns = [
     # ✅ お気に入り
     path('toggle_favorite/', views.toggle_favorite, name='toggle_favorite'),
 
+    # ✅ よんだ回数
+    path('increment_read_count/', views.increment_read_count, name='increment_read_count'),
+
 ]
 
 # ✅ メディアファイルの配信設定（画像を正しく表示するために必要）
