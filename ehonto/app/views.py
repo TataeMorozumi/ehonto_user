@@ -18,7 +18,7 @@ from django.db import models
 from django.contrib.auth.models import AnonymousUser, User
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Q
 from collections import defaultdict
 
 
@@ -154,16 +154,12 @@ def add_book(request):
             book.save()  # 先に保存してから child をセット
 
             child_id = request.POST.get("child_id")
-            print("✅ POSTされたchild_id:", child_id)
             if child_id:
                 try:
                     selected_child = Child.objects.get(id=int(child_id))
-                    print("✅ 受け取った child_id:", child_id)
                     book.child.set([selected_child])  # ✅ ManyToMany 関連付け
                 except Child.DoesNotExist:
                     pass
-
-            print("✅ 登録された子ども:", list(book.child.all()))
 
             return JsonResponse({"success": True})
         else:
@@ -171,8 +167,15 @@ def add_book(request):
 
     else:
         form = BookForm()
+        selected_child_id = request.GET.get("child_id") 
+
         children = Child.objects.filter(user=request.user)
-        return render(request, "add_book.html", {"form": form, "children": children})
+
+        return render(request, "add_book.html", {
+            "form": form,
+            "selected_child_id": selected_child_id, 
+            "children": children,
+        })
 
 
 # ✅ パスワード変更ビュー
@@ -495,6 +498,21 @@ def family_invite(request):
     return render(request, "family_invite.html", {
         "invite_url": invite_url,
         "invited_users": invited,
+    })
+
+# ✅ 検索結果ページ
+def search_results(request):
+    query = request.GET.get("q")
+    results = []
+
+    if query:
+        results = Book.objects.filter(
+            Q(title__icontains=query) | Q(author__icontains=query)
+        ).order_by("-created_at")
+
+    return render(request, "search_results.html", {
+        "query": query,
+        "results": results
     })
 
 

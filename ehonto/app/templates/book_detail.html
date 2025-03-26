@@ -16,12 +16,14 @@
     <!-- ✅ 編集ボタン（画像の下などに配置） -->
     <button class="edit-book-button" onclick="openEditModal()">編集</button>
 
-
-    <!-- ✅ 削除ボタン -->
-    <form method="POST" action="{% url 'delete_book' book.id %}" onsubmit="return confirm('本当に削除しますか？');">
-        {% csrf_token %}
-        <button type="submit" class="delete-button">削除</button>
+    <!-- ✅ ごみ箱アイコンボタン -->
+    <form method="POST" action="{% url 'delete_book' book.id %}" onsubmit="return confirm('本当に削除しますか？');" style="display: inline;">
+      {% csrf_token %}
+      <button type="submit" class="delete-icon-button" title="削除">
+        🗑️
+      </button>
     </form>
+
   </div>
 
   <!-- ✅ 右側：登録した子どもの名前表示 -->

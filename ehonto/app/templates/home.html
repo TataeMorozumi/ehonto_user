@@ -4,25 +4,31 @@
 
 {% block content %}
 
-<!-- ✅ 子どもごとの本棚選択ドロップダウン + アイコン -->
-<div class="child-selector">
-    <form method="get" action="{% url 'home' %}" id="childSelectForm">
+<!-- ✅ 子ども本棚ドロップダウン ＋ 検索フォーム 横並び -->
+<div class="toolbar-container">
+    <!-- 🔽 ドロップダウン -->
+    <div class="child-selector">
+      <form method="get" action="{% url 'home' %}" id="childSelectForm">
         <label for="child">本棚を選択:</label>
         <select name="child_id" id="child" onchange="document.getElementById('childSelectForm').submit()">
-            <option value="" {% if not selected_child_id %}selected{% endif %}>共通の本棚</option>
-            {% for child in children %}
-                <option value="{{ child.id }}" {% if selected_child_id == child.id|stringformat:"s" %}selected{% endif %}>
-                    {{ child.name }}
-                </option>
-            {% endfor %}
+          <option value="" {% if not selected_child_id %}selected{% endif %}>共通の本棚</option>
+          {% for child in children %}
+            <option value="{{ child.id }}" {% if selected_child_id == child.id|stringformat:"s" %}selected{% endif %}>
+              {{ child.name }}
+            </option>
+          {% endfor %}
         </select>
-    
-        <!-- ✅ アイコンボタンをそのまま -->
         <a href="{% url 'child_edit' %}" class="child-edit-icon">📝</a>
+      </form>
+    </div>
+  
+    <!-- 🔍 検索フォーム -->
+    <form method="get" action="{% url 'search_results' %}" class="search-form">
+      <input type="text" name="q" placeholder="タイトル・作者で検索" class="search-input">
+      <button type="submit" class="search-button">検索</button>
     </form>
-    
-</div>
-
+  </div>
+  
 <!-- ✅ 登録された絵本の表示エリア -->
 <div class="book-container">
     {% for book in books %}
@@ -54,7 +60,7 @@
 </div>
 
 <!-- ✅ 「＋」ボタンを押すとモーダルを開く -->
-<a href="#" class="add-button" onclick="event.preventDefault(); loadAddBookModal('{{ selected_child.id }}');">＋</a>
+<a href="#" class="add-button" onclick="event.preventDefault(); loadAddBookModal('{{ selected_child_id }}');">＋</a>
 
 <!-- ✅ モーダルウィンドウ -->
 <div id="addBookModal" class="modal">
@@ -68,8 +74,11 @@
 
 {% endblock %}  <!-- ✅ content ブロックの終了 -->
 
+
 {% block scripts %}
 <script>
-// ✅ base.html にすでにモーダルやドロップダウンのJSがあれば、ここは空でもOK
+
 </script>
 {% endblock %}
+
+

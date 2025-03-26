@@ -58,6 +58,10 @@ urlpatterns = [
     # ✅ よんだ回数
     path('increment_read_count/', views.increment_read_count, name='increment_read_count'),
 
+    # ✅ 検索結果ページ
+    path("search/", views.search_results, name="search_results"),
+
+
 ]
 
 # ✅ メディアファイルの配信設定（画像を正しく表示するために必要）

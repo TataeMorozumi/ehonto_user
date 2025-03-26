@@ -4,23 +4,51 @@
 <div class="container">
     <h2>絵本を追加</h2>
 
-    <form method="POST" action="{% url 'add_book' %}" enctype="multipart/form-data">
+     <form method="POST" action="{% url 'add_book' %}" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
-
-        <label for="child_id">本棚を選択：</label>
-        <select name="child_id" id="child_id" required>
-        <option value="">-- 選択してください --</option>
-        {% for child in children %}
-            <option value="{{ child.id }}">{{ child.name }}</option>
-        {% endfor %}
-        </select>
-
-
-        <button type="submit" class="btn btn-success">登録</button>
-        <a href="{% url 'home' %}" class="btn btn-secondary">キャンセル</a>
-    </form>
+      
+        <!-- ✅ 本棚を選択する hidden フィールド -->
+      <input type="hidden" name="child_id" value="{{ selected_child_id }}">
+      
+      <button type="submit" class="submit-button">登録</button>
+      </form>
+      
+      
 </div>
 {% endblock %}
 
-{% block scripts %}{% endblock %}
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.querySelector("form");
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();  // ✅ ページリロードを防ぐ
+
+    const formData = new FormData(form);
+
+    fetch("{% url 'add_book' %}", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": "{{ csrf_token }}",
+      },
+      body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert("✅ 登録が完了しました！");
+        closeModal();  // ✅ モーダルを閉じる
+        location.reload();  // ✅ 本棚を再読み込み
+      } else {
+        alert("❌ 登録に失敗しました：" + (data.error || "不明なエラー"));
+      }
+    })
+    .catch(error => {
+      console.error("通信エラー:", error);
+      alert("❌ 通信エラーが発生しました");
+    });
+  });
+});
+</script>
+{% endblock %}

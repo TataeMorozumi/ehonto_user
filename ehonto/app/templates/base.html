@@ -175,6 +175,62 @@
         }
     </script>
 
-    {% block scripts %}{% endblock %}
+{% block scripts %}
+<script>
+  // ⭐ 共通のモーダル表示関数（子どもID付き）
+  function loadAddBookModal(selectedChildId) {
+    const modal = document.getElementById("addBookModal");
+    const modalBody = document.getElementById("modal-body");
+
+    fetch("{% url 'add_book' %}?child_id=" + selectedChildId)
+      .then(response => response.text())
+      .then(html => {
+        modalBody.innerHTML = html;
+        modal.style.display = "block";
+      })
+      .catch(error => {
+        console.error("❌ モーダルの読み込みエラー:", error);
+        modalBody.innerHTML = "<p>フォームの読み込みに失敗しました。</p>";
+        modal.style.display = "block";
+      });
+  }
+
+  function closeModal() {
+    document.getElementById("addBookModal").style.display = "none";
+  }
+  
+  // ✅ 登録ボタン処理（モーダル内）
+document.addEventListener("submit", function (event) {
+  if (event.target && event.target.id === "addBookForm") {
+    event.preventDefault();
+
+    const form = event.target;
+    const formData = new FormData(form);
+
+    fetch("{% url 'add_book' %}", {
+      method: "POST",
+      body: formData,
+      headers: {
+        "X-CSRFToken": formData.get("csrfmiddlewaretoken")
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        closeModal(); // ✅ モーダルを閉じる
+        window.location.reload(); // ✅ ページをリロード
+      } else {
+        alert("❌ 登録に失敗しました: " + (data.error || ""));
+      }
+    })
+    .catch(error => {
+      console.error("❌ 通信エラー:", error);
+    });
+  }
+});
+
+</script>
+{% endblock %}
+
 </body>
 </html>
