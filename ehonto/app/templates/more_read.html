@@ -1,16 +1,50 @@
-{% extends 'base.html' %}
-
-{% block title %}もっとよんで{% endblock %}
+{% extends "base.html" %}
+{% load static %}
+{% load custom_filters %}
 
 {% block content %}
-<div class="container mx-auto p-4">
-  <h1 class="text-2xl font-bold mb-4">もっとよんで</h1>
-  <p class="text-gray-600">読んだ回数の低い本を表示します。</p>
-</div>
-{% endblock %}
+<h2 style="text-align: center;">もっとよんで</h2>
 
-{% block scripts %}
-<script>
-  console.log("もっとよんでページが読み込まれました。");
-</script>
+<!-- 🔽 子ども選択ドロップダウン -->
+<div class="child-selector">
+  <label for="child">本棚を選択:</label>
+  <select id="child" name="child_id" onchange="location.href='?child_id=' + this.value;">
+    <option value="" {% if not selected_child_id %}selected{% endif %}>共通の本棚</option>
+    {% for child in children %}
+      <option value="{{ child.id }}" {% if child.id|stringformat:"s" == selected_child_id %}selected{% endif %}>
+        {{ child.name }}
+      </option>
+    {% endfor %}
+  </select>
+</div>
+
+<!-- 📚 絵本グリッド（3列×2段） -->
+<div class="book-container more-read">
+  {% for book in books %}
+    <div class="book-item with-tooltip">
+      <a href="{% url 'book_detail' book.id %}">
+        <img
+          class="book-image"
+          src="{{ book.image.url }}"
+          alt="{{ book.title }}"
+        >
+          <!-- ✅ 共通本棚なら全員分表示 -->
+          {% if not selected_child_id %}
+          <span class="tooltip-text">
+            {% with tooltip_counts|get_item:book.id as count_dict %}
+              {% for name, count in count_dict.items %}
+                {{ name }}：{{ count }}回<br>
+              {% endfor %}
+            {% endwith %}
+          </span>
+        {% else %}
+          <span class="tooltip-text">
+            {{ read_counts|get_item:book.id|default:0 }} 回よんだ
+          </span>
+        {% endif %}
+        
+      </a>
+    </div>
+  {% endfor %}
+</div>
 {% endblock %}

@@ -40,6 +40,7 @@ urlpatterns = [
     # ✅ 絵本の詳細 & 削除
     path('book/<int:book_id>/', views.book_detail, name='book_detail'),
     path('book/<int:book_id>/delete/', views.delete_book, name='delete_book'),
+    path("book/<int:book_id>/edit/", views.edit_book, name="edit_book"),
 
     # ✅ 子ども情報編集・追加
     path('child/edit/', views.child_edit, name='child_edit'),

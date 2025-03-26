@@ -8,6 +8,15 @@
         {% csrf_token %}
         {{ form.as_p }}
 
+        <label for="child_id">本棚を選択：</label>
+        <select name="child_id" id="child_id" required>
+        <option value="">-- 選択してください --</option>
+        {% for child in children %}
+            <option value="{{ child.id }}">{{ child.name }}</option>
+        {% endfor %}
+        </select>
+
+
         <button type="submit" class="btn btn-success">登録</button>
         <a href="{% url 'home' %}" class="btn btn-secondary">キャンセル</a>
     </form>

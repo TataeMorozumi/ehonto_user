@@ -54,3 +54,7 @@ class ReadCount(models.Model):
 
         def __str__(self):
             return f"{self.child.name} - {self.book.title}: {self.count}回"
+        
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    invited_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="invited_users")       

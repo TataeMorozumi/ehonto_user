@@ -8,3 +8,6 @@ register = template.Library()
 @register.filter
 def is_favorited(child, book):
     return Favorite.objects.filter(child=child, book=book).exists()
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)

@@ -3,7 +3,7 @@ from django.views import View
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordChangeView
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
@@ -11,13 +11,15 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.conf import settings 
 from .forms import SignupForm, BookForm, UserUpdateForm
-from .models import Book, Child, Memo, Favorite, ReadCount
+from .models import Book, Child, Memo, Favorite, ReadCount, UserProfile 
 from django.views.generic import ListView
 from .forms import ChildForm
 from django.db import models
 from django.contrib.auth.models import AnonymousUser, User
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.db.models import Count, Sum
+from collections import defaultdict
 
 
 
@@ -169,7 +171,8 @@ def add_book(request):
 
     else:
         form = BookForm()
-        return render(request, "add_book.html", {"form": form})
+        children = Child.objects.filter(user=request.user)
+        return render(request, "add_book.html", {"form": form, "children": children})
 
 
 # ✅ パスワード変更ビュー
@@ -180,10 +183,8 @@ class CustomPasswordChangeView(PasswordChangeView):
 password_change_view = login_required(CustomPasswordChangeView.as_view())
 
 # ✅ Django標準の新規登録ビュー
-
 def signup_view(request):
     if request.method == "POST":
-        # 手書きフォームから直接値を取得
         name = request.POST.get("name")
         email = request.POST.get("email")
         password1 = request.POST.get("password1")
@@ -195,12 +196,21 @@ def signup_view(request):
             user.first_name = name
             user.save()
 
+            # ✅ 招待URLに含まれるinviteパラメータから招待者を特定
+            invited_by_id = request.GET.get("invite")
+            if invited_by_id:
+                try:
+                    inviter = User.objects.get(id=invited_by_id)
+                    UserProfile.objects.create(user=user, invited_by=inviter)
+                except User.DoesNotExist:
+                    pass  # 存在しないユーザーIDなら無視
+
             # 自動ログイン
             login(request, user)
             return redirect('home')
         else:
             messages.error(request, "パスワードが一致しません")
-    
+
     return render(request, 'signup.html')
 
 # ✅ 絵本詳細ビュー
@@ -409,3 +419,82 @@ def increment_read_count(request):
     read_count.save()
 
     return JsonResponse({"count": read_count.count})
+
+# ✅ もっとよんでページ
+def more_read(request):
+    selected_child_id = request.GET.get("child_id")
+    children = Child.objects.filter(user=request.user)
+    selected_child = None
+
+    if selected_child_id:
+        selected_child = get_object_or_404(Child, id=selected_child_id, user=request.user)
+        books = Book.objects.filter(child=selected_child).distinct()
+    else:
+        books = Book.objects.filter(child=None).distinct()
+
+    # 絵本ごとの読んだ回数を取得
+    book_with_counts = []
+    for book in books:
+        if selected_child:
+            count = ReadCount.objects.filter(book=book, child=selected_child).aggregate(total=Sum("count"))["total"] or 0
+        else:
+            count = 0  # 共通の本棚では後で個別に集計
+        book_with_counts.append((book, count))
+
+    sorted_books = sorted(book_with_counts, key=lambda x: x[1])[:6]
+    sorted_books_only = [b[0] for b in sorted_books]
+
+    # ✅ 読んだ回数データの辞書づくり
+    read_counts = {}
+    tooltip_counts = defaultdict(dict)
+
+    if selected_child:
+        read_counts = {
+            book.id: ReadCount.objects.filter(book=book, child=selected_child).aggregate(total=Sum("count"))["total"] or 0
+            for book in sorted_books_only
+        }
+    else:
+        for book in sorted_books_only:
+            for child in children:
+                count = ReadCount.objects.filter(book=book, child=child).aggregate(total=Sum("count"))["total"] or 0
+                tooltip_counts[book.id][child.name] = count
+
+    return render(request, "more_read.html", {
+        "books": sorted_books_only,
+        "children": children,
+        "selected_child_id": selected_child_id,
+        "read_counts": read_counts,
+        "tooltip_counts": tooltip_counts,
+    })
+
+@login_required
+def edit_book(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+
+    if request.method == "POST":
+        book.title = request.POST.get("title")
+        book.author = request.POST.get("author")
+
+        # ✅ 新しい画像があれば更新
+        if 'image' in request.FILES:
+            book.image = request.FILES['image']
+
+        book.save()
+        return redirect("book_detail", book_id=book.id)
+    
+@login_required
+def family_invite(request):
+    # 招待URLを作成
+    invite_url = request.build_absolute_uri(
+        reverse("signup") + f"?invite={request.user.id}"
+    )
+
+    # 自分が招待した家族（UserProfile 経由）
+    invited = User.objects.filter(userprofile__invited_by=request.user)
+
+    return render(request, "family_invite.html", {
+        "invite_url": invite_url,
+        "invited_users": invited,
+    })
+
+

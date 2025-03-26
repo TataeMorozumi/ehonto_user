@@ -10,8 +10,12 @@
   <div class="book-info">
     <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-cover">
     <h2>{{ book.title }}</h2>
-    <p>著者: {{ book.author }}</p>
+    <p>作者: {{ book.author }}</p>
     <p>登録日: {{ book.created_at|date:"Y年m月d日" }}</p>
+
+    <!-- ✅ 編集ボタン（画像の下などに配置） -->
+    <button class="edit-book-button" onclick="openEditModal()">編集</button>
+
 
     <!-- ✅ 削除ボタン -->
     <form method="POST" action="{% url 'delete_book' book.id %}" onsubmit="return confirm('本当に削除しますか？');">
@@ -23,38 +27,64 @@
   <!-- ✅ 右側：登録した子どもの名前表示 -->
   <div class="book-owners" style="text-align: right;">
     {% for child in registered_children %}
-      <div class="child-entry" data-child-id="{{ child.id }}">
-  
-        <!-- 👧 名前＋星＋よんだ -->
-        <div class="child-header">
-          <span class="child-icon">🧑</span>
+    <div class="child-entry">
+      <div class="child-info-row">
+        <!-- 🧑 名前 + ☆ + よんだ + 回数 -->
+        <div class="child-meta">
+          <span class="child-icon">🧒</span>
           <span class="child-name">{{ child.name }}</span>
-  
-          <!-- ⭐ お気に入り -->
-          <span class="favorite-star" data-book-id="{{ book.id }}" data-child-id="{{ child.id }}">
+          <span class="favorite-star"
+                data-book-id="{{ book.id }}"
+                data-child-id="{{ child.id }}">
             {% if child.id in favorited_child_ids %}★{% else %}☆{% endif %}
           </span>
-  
-          <!-- 📖 よんだ -->
-          <button class="read-button" data-book-id="{{ book.id }}" data-child-id="{{ child.id }}">よんだ</button>
-          <span id="read-count-{{ child.id }}">
+          <button class="read-button"
+                  data-book-id="{{ book.id }}"
+                  data-child-id="{{ child.id }}">
+            よんだ
+          </button>
+          <span class="read-count" id="read-count-{{ child.id }}">
             {{ read_counts|get_item:child.id|default:"0" }} 回
           </span>
         </div>
-  
-        <!-- ✏️ メモ欄（↓名前・ボタンの下に配置）-->
-        <div class="memo-box">
+    
+        <!-- 📝 メモ欄 -->
+        <div class="memo-box-inline">
           <textarea id="memo-{{ child.id }}">{{ memos|get_item:child.id }}</textarea>
           <button class="memo-save-btn" onclick="saveMemo({{ book.id }}, {{ child.id }})">メモ保存</button>
         </div>
-        
-  
       </div>
-    {% endfor %}
-  </div>
-  
-
+    </div>
+  {% endfor %}
 </div>
+<!-- ✅ 編集モーダル -->
+<div id="editBookModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeEditModal()">&times;</span>
+    <h3>絵本情報を編集</h3>
+
+    <form id="editBookForm" method="POST" enctype="multipart/form-data" action="{% url 'edit_book' book.id %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>タイトル：</label>
+        <input type="text" name="title" value="{{ book.title }}">
+      </div>
+
+      <div class="form-group">
+        <label>作者：</label>
+        <input type="text" name="author" value="{{ book.author }}">
+      </div>
+
+      <div class="form-group">
+        <label>画像：</label>
+        <input type="file" name="image">
+      </div>
+
+      <button type="submit" class="submit-button">保存</button>
+    </form>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -114,7 +144,17 @@ document.addEventListener("DOMContentLoaded", function () {
                   
               })
               .catch(error => console.error("❌ 通信エラー:", error));
+            });
           });
+
+           // 💾 メモ保存ボタンの処理（ここから追加！）
+    const memoButtons = document.querySelectorAll(".memo-save-btn");
+    memoButtons.forEach(button => {
+      button.addEventListener("click", function () {
+        const bookId = this.dataset.bookId;
+        const childId = this.dataset.childId;
+        saveMemo(bookId, childId);
+      });
     });
 
     function saveMemo(bookId, childId) {
@@ -138,5 +178,13 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 });
+
+function openEditModal() {
+  document.getElementById("editBookModal").style.display = "block";
+}
+function closeEditModal() {
+  document.getElementById("editBookModal").style.display = "none";
+}
+
 </script>
 {% endblock %}
