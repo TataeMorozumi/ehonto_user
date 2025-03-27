@@ -1,46 +1,48 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
-    <h2>子ども情報編集</h2>
-    <a href="{% url 'child_add' %}" class="btn btn-success">＋ 子どもを追加</a>
+<div class="child-edit-container">
+  <h2 class="child-edit-title">子ども情報編集</h2>
 
-    <!-- ✅ エラーメッセージを表示 -->
-    {% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-            <li class="{{ message.tags }}">{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
+  <a href="{% url 'child_add' %}" class="btn btn-success">＋ 子どもを追加</a>
 
-    <!-- ✅ 登録済みの子ども一覧 -->
-    <ul>
-        {% for child in children %}
-            <li>
-                {{ child.name }}
-                <a href="{% url 'child_update' child.id %}">編集</a> |
-                <a href="{% url 'child_delete' child.id %}" onclick="return confirm('本当に削除しますか？');">削除</a>
-            </li>
-        {% empty %}
-            <p>登録された子どもがいません。</p>
-        {% endfor %}
-    </ul>
+  {% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li class="{{ message.tags }}">{{ message }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
 
-    <hr>
+  <div class="child-list">
+    {% for child in children %}
+      <div class="child-item">
+        <span class="child-dot">●</span>
+        <span class="child-name">{{ child.name }}</span>
+        <a href="{% url 'child_update' child.id %}" class="child-edit">編集</a>
+        |
+        <a href="{% url 'child_delete' child.id %}" class="child-delete" onclick="return confirm('本当に削除しますか？');">削除</a>
+      </div>
+    {% empty %}
+      <p>登録された子どもがいません。</p>
+    {% endfor %}
+  </div>
 
-    <!-- ✅ 3人以上ならフォームを非表示にする -->
-    {% if children|length < max_children %}
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-success">登録</button>
-    </form>
-    {% else %}
-    <p style="color: red;">※ 子どもの登録は最大3人までです。</p>
-    {% endif %}
+  <hr>
 
+  {% if children|length < max_children %}
+  <form method="POST" class="child-form">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">登録</button>
+  </form>
+  {% else %}
+  <p style="color: red; text-align: center;">※ 子どもの登録は最大3人までです。</p>
+  {% endif %}
+
+  <div style="text-align: center; margin-top: 20px;">
     <a href="{% url 'home' %}" class="btn btn-secondary">キャンセル</a>
+  </div>
 </div>
 {% endblock %}
 

@@ -60,7 +60,9 @@ urlpatterns = [
 
     # ✅ 検索結果ページ
     path("search/", views.search_results, name="search_results"),
-
+    
+    # ✅ －ボタン
+    path('decrement_read_count/', views.decrement_read_count, name='decrement_read_count'),
 
 ]
 

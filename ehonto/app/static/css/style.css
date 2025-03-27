@@ -124,18 +124,95 @@
     gap: 8px;
     justify-content: flex-end;
 }
-.child-name {
-    font-size: 20px;
+.child-edit-container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    text-align: center;
+  }
+  
+  .child-edit-title {
+    margin-bottom: 20px;
+    font-size: 24px;
     font-weight: bold;
-    white-space: nowrap;
     color: #333;
-}
+  }
+  
+  .child-list {
+    margin-top: 20px;
+    text-align: left;
+  }
+  
+  .child-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    background: #f9f9f9;
+    padding: 10px 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .child-dot {
+    font-size: 20px;
+    color: #5cb85c;
+  }
+  
+  .child-name {
+    font-weight: bold;
+    flex-grow: 1;
+  }
+  
+  .child-edit,
+  .child-delete {
+    font-size: 14px;
+    color: #007bff;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  
+  .child-delete:hover {
+    color: red;
+  }
+  
+  .child-form {
+    margin-top: 20px;
+    text-align: left;
+  }
+  
 .child-entry {
     background: #f9f9f9;
     padding: 14px;
     border-radius: 10px;
     margin-bottom: 20px;
   }
+  .btn-small {
+    padding: 6px 16px;  /* 上下6px、左右16px */
+    font-size: 14px;
+    width: auto;
+}
+.btn-primary {
+    display: inline-block;  /* ← これで必要な分だけの幅に */
+    padding: 8px 20px;
+    font-size: 16px;
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    width: auto;  /* ← 明示的に幅を短く */
+}
+.btn-narrow {
+    width: auto !important;     /* ← 最優先で width を自動に */
+    padding: 6px 18px;           /* ← 横幅を調整 */
+    display: inline-block;       /* ← 幅を必要最小限に */
+}
+
+
   
   /* ✅ 全体横並びにする：名前〜回数 + メモ */
   .child-info-row {
@@ -695,5 +772,136 @@
   
   .search-button:hover {
     background-color: #4cae4c;
+  }
+  /* 📅 カレンダー全体 */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 12px;
+    margin: 20px auto;
+    max-width: 800px;
+  }
+  
+  /* 🧱 各日付セル */
+  .calendar-cell {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 10px 6px;
+    min-height: 80px;
+    font-size: 14px;
+    text-align: left;
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: transform 0.1s ease;
+  }
+  .calendar-cell:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  
+  /* 📆 日付番号 */
+  .calendar-day {
+    font-weight: bold;
+    font-size: 13px;
+    margin-bottom: 6px;
+    color: #444;
+  }
+  
+  /* 📚 絵本アイコン画像 */
+  .book-icon img {
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    object-fit: cover;
+    margin: 3px 3px 0 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+  
+  /* 📌 曜日ラベル（必要に応じて） */
+  .calendar-weekday {
+    font-weight: bold;
+    text-align: center;
+    padding: 8px 0;
+    background-color: #f2f2f2;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #555;
+  }
+  .most-read-banner {
+    background-color: #fff8dc;
+    color: #444;
+    font-size: 18px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    margin: 20px auto;
+    max-width: 500px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  .child-edit,
+.child-delete {
+  margin-left: 10px;
+  font-size: 14px;
+  background-color: transparent;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.child-delete:hover {
+  color: red;
+}
+/* 最後に強制上書きする */
+.btn-primary.btn-narrow {
+    width: auto !important;
+    padding: 6px 18px;
+    display: inline-block;
+}
+.child-edit-container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.child-edit-title {
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.btn-primary.btn-narrow {
+    width: auto !important;
+    padding: 6px 18px;
+    display: inline-block;
+    font-size: 16px;
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-primary.btn-narrow:hover {
+    background-color: #4cae4c;
+}
+.read-minus-button {
+    background: transparent;
+    border: 1px solid #ccc;
+    color: #666;
+    padding: 4px 8px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 5px;
+  }
+  
+  .read-minus-button:hover {
+    background-color: #f5f5f5;
   }
   

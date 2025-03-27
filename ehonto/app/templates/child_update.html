@@ -1,21 +1,20 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
-    <h2>子ども情報を編集</h2>
+<div class="child-edit-container">
+    <h2 class="child-edit-title">子ども情報を編集</h2>
 
     <form method="POST">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-success">保存</button>
+        <div class="form-group">
+            {{ form.name.label_tag }}
+            {{ form.name }}
+        </div>
+        <button type="submit" class="btn btn-primary btn-narrow">保存</button>
     </form>
 
-    <a href="{% url 'child_edit' %}">戻る</a>
+    <div style="margin-top: 15px;">
+        <a href="{% url 'child_edit' %}">戻る</a>
+    </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-// 必要に応じてJSを追加できます
-</script>
 {% endblock %}

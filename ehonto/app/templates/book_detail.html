@@ -48,7 +48,9 @@
           <span class="read-count" id="read-count-{{ child.id }}">
             {{ read_counts|get_item:child.id|default:"0" }} 回
           </span>
+          <button class="read-decrement" onclick="decrementRead({{ book.id }}, {{ child.id }})">－</button>
         </div>
+      
     
         <!-- 📝 メモ欄 -->
         <div class="memo-box-inline">
@@ -187,6 +189,33 @@ function openEditModal() {
 function closeEditModal() {
   document.getElementById("editBookModal").style.display = "none";
 }
+
+function decrementRead(bookId, childId) {
+  console.log("📉 減らす:", bookId, childId);  // ←確認用ログ
+
+  fetch("{% url 'decrement_read_count' %}", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": "{{ csrf_token }}"
+    },
+    body: JSON.stringify({ book_id: bookId, child_id: childId })
+  })
+
+  .then(response => response.json())
+  .then(data => {
+    console.log("📥 レスポンス:", data);  // ←結果確認
+    if (data.success) {
+      const countElement = document.getElementById(`read-count-${childId}`);
+      countElement.textContent = `${data.count} 回`;
+    }
+  })
+  .catch(error => {
+    console.error("❌ エラー:", error);
+  });
+}
+
+
 
 </script>
 {% endblock %}

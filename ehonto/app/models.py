@@ -12,7 +12,6 @@ class Child(models.Model):
         return self.name
 
 
-# models.py
 class Book(models.Model):
     title = models.CharField(max_length=100)
     author = models.CharField(max_length=100, blank=True)
@@ -57,4 +56,13 @@ class ReadCount(models.Model):
         
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    invited_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="invited_users")       
+    invited_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="invited_users")     
+
+class ReadHistory(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    child = models.ForeignKey(Child, on_delete=models.CASCADE)
+    date = models.DateField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date"]
+  
