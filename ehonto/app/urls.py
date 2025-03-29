@@ -64,6 +64,9 @@ urlpatterns = [
     # ✅ －ボタン
     path('decrement_read_count/', views.decrement_read_count, name='decrement_read_count'),
 
+    # ✅ 絵本詳細画面
+    path('book_detail/<int:book_id>/', views.book_detail, name='book_detail'),
+    
 ]
 
 # ✅ メディアファイルの配信設定（画像を正しく表示するために必要）

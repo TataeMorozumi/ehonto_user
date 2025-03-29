@@ -21,6 +21,7 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include("app.urls")),
     path('', PortfolioView.as_view(), name="portfolio"),  # ✅ ポートフォリオをデフォルトページに設定
     path('signup/', SignupView.as_view(), name="signup"),
     path('settings/', settings_view, name="settings_view"),

@@ -6,26 +6,24 @@ from django.contrib.auth.views import PasswordChangeView
 from django.urls import reverse_lazy, reverse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import json
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.conf import settings 
-from .forms import SignupForm, BookForm, UserUpdateForm
-from .models import Book, Child, Memo, Favorite, ReadCount, UserProfile, ReadHistory
+from django.conf import settings
 from django.views.generic import ListView
-from .forms import ChildForm
-from django.db import models
-from django.contrib.auth.models import AnonymousUser, User
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.db import models
 from django.db.models import Count, Sum, Q
-from collections import defaultdict,Counter
-from django.core.serializers.json import DjangoJSONEncoder
-import json
-from datetime import datetime, timedelta, date
-import calendar
 from django.utils.timezone import now
+from django.core.serializers.json import DjangoJSONEncoder
+
+import json
 import calendar
+from datetime import datetime, timedelta, date
+from collections import defaultdict, Counter
+
+from .forms import SignupForm, BookForm, UserUpdateForm, ChildForm
+from .models import Book, Child, Memo, Favorite, ReadCount, UserProfile, ReadHistory
+from django.contrib.auth.models import AnonymousUser, User
 
 # ✅ ポートフォリオ画面（最初に表示するページ）
 class PortfolioView(View):
@@ -149,38 +147,59 @@ def family_invite(request):
     return render(request, 'family_invite.html')
 
 
-# ✅ 絵本登録ページ
+# ✅ 絵本登録ページ（重複チェック付き）
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt 
 def add_book(request):
     if request.method == "POST":
         form = BookForm(request.POST, request.FILES)
         if form.is_valid():
-            book = form.save(commit=False)
-            book.save()  # 先に保存してから child をセット
-
+            title = form.cleaned_data["title"]
             child_id = request.POST.get("child_id")
-            if child_id:
+
+            # ✅ 共通の本棚（child_id が空や None の場合）を考慮
+            selected_child = None
+            if child_id and child_id != "None":
                 try:
                     selected_child = Child.objects.get(id=int(child_id))
-                    book.child.set([selected_child])  # ✅ ManyToMany 関連付け
+                    existing_books = Book.objects.filter(
+                        title=title,
+                        child=selected_child
+                    )
+                    if existing_books.exists():
+                        return JsonResponse({
+                            "success": False,
+                            "error": "同じ絵本がすでにこの本棚に登録されています。"
+                        })
                 except Child.DoesNotExist:
-                    pass
+                    return JsonResponse({
+                        "success": False,
+                        "error": "子ども情報が見つかりません。"
+                    })
+
+            book = form.save(commit=False)
+            book.save()
+
+            if selected_child:
+                book.child.set([selected_child])  # ✅ 紐づけ（共通の場合はスキップ）
 
             return JsonResponse({"success": True})
-        else:
-            return JsonResponse({"success": False, "error": "フォームが無効です"})
 
-    else:
-        form = BookForm()
-        selected_child_id = request.GET.get("child_id") 
+        return JsonResponse({"success": False, "error": "フォームが無効です"})
 
-        children = Child.objects.filter(user=request.user)
 
-        return render(request, "add_book.html", {
-            "form": form,
-            "selected_child_id": selected_child_id, 
-            "children": children,
-        })
 
+    # ✅ GETの場合のみテンプレートを返す！
+    form = BookForm()
+    selected_child_id = request.GET.get("child_id")
+    children = Child.objects.filter(user=request.user)
+
+    return render(request, "add_book.html", {
+        "form": form,
+        "selected_child_id": selected_child_id,
+        "children": children,
+    })
 
 # ✅ パスワード変更ビュー
 class CustomPasswordChangeView(PasswordChangeView):
@@ -550,7 +569,6 @@ def review(request):
     if selected_child_id:
         selected_child = get_object_or_404(Child, id=selected_child_id, user=request.user)
 
-    # 表示年月の取得
     today = date.today()
     year = int(request.GET.get("year", today.year))
     month = int(request.GET.get("month", today.month))
@@ -560,30 +578,39 @@ def review(request):
     prev_month = current_date - timedelta(days=1)
     next_month = (current_date + timedelta(days=days_in_month)).replace(day=1)
 
-    # ✅ 読書履歴の取得（ここで histories を定義）
     if selected_child:
         histories = ReadHistory.objects.filter(child=selected_child, date__year=year, date__month=month)
     else:
         histories = ReadHistory.objects.filter(date__year=year, date__month=month)
 
-    # ✅ カレンダーデータ辞書作成
-    calendar_data = {}
+    read_history_json = json.dumps([
+        {"date": str(h.date), "title": h.book.title}
+        for h in histories
+    ], cls=DjangoJSONEncoder)
+
+    calendar_data = defaultdict(list)
     for history in histories:
         day = history.date.day
-        calendar_data.setdefault(day, []).append(history.book)
+        calendar_data[day].append(history.book)
 
-    # ✅ JSONデータ変換（カレンダー用）
-    read_history_json = [
-        {"date": str(h.date), "title": h.book.title} for h in histories
-    ]
+    calendar_data = {
+        str(day): [
+            {
+                "id": book.id,
+                "title": book.title,
+                "image_url": book.image.url if book.image else ""
+    
+            }
+            for book in set(books)
+        ]
+        for day, books in calendar_data.items()
+    }
 
-    # ✅ 最多読書タイトル
-    from collections import Counter
+    calendar_data_json = json.dumps(calendar_data, cls=DjangoJSONEncoder)
+
     book_counter = Counter([h.book.title for h in histories])
     most_read_title = book_counter.most_common(1)[0][0] if book_counter else None
 
-    # ✅ 合計回数計算
-    from collections import defaultdict
     monthly_total = histories.count()
     child_totals = defaultdict(int)
     for h in histories:
@@ -597,11 +624,107 @@ def review(request):
         "current_date": current_date,
         "prev_month": {"year": prev_month.year, "month": prev_month.month},
         "next_month": {"year": next_month.year, "month": next_month.month},
-        "read_history_json": json.dumps(read_history_json, cls=DjangoJSONEncoder),
+        "read_history_json": read_history_json,
         "most_read_title": most_read_title,
         "monthly_total": monthly_total,
         "child_totals": dict(child_totals),
+        "calendar_data_json": calendar_data_json,
     })
+
+@require_POST
+@login_required
+def decrement_read_count(request):
+    print("📉 decrement_read_count 呼ばれた")  
+    data = json.loads(request.body)
+    book_id = data.get("book_id")
+    child_id = data.get("child_id")
+
+    try:
+        book = Book.objects.get(id=book_id)
+        child = Child.objects.get(id=child_id, user=request.user)
+        read_count, _ = ReadCount.objects.get_or_create(book=book, child=child)
+
+        if read_count.count > 0:
+            read_count.count -= 1
+            read_count.save()
+
+        return JsonResponse({"success": True, "count": read_count.count})
+
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)})
+
+            
+@login_required
+def review(request):
+    selected_child_id = request.GET.get("child_id")
+    selected_child = None
+    children = Child.objects.filter(user=request.user)
+
+    if selected_child_id:
+        selected_child = get_object_or_404(Child, id=selected_child_id, user=request.user)
+
+    today = date.today()
+    year = int(request.GET.get("year", today.year))
+    month = int(request.GET.get("month", today.month))
+    current_date = date(year, month, 1)
+    days_in_month = calendar.monthrange(year, month)[1]
+    calendar_days = list(range(1, days_in_month + 1))
+    prev_month = current_date - timedelta(days=1)
+    next_month = (current_date + timedelta(days=days_in_month)).replace(day=1)
+
+    if selected_child:
+        histories = ReadHistory.objects.filter(child=selected_child, date__year=year, date__month=month)
+    else:
+        histories = ReadHistory.objects.filter(date__year=year, date__month=month)
+
+    read_history_json = json.dumps([
+        {"date": str(h.date), "title": h.book.title}
+        for h in histories
+    ], cls=DjangoJSONEncoder)
+
+    calendar_data = defaultdict(list)
+    for history in histories:
+        day = history.date.day
+        calendar_data[day].append(history.book)
+
+    calendar_data = {
+        str(day): [
+            {
+                "id": book.id,
+                "title": book.title,
+                "image_url": book.image.url if book.image else ""
+            }
+            for book in set(books)
+        ]
+        for day, books in calendar_data.items()
+    }
+
+    calendar_data_json = json.dumps(calendar_data, cls=DjangoJSONEncoder)
+
+    book_counter = Counter([h.book.title for h in histories])
+    most_read_title = book_counter.most_common(1)[0][0] if book_counter else None
+
+    monthly_total = histories.count()
+    child_totals = defaultdict(int)
+    for h in histories:
+        child_totals[h.child.name] += 1
+
+    return render(request, "review.html", {
+        "children": children,
+        "selected_child_id": selected_child_id,
+        "calendar_days": calendar_days,
+        "calendar_data": calendar_data,
+        "current_date": current_date,
+        "prev_month": {"year": prev_month.year, "month": prev_month.month},
+        "next_month": {"year": next_month.year, "month": next_month.month},
+        "read_history_json": read_history_json,
+        "most_read_title": most_read_title,
+        "monthly_total": monthly_total,
+        "child_totals": dict(child_totals),
+        "calendar_data_json": calendar_data_json,
+    })
+
+
 @require_POST
 @login_required
 def decrement_read_count(request):
@@ -622,3 +745,4 @@ def decrement_read_count(request):
         return JsonResponse({"success": True, "count": read_count.count})
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)})
+   

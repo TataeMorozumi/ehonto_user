@@ -55,7 +55,8 @@
         <!-- 📝 メモ欄 -->
         <div class="memo-box-inline">
           <textarea id="memo-{{ child.id }}">{{ memos|get_item:child.id }}</textarea>
-          <button class="memo-save-btn" onclick="saveMemo({{ book.id }}, {{ child.id }})">メモ保存</button>
+          <button class="memo-save-btn" data-book-id="{{ book.id }}" data-child-id="{{ child.id }}">メモ保存</button>
+
         </div>
       </div>
     </div>

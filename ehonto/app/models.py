@@ -18,6 +18,12 @@ class Book(models.Model):
     image = models.ImageField(upload_to='books/')
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def image_url(self):
+        if self.image:
+            return self.image.url
+        return ""
+
     # ✅ 多対多関係を定義（共通本棚対応）
     child = models.ManyToManyField(Child, related_name="books")
 

@@ -46,17 +46,17 @@
 
 <!-- ✅ ページネーション -->
 <div class="pagination">
-    {% if page_obj.has_previous %}
-        <a href="?page=1">最初</a>
-        <a href="?page={{ page_obj.previous_page_number }}">前へ</a>
-    {% endif %}
+  {% if page_obj.has_previous %}
+    <a href="?page=1{% if selected_child_id %}&child_id={{ selected_child_id }}{% endif %}">最初</a>
+    <a href="?page={{ page_obj.previous_page_number }}{% if selected_child_id %}&child_id={{ selected_child_id }}{% endif %}">前へ</a>
+  {% endif %}
 
-    <span>ページ {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+  <span>ページ {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
 
-    {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}">次へ</a>
-        <a href="?page={{ page_obj.paginator.num_pages }}">最後</a>
-    {% endif %}
+  {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}{% if selected_child_id %}&child_id={{ selected_child_id }}{% endif %}">次へ</a>
+    <a href="?page={{ page_obj.paginator.num_pages }}{% if selected_child_id %}&child_id={{ selected_child_id }}{% endif %}">最後</a>
+  {% endif %}
 </div>
 
 <!-- ✅ 「＋」ボタンを押すとモーダルを開く -->
@@ -78,6 +78,26 @@
 {% block scripts %}
 <script>
 
+  // ✅ モーダル処理
+  function loadAddBookModal(childId = null) {
+    const modal = document.getElementById("addBookModal");
+    const modalBody = document.getElementById("modal-body");
+
+    fetch("{% url 'add_book' %}?child_id=" + childId)
+      .then(response => response.text())
+      .then(html => {
+        modalBody.innerHTML = html;
+        modal.style.display = "flex";
+      })
+      .catch(error => {
+        modalBody.innerHTML = "<p>フォームを読み込めませんでした。</p>";
+        console.error("❌ モーダルエラー:", error);
+      });
+  }
+
+  function closeModal() {
+    document.getElementById("addBookModal").style.display = "none";
+  }
 </script>
 {% endblock %}
 

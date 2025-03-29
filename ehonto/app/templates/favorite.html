@@ -33,17 +33,18 @@
 <!-- ✅ ページネーション -->
 <div class="pagination">
     {% if page_obj.has_previous %}
-        <a href="?page=1{% if selected_child_id %}&child_id={{ selected_child_id }}{% endif %}">最初</a>
-        <a href="?page={{ page_obj.previous_page_number }}{% if selected_child_id %}&child_id={{ selected_child_id }}{% endif %}">前へ</a>
+      <a href="?page=1{% if selected_child_id %}&child_id={{ selected_child_id }}{% endif %}">最初</a>
+      <a href="?page={{ page_obj.previous_page_number }}{% if selected_child_id %}&child_id={{ selected_child_id }}{% endif %}">前へ</a>
     {% endif %}
-
+  
     <span>ページ {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
-
+  
     {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}{% if selected_child_id %}&child_id={{ selected_child_id }}{% endif %}">次へ</a>
-        <a href="?page={{ page_obj.paginator.num_pages }}{% if selected_child_id %}&child_id={{ selected_child_id }}{% endif %}">最後</a>
+      <a href="?page={{ page_obj.next_page_number }}{% if selected_child_id %}&child_id={{ selected_child_id }}{% endif %}">次へ</a>
+      <a href="?page={{ page_obj.paginator.num_pages }}{% if selected_child_id %}&child_id={{ selected_child_id }}{% endif %}">最後</a>
     {% endif %}
-</div>
+  </div>
+  
 {% endblock %}
 
 {% block scripts %}
