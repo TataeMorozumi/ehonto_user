@@ -86,6 +86,19 @@
           {% endfor %}
         {% endif %}
 
+    {% if form.errors %}
+      <div class="form-error-box">
+        {% for field in form %}
+          {% for error in field.errors %}
+            <p style="color: red;">{{ error }}</p>
+            {% endfor %}
+          {% endfor %}
+          {% for error in form.non_field_errors %}
+            <p style="color: red;">{{ error }}</p>
+          {% endfor %}
+      </div>
+    {% endif %}
+
         <form method="post" action="{% url 'signup' %}">
             {% csrf_token %}
             <label for="name">名前/ニックネーム</label>
@@ -101,6 +114,8 @@
             <input type="password" id="password2" name="password2" required>
         
             <button type="submit">登録</button>
+            <input type="hidden" name="code" value="{{ request.GET.code }}">
+
         </form>
         
     <div class="login-container">

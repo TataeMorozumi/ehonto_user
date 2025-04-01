@@ -1,7 +1,13 @@
 {% extends "base.html" %}
+{% block body_class %}favorite-page{% endblock %}
+
 {% load static %}
 
 {% block content %}
+
+<h2 style="text-align: center; ">お気に入り</h2>
+
+
 <!-- ✅ 子どもごとの本棚選択ドロップダウン -->
 <div class="child-selector">
     <label for="child">お気に入りを表示:</label>
@@ -16,20 +22,24 @@
 </div>
 
 <!-- ✅ 絵本の表示 -->
-<div class="book-container">
-    {% for book in books %}
-        {% if book.image %}
-            <div class="book-item">
-                <a href="{% url 'book_detail' book.id %}">
-                    <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-image">
-                </a>
-            </div>
-        {% endif %}
-    {% empty %}
-        <p class="text-center">お気に入りに登録された絵本はありません。</p>
-    {% endfor %}
-</div>
 
+<div class="book-list">
+    {% for row in book_rows %}
+      <div class="book-row">
+        {% for book in row %}
+          {% if book.image %}
+            <div class="book-item">
+              <a href="{% url 'book_detail' book.id %}">
+                <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-image">
+              </a>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <div class="shelf-line"></div>
+    {% endfor %}
+  </div>
+  
 <!-- ✅ ページネーション -->
 <div class="pagination">
     {% if page_obj.has_previous %}

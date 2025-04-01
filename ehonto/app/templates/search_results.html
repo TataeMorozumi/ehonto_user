@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block body_class %}search-results{% endblock %}
 
 {% block content %}
   <div class="container">
@@ -18,4 +19,29 @@
       <p>該当する絵本は見つかりませんでした。</p>
     {% endif %}
   </div>
+{% endblock %}
+{% block scripts %}
+<style>
+  /* ✅ ライン完全非表示：保険的に書く */
+  body.search-results .shelf-line,
+  body.search-results hr,
+  body.search-results .book-row::after,
+  body.search-results .book-container::after,
+  body.search-results .book-container::before {
+    display: none !important;
+    content: none !important;
+    border: none !important;
+    background: none !important;
+    box-shadow: none !important;
+  }
+
+  /* ✅ book-container/全体にも保険 */
+  body.search-results .book-container,
+  body.search-results .container,
+  body.search-results .content {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+</style>
 {% endblock %}

@@ -1,8 +1,10 @@
 {% extends "base.html" %}  <!-- ✅ 最初に配置 -->
+{% block body_class %}home-page{% endblock %}
 
 {% load static %}  <!-- ✅ `extends` のすぐ後に配置 -->
 
 {% block content %}
+<h2 style="text-align: center; margin-top: 10px;"></h2>
 
 <!-- ✅ 子ども本棚ドロップダウン ＋ 検索フォーム 横並び -->
 <div class="toolbar-container">
@@ -28,21 +30,30 @@
       <button type="submit" class="search-button">検索</button>
     </form>
   </div>
-  
 <!-- ✅ 登録された絵本の表示エリア -->
-<div class="book-container">
-    {% for book in books %}
-        {% if book.image %}
+<div class="book-list">
+  {% if book_rows %}
+    {% for row in book_rows %}
+      <div class="book-row">
+        {% for book in row %}
+          {% if book.image %}
             <div class="book-item">
-                <a href="{% url 'book_detail' book.id %}">
-                    <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-image">
-                </a>
+              <a href="{% url 'book_detail' book.id %}">
+                <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-image">
+              </a>
             </div>
-        {% endif %}
-    {% empty %}
-        <p class="text-center">この本棚にはまだ絵本がありません。</p>
+          {% endif %}
+        {% endfor %}
+      </div>
+      {% if not request.path == '/search/' %}
+      <div class="shelf-line"></div>
+      {% endif %}
     {% endfor %}
+  {% else %}
+    <p class="no-books-message">この本棚にはまだ絵本がありません。</p>
+  {% endif %}
 </div>
+
 
 <!-- ✅ ページネーション -->
 <div class="pagination">

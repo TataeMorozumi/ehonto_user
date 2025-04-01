@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}ehonto{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap" rel="stylesheet">
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -13,7 +15,12 @@
       padding: 0;
       background-color: #f8f8f8;
       text-align: center;
-    }
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      background-image: url("/static/images/wood_background.jpg");
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      }
     .header {
       background-color: #5cb85c;
       color: white;
@@ -22,6 +29,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: relative;   /* ✅ z-indexを効かせるために必要 */
+      z-index: 1001; 
     }
     .menu-icon {
       font-size: 24px;
@@ -36,6 +45,7 @@
       background: #444;
       padding: 10px;
       border-radius: 5px;
+      z-index: 1000;
     }
     #nav-menu a {
       display: block;
@@ -51,7 +61,9 @@
     }
   </style>
 </head>
-<body>
+
+<body class="{% block body_class %}{% endblock %}">
+
 
 <!-- ✅ ヘッダー -->
 <div class="header">
@@ -59,8 +71,8 @@
   <div class="menu-icon" id="menu-button">☰</div>
   <div id="nav-menu">
     <a href="{% url 'favorite' %}">お気に入り</a>
-    <a href="{% url 'review' %}">ふりかえり</a>
     <a href="{% url 'more_read' %}">もっとよんで</a>
+    <a href="{% url 'review' %}">ふりかえり</a>
     <a href="{% url 'settings_view' %}">設定</a>
     <a href="{% url 'family_invite' %}">家族招待</a>
   </div>

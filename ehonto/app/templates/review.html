@@ -28,21 +28,26 @@
 
 <!-- 🌟 今月もっとも読まれた絵本 -->
 {% if most_read_title %}
-  <div class="most-read-banner">
-    📚 今月もっとも読まれた絵本：<strong>{{ most_read_title }}</strong>
-  </div>
+<div class="most-read-banner">
+  👑 今月もっとも読まれた絵本：
+  <strong class="most-read-title">{{ most_read_title }}</strong>
+</div>
 {% endif %}
 
 <!-- 📊 月間合計 -->
 <div class="monthly-summary">
   <p>📚 今月の読み聞かせ合計：{{ monthly_total }} 回</p>
-  <ul class="child-read-list">
+
+  <div class="child-list">
     {% for child, total in child_totals.items %}
-      <li>{{ child }}：{{ total }} 回</li>
+      <div class="child-item">
+        <span class="child-dot">●</span>
+        <span class="child-name">{{ child }}</span>：{{ total }} 回
+      </div>
     {% endfor %}
-  </ul>
-  
+  </div>
 </div>
+
 
 <!-- 📅 カレンダー -->
 <div class="calendar-grid">
@@ -102,6 +107,51 @@
     background: #fff;
     border-radius: 8px;
   }
+  ul li::marker {
+    color: #5cb85c;
+  }
+ 
+    .child-list {
+    display: flex;
+    justify-content: center;  /* 中央寄せ */
+    flex-wrap: wrap;          /* 折り返し可能に */
+    gap: 16px;
+    margin-top: 8px;
+  }
+
+  .child-item {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+  }
+
+  .child-dot {
+    color: #5cb85c; /* ヘッダーと同じ緑 */
+    font-size: 18px;
+    margin-right: 8px;
+  }
+
+  .child-name {
+    font-weight: bold;
+    margin-right: 4px;
+  }
+  .most-read-banner {
+  background-color: #fff8dc;  /* やさしいクリーム色 */
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #a67c00; /* 王冠に合う金色系 */
+  margin: 20px auto;
+  display: inline-block;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.most-read-title {
+  color: #d35400;  /* タイトルだけ濃いオレンジで強調 */
+}
+
+
 </style>
 
 <script>

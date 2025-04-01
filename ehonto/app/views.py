@@ -105,7 +105,7 @@ def child_bookshelf(request, child_id):
 # ✅ お気に入りページ
 from django.core.paginator import Paginator
 
-@login_required
+@login_required 
 def favorite(request):
     selected_child_id = request.GET.get("child_id")
     selected_child = None
@@ -118,17 +118,23 @@ def favorite(request):
 
     books = Book.objects.filter(id__in=favorites.values_list("book_id", flat=True)).order_by("-created_at")
 
-    # ✅ ページネーション（7x4）
+    # ✅ ページネーション（7x4 = 28冊）
     paginator = Paginator(books, 28)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    # ✅ 7冊ずつに区切って book_rows を作成
+    books_list = list(page_obj)
+    book_rows = [books_list[i:i+7] for i in range(0, len(books_list), 7)]
+
     return render(request, "favorite.html", {
         "books": page_obj,
+        "book_rows": book_rows,  # ← 追加
         "children": Child.objects.all(),
         "selected_child_id": selected_child_id,
         "page_obj": page_obj,
     })
+
 
 # ✅ ふりかえりページ
 def review(request):
@@ -222,23 +228,25 @@ def signup_view(request):
             user.first_name = name
             user.save()
 
-            # ✅ 招待URLに含まれるinviteパラメータから招待者を特定
-            invited_by_id = request.GET.get("invite")
+            # ✅ URLパラメータ code を使って招待者を取得
+            invited_by_id = request.POST.get("code")  # ← POSTで受け取るように修正
+
+            inviter = None
             if invited_by_id:
                 try:
                     inviter = User.objects.get(id=invited_by_id)
-                    UserProfile.objects.create(user=user, invited_by=inviter)
                 except User.DoesNotExist:
-                    pass  # 存在しないユーザーIDなら無視
+                    pass  # 存在しない場合はスルー
 
-            # 自動ログイン
+            # ✅ UserProfileを作成して招待者を保存
+            UserProfile.objects.create(user=user, invited_by=inviter)
+
             login(request, user)
-            return redirect('home')
+            return redirect("home")
         else:
             messages.error(request, "パスワードが一致しません")
 
-    return render(request, 'signup.html')
-
+    return render(request, "signup.html")
 # ✅ 絵本詳細ビュー
 
 def book_detail(request, book_id):
@@ -306,8 +314,13 @@ def home_view(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
+    books_list = list(page_obj)
+    book_rows = [books_list[i:i+7] for i in range(0, len(books_list), 7)]
+
+
     # ✅ 子どもリストをコンテキストに追加（ドロップダウン用）
     children = Child.objects.filter(user=request.user).distinct()
+    
 
     context = {
         "books": page_obj,
@@ -315,6 +328,7 @@ def home_view(request):
         "MEDIA_URL": settings.MEDIA_URL,
         "children": children,
         "selected_child_id": selected_child_id,
+        "book_rows": book_rows, 
     }
     return render(request, "home.html", context)
 
@@ -510,18 +524,18 @@ def edit_book(request, book_id):
     
 @login_required
 def family_invite(request):
-    # 招待URLを作成
-    invite_url = request.build_absolute_uri(
-        reverse("signup") + f"?invite={request.user.id}"
-    )
+    invite_url = f"http://127.0.0.1:8000/app/signup/?code={request.user.id}"
 
-    # 自分が招待した家族（UserProfile 経由）
-    invited = User.objects.filter(userprofile__invited_by=request.user)
 
-    return render(request, "family_invite.html", {
-        "invite_url": invite_url,
-        "invited_users": invited,
+    # ✅ 自分が招待したユーザーを取得（← これが必要！）
+    invited_users = User.objects.filter(userprofile__invited_by=request.user)
+
+    return render(request, 'family_invite.html', {
+        'invite_url': invite_url,
+        'invited_users': invited_users,
     })
+
+
 
 # ✅ 検索結果ページ
 def search_results(request):

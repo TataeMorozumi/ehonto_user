@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+from django.core.exceptions import ValidationError
 
 class SignupForm(UserCreationForm):
     class Meta:
@@ -19,6 +20,14 @@ class SignupForm(UserCreationForm):
         if commit:
             user.save()
         return user
+    
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if User.objects.filter(username=email).exists():
+            raise ValidationError("このメールアドレスはすでに登録されています。")
+        return email
+
 
 from django import forms
 from .models import Book

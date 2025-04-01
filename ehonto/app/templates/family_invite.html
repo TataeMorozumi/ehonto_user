@@ -15,17 +15,24 @@
   </div>
 
   <!-- ✅ 共有中の家族一覧 -->
-  <div>
-    <h2 class="text-xl font-semibold mb-2">招待済みの家族：</h2>
-    <ul class="list-disc ml-6 text-gray-700">
-      {% for user in invited_users %}
-        <li>{{ user.first_name }}</li>
-      {% empty %}
-        <li>まだ招待された家族はいません。</li>
-      {% endfor %}
-    </ul>
-  </div>
+<div>
+  <h2 class="text-xl font-semibold mb-2">招待済みの家族：</h2>
+
+  {% if invited_users %}
+  <ul class="invite-list text-gray-700">
+    {% for user in invited_users %}
+      <li>{{ user.first_name|default:user.email }}</li>  {# ←名前が空ならemailを表示 #}
+    {% empty %}
+      <li>まだ招待された家族はいません。</li>
+    {% endfor %}
+  </ul>
+  
+  {% else %}
+    <p class="text-gray-500 ml-6">・まだ招待された家族はいません。</p>
+  {% endif %}
 </div>
+
+  
 {% endblock %}
 
 {% block scripts %}

@@ -62,7 +62,10 @@ class ReadCount(models.Model):
         
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    invited_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="invited_users")     
+    invited_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='invited_users')
+
+    def __str__(self):
+        return self.user.username
 
 class ReadHistory(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE)

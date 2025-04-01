@@ -99,3 +99,5 @@ MEDIA_ROOT = BASE_DIR / 'media'
 LOGIN_URL = '/login/'  # ログインページ
 LOGIN_REDIRECT_URL = '/app/home/'  # ログイン後にリダイレクトするページ
 LOGOUT_REDIRECT_URL = '/app/login/'  # ログアウト後にリダイレクトするページ
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # DEBUG=TrueでもOK

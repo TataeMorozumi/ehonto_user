@@ -28,6 +28,10 @@
     padding: 8px 12px;
     font-weight: bold;
 }
+
+
+
+
 /* ✅ ホーム画面：画像一覧 */
 .book-container {
     display: grid;
@@ -37,7 +41,23 @@
     justify-items: center;
     align-items: end;  /* ✅ 下のラインを揃える */
     padding: 20px;
+    position: relative;
+    z-index: 0;
+    background-color: transparent;
+    border-radius: 8px;
+    padding-top: 0;
+    margin-top: 0;
 }
+.book-container::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: #a8682a;
+    bottom: 0;
+    transform: translateY(20px);
+  }
 .book-item {
     display: flex;
     flex-direction: column;
@@ -58,6 +78,23 @@
     overflow-y: auto; /* 縦スクロール可能にする */
     margin-top: 80px; /* ✅ ヘッダーとの間に余白を確保 */
 }
+.book-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    justify-items: center;
+    align-items: end;
+    margin-bottom: 10px;
+  }
+  
+  .shelf-line {
+    height: 6px;
+    background-color: #a8682a;
+    border-radius: 3px;
+    margin-bottom: 20px;
+    width: 100%;
+  }
+  
 /* ✅ 詳細ページ：画像・子ども情報 */
 .book-detail-image {
     max-width: 300px;  /* ✅ 画像の最大幅を制限 */
@@ -411,13 +448,15 @@
 .nav-links,
 #nav-menu {
     display: none;
-    background: #444;
     position: absolute;
     top: 60px;
     right: 20px;
+    background: #444;
     padding: 10px;
     border-radius: 5px;
-}
+    z-index: 1000; /* ✅ メニューを最前面に */
+  }
+  
 .nav-links a,
 #nav-menu a {
     color: white;
@@ -456,14 +495,22 @@
     border-radius: 3px;
     cursor: pointer;
 }
+
+
+
+
 .child-selector {
     display: flex !important;
     align-items: center;
-    justify-content: flex-start; /* 左寄せ */
-    margin-left: 20px; /* 左端に配置 */
-    margin-top: 10px; /* ヘッダーの下に配置 */
-    z-index: 10; /* 他の要素の上に表示 */
+    justify-content: flex-start;
+    margin: 5px 20px 0 !important;  /* ← margin-top:5px に統一 */
+    padding: 0 !important;
+    z-index: 10;
+    height: 40px !important;
+    gap: 10px;
+    margin-top: 10px;
 }
+
 .child-selector select {
     width: 180px;
     padding: 8px;
@@ -473,6 +520,12 @@
     background-color: white;
     margin-right: 10px; /* アイコンとの間隔 */
 }
+.child-selector label {
+    font-size: 14px;
+    padding: 4px 8px;
+    height: 30px !important;  /* ここも明示 */
+    line-height: 30px;
+  }
 .child-edit-icon {
     font-size: 20px;
     text-decoration: none;
@@ -482,6 +535,9 @@
 .child-edit-icon:hover {
     color: #4a9c4a;
 }
+
+
+  
 /* ✅ その他のレイアウト調整 */
 .book-detail-container::after {
     content: "CSSリロード";
@@ -915,4 +971,132 @@
     margin: 4px 0;
     font-size: 16px;
   }
+  .book-icon {
+    font-size: 30px;  
+    line-height: 1;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;  /* 高さを確保（お好みで） */
+  }
+
+  .book-icon:hover {
+    transform: scale(1.2);  /* ホバーでちょっと大きく */
+  }
+
+  .no-books-message {
+    text-align: center;
+    font-size: 18px;
+    color: #888;
+    margin-top: 40px;
+  }
+  .shelf-line {
+  width: 100%;
+  height: 12px;
+  background-image: url("/static/images/wood_texture.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  margin: 10px 0 20px;
+  border-radius: 3px;
+}
+
+.content {
+    padding-top: 20px;  /* 必要に応じて調整 */
+    margin-top: 0;
+  }
+
+.favorite-page h2,
+.home-page h2 {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}  
+.favorite-page .child-selector {
+    margin-top: -50px!important;
+  }
+/* 共通調整：すべてのページで余白を40pxに */
+.content {
+    padding-top: 40px;
+  }
+  
+  .home-page h2,
+   .book-list {
+    margin-top: 20px;
+  }
+  .home-page .child-selector {
+    margin-top: -40px!important;  /* ← ここで上に寄せる（必要に応じて調整） */
+  }
+  .home-page .search-form {
+    margin-top: -40px;  /* ← 上に移動。数字は調整可能 */
+  }
+  .favorite-page h2 {
+    margin-top: -10px !important;
+    margin-bottom: 10px !important;
+  }
+  /* ✅ 絵本表示エリア（スクロール） */
+.book-list {
+    max-height: calc(100vh - 100px);  /* 画面高 - ヘッダーなどの固定部分 */
+    overflow-y: auto;
+    padding: 0 20px;
+  }
+  
+  /* ✅ 固定ヘッダー下のマージン */
+  .more-read-page h2 {
+    margin-top: -20px!important;
+    margin-bottom: 0px!important;
+  }
+  
+  .more-read-page .child-selector {
+    margin-bottom: 10px!important;
+    margin-top: -40px !important; 
+  }
+  .family-list {
+    list-style: disc inside;
+    padding-left: 0;
+    margin: 0;
+  }
+  
+  .family-list li {
+    margin: 0;
+    font-size: 16px;
+    color: #555;
+    line-height: 1.6; /* ✅ テキストの高さを少し高めにして整える */
+    vertical-align: middle; /* ✅ ・とテキストの縦位置を揃える */
+  }
+  .invite-list {
+    list-style-type: disc;
+    list-style-position: inside;
+    margin-left: 1.2em;
+    padding-left: 0;
+  }
+  p {
+    line-height: 1.8;
+    margin-bottom: 1.5em;
+    font-size: 17px;
+  }
+  .password-change-container {
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    text-align: left;
+  }
+  .password-change-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .password-change-container button {
+    display: block;
+    margin: 0 auto;
+  }
+  body.search-results .shelf-line {
+    display: none !important;
+  }
+  
+
+  
+
   
