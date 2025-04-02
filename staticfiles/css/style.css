@@ -1,0 +1,1072 @@
+/* ✅ 共通ページネーション */
+.pagination {
+    display: flex;
+    justify-content: center;  /* 水平方向の中央揃え */
+    position: fixed;          /* 画面の固定配置 */
+    bottom: 20px;             /* 下からの距離 */
+    left: 50%;                /* 左端を中央に */
+    transform: translateX(-50%); /* 水平方向の中央揃え */
+    background: rgba(255, 255, 255, 0.8); /* 背景を少し透明に */
+    padding: 10px 20px;       /* 余白を追加 */
+    border-radius: 10px;      /* 角を丸く */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* 軽く影をつける */
+}
+.pagination a {
+    text-decoration: none;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    background-color: #f8f9fa;
+    color: #333;
+    border-radius: 5px;
+    margin: 0 5px;
+}
+.pagination a:hover {
+    background-color: #007bff;
+    color: white;
+}
+.pagination span {
+    padding: 8px 12px;
+    font-weight: bold;
+}
+/* ✅ ホーム画面：画像一覧 */
+.book-container {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);  /* ✅ 7列 */
+    grid-auto-rows: 1fr;  /* ✅ 行の高さを均等にする */
+    gap: 10px;  /* ✅ 画像間の余白 */
+    justify-items: center;
+    align-items: end;  /* ✅ 下のラインを揃える */
+    padding: 20px;
+    position: relative;
+    z-index: 0;
+    background-color: rgba(255, 255, 255, 0.6);  /* うっすら白 */
+    border-radius: 8px;
+    padding-top: 0;
+    margin-top: 0;
+}
+.book-container::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: #a8682a;
+    bottom: 0;
+    transform: translateY(20px);
+  }
+.book-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;  /* ✅ 上下の整列 */
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+}
+.book-image {
+    width: 100%;
+    height: auto;  /* ✅ 高さを自動調整 */
+    max-height: 250px;  /* ✅ 高さの最大値を指定 */
+    object-fit: contain;  /* ✅ 画像の比率を保ちつつ表示 */
+}
+.book-list {
+    max-height: 80vh; /* 画面の80%の高さまでに制限 */
+    overflow-y: auto; /* 縦スクロール可能にする */
+    margin-top: 80px; /* ✅ ヘッダーとの間に余白を確保 */
+}
+.book-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    justify-items: center;
+    align-items: end;
+    margin-bottom: 10px;
+  }
+  
+  .shelf-line {
+    height: 6px;
+    background-color: #a8682a;
+    border-radius: 3px;
+    margin-bottom: 20px;
+    width: 100%;
+  }
+  
+/* ✅ 詳細ページ：画像・子ども情報 */
+.book-detail-image {
+    max-width: 300px;  /* ✅ 画像の最大幅を制限 */
+    height: auto;
+    display: block;
+    margin: 20px auto;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+}
+.book-detail-container {
+    display: flex;
+    justify-content: space-between;
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+} 
+.book-info {
+    width: 40%;
+    text-align: left;
+} 
+.book-owners {
+    width: 40%;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    justify-content: flex-start;
+    margin-left: 15%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;   /* ✅ 子ども名を右端に寄せる */
+    justify-content: flex-start;
+    width: 100%;
+    padding-right: 40px;   /* ✅ 右端に余白を少し追加 */
+}
+.child-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-start;  /* ✅ 左寄せ */
+    margin-bottom: 8px;
+    padding-left: 5px;            /* ✅ ちょっとだけ左に寄せる */
+}  
+.child-icon {
+    font-size: 20px;
+}
+.child-entry {
+    background: #f0f0f0;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.child-name.with-icon {
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-end;
+}
+.child-edit-container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    text-align: center;
+  }
+  
+  .child-edit-title {
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .child-list {
+    margin-top: 20px;
+    text-align: left;
+  }
+  
+  .child-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    background: #f9f9f9;
+    padding: 10px 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .child-dot {
+    font-size: 20px;
+    color: #5cb85c;
+  }
+  
+  .child-name {
+    font-weight: bold;
+    flex-grow: 1;
+  }
+  
+  .child-edit,
+  .child-delete {
+    font-size: 14px;
+    color: #007bff;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  
+  .child-delete:hover {
+    color: red;
+  }
+  
+  .child-form {
+    margin-top: 20px;
+    text-align: left;
+  }
+  
+.child-entry {
+    background: #f9f9f9;
+    padding: 14px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+  }
+  .btn-small {
+    padding: 6px 16px;  /* 上下6px、左右16px */
+    font-size: 14px;
+    width: auto;
+}
+.btn-primary {
+    display: inline-block;  /* ← これで必要な分だけの幅に */
+    padding: 8px 20px;
+    font-size: 16px;
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    width: auto;  /* ← 明示的に幅を短く */
+}
+.btn-narrow {
+    width: auto !important;     /* ← 最優先で width を自動に */
+    padding: 6px 18px;           /* ← 横幅を調整 */
+    display: inline-block;       /* ← 幅を必要最小限に */
+}
+
+
+  
+  /* ✅ 全体横並びにする：名前〜回数 + メモ */
+  .child-info-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    flex-wrap: wrap; /* 画面が狭いとき折り返す */
+  }
+  
+  /* ✅ 名前〜回数の部分 */
+  .child-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  
+  /* ✅ メモを横並びの右側に表示 */
+  .memo-box-inline {
+    min-width: 220px;
+    max-width: 300px;
+  }
+  
+  .memo-box-inline textarea {
+    width: 100%;
+    height: 80px;
+    padding: 6px;
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    resize: vertical;
+    margin-bottom: 6px;
+  }
+  
+  .memo-save-btn {
+    padding: 8px 12px;
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .memo-save-btn:hover {
+    background-color: #4cae4c;
+  }
+  
+/* ✅ メモ欄 */
+.memo-box {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    margin-top: 8px;
+    width: 100%;
+}
+.memo-box textarea {
+    width: 100%;
+    padding: 6px;
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    resize: vertical;
+    box-sizing: border-box;
+    margin-bottom: 6px;
+}
+.memo-save-btn {
+    display: block;
+    margin-top: 5px;
+    padding: 8px 12px;
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.memo-save-btn:hover {
+    background-color: #4cae4c;
+}
+/* ✅ マーク・ボタン類 */
+.favorite-star {
+    font-size: 24px;         /* 大きくする */
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 50%;      /* 丸く見せる */
+    color: #f1c40f;          /* 星の色 */
+    display: inline-block;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.2s ease-in-out;
+}
+.favorite-star.favorited {
+    background-color: #ffeaa7;
+    color: #e67e22;
+    transform: scale(1.1);
+}
+.favorite-star:hover {
+    background-color: #fff8dc;
+    transform: scale(1.15);
+}
+.add-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    background-color: #5cb85c;
+    color: white;
+    font-size: 30px;
+    text-align: center;
+    line-height: 50px;
+    border-radius: 50%;
+    text-decoration: none;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    transition: background 0.3s ease;
+}
+.add-button:hover {
+    background-color: #0056b3;
+}
+/* ✅ モーダル全体のデザイン */
+.modal {
+    display: none;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 400px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+.modal-show {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+.modal-content {
+    padding: 20px;
+    text-align: center;
+}
+.modal-form-container {
+    width: 100%;
+    padding: 10px;
+}
+.modal-content .form-group {
+    margin-bottom: 15px;
+}
+.modal-content label {
+    font-size: 14px;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+.modal-content input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+.submit-button {
+    width: 100%;
+    padding: 10px;
+    background: #5cb85c;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.submit-button:hover {
+    background: #4cae4c;
+}
+.modal .close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 20px;
+    cursor: pointer;
+    color: #333;
+}
+.close {
+    float: right;
+    font-size: 24px;
+    cursor: pointer;
+}
+/* ✅ ハンバーガーメニュー */
+.nav-links,
+#nav-menu {
+    display: none;
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    background: #444;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 1000; /* ✅ メニューを最前面に */
+  }
+  
+.nav-links a,
+#nav-menu a {
+    color: white;
+    text-decoration: none;
+    padding: 8px;
+    display: block;
+}
+.nav-links a:hover ,
+#nav-menu a:hover{
+    background: #555;
+}
+.nav-links.active,
+.show{
+    display: block !important;/* `active` クラスが付与されたら表示 */
+}
+/* ✅ ドロップダウンリスト */
+.dropdown-container {
+    position: absolute;
+    top: 70px;  /* ヘッダーの下に配置 */
+    left: 10px;  /* 左端に配置 */
+    background-color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+/* ✅ ドロップダウンのラベル */
+.dropdown-container label {
+    font-size: 14px;
+    margin-right: 5px;
+}
+/* ✅ ドロップダウンメニュー */
+.dropdown-container select {
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+
+
+
+.child-selector {
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 5px 20px 0 !important;  /* ← margin-top:5px に統一 */
+    padding: 0 !important;
+    z-index: 10;
+    height: 40px !important;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.child-selector select {
+    width: 180px;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    background-color: white;
+    margin-right: 10px; /* アイコンとの間隔 */
+}
+.child-selector label {
+    font-size: 14px;
+    padding: 4px 8px;
+    height: 30px !important;  /* ここも明示 */
+    line-height: 30px;
+  }
+.child-edit-icon {
+    font-size: 20px;
+    text-decoration: none;
+    color: #5cb85c;
+    cursor: pointer;
+}
+.child-edit-icon:hover {
+    color: #4a9c4a;
+}
+
+
+  
+/* ✅ その他のレイアウト調整 */
+.book-detail-container::after {
+    content: "CSSリロード";
+    display: none;
+}
+.child-message-container {
+    display: flex;
+    justify-content: flex-end;  /* 右寄せ */
+    padding-right: 20px;  /* 右側の余白調整 */
+}
+.child-box {
+    width: auto;
+    min-width: 150px;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #f9f9f9;
+    text-align: right;  /* ✅ テキストも右寄せ */
+}
+.child-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.no-child-message {
+    display: flex;
+    justify-content: flex-end;  /* ✅ 右寄せ */
+    width: 100%;
+    padding-right: 20px; /* ✅ 右端に寄せる余白を調整 */
+}
+.no-child-message p {
+    font-weight: bold;
+    color: #555;
+}
+.settings-container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+.settings-title {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 24px;
+    color: #333;
+}
+.form-group {
+    margin-bottom: 20px;
+}
+.form-control {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+.btn-primary {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.btn-primary:hover {
+    background-color: #4cae4c;
+} 
+.favorite-star {
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    background-color: #fff8dc;
+    line-height: 1;
+    transition: transform 0.2s ease;
+}
+.favorite-star.favorited {
+    background-color: #ffeaa7;
+    color: #e67e22;
+    transform: scale(1.1);
+}
+.read-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 6px;
+    margin-left: 30px; /* ✅ 名前の位置に少し揃える */
+}
+
+.read-button {
+    padding: 6px 14px;
+    font-size: 14px;
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+  
+.read-button:hover {
+    background-color: #4cae4c;
+}
+  
+.read-count {
+    font-size: 14px;
+    color: #333;
+    white-space: nowrap;
+}
+.child-entry {
+    background: #f9f9f9;
+    padding: 14px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+/* 🧑 名前 + ☆ を横一列で左寄せ */
+.child-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+/* ✅ 全体横並びにする：名前〜回数 + メモ */
+.child-info-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    flex-wrap: wrap; /* 画面が狭いとき折り返す */
+}
+  
+/* ✅ 名前〜回数の部分 */
+.child-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.child-icon {
+    font-size: 20px;
+}
+
+.child-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    white-space: nowrap;
+}
+
+.favorite-star {
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    background-color: #fff8dc;
+    line-height: 1;
+}
+
+/* 📖 よんだ＋回数 横並び */
+.read-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 30px;
+    margin-bottom: 10px;
+}
+
+.read-button {
+    padding: 6px 14px;
+    font-size: 14px;
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.read-count {
+    font-size: 14px;
+    color: #333;
+    white-space: nowrap;
+}
+
+.memo-box-inline {
+    min-width: 300px;
+    max-width: 400px;
+    background-color: #f9f9f9;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    position: relative;
+}
+  
+.memo-box-inline textarea {
+    width: 100%;
+    height: 120px;  /* ✅ 高さをもう少しアップ */
+    font-size: 14px;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    resize: vertical;
+    margin-bottom: 6px;
+}
+  
+.memo-save-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+
+    padding: 5px 11px;
+    font-size: 11px;
+    background-color: #a5d6a7;
+    color:#2e7d32;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+    
+.memo-save-btn:hover {
+    background-color: #4cae4c;
+}
+  
+/* ✅ もっとよんで専用レイアウト */
+.book-container.more-read {
+    grid-template-columns: repeat(3, 1fr);  /* 3列 */
+    grid-auto-rows: 1fr;
+    gap: 20px;
+    justify-items: center;
+    padding: 30px;
+}
+
+/* ✅ ごみ箱アイコンボタンスタイル */
+.delete-icon-button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #888;
+    margin-left: 10px;
+    transition: color 0.2s ease;
+}
+
+.delete-icon-button:hover {
+    color: #d9534f;  /* ホバー時に赤系に変化 */
+}
+
+
+/* ✅ ドロップダウン＋検索を横並びにする全体ラッパー */
+.toolbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 20px 0 20px;
+  }
+  
+  /* ✅ 検索フォームの見た目調整（右寄せ） */
+  .search-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .search-input {
+    padding: 6px 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .search-button {
+    padding: 6px 12px;
+    font-size: 14px;
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .search-button:hover {
+    background-color: #4cae4c;
+  }
+  /* 📅 カレンダー全体 */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 12px;
+    margin: 20px auto;
+    max-width: 800px;
+  }
+  
+  /* 🧱 各日付セル */
+  .calendar-cell {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 10px 6px;
+    min-height: 80px;
+    font-size: 14px;
+    text-align: left;
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: transform 0.1s ease;
+  }
+  .calendar-cell:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  
+  /* 📆 日付番号 */
+  .calendar-day {
+    font-weight: bold;
+    font-size: 13px;
+    margin-bottom: 6px;
+    color: #444;
+  }
+  
+  /* 📚 絵本アイコン画像 */
+  .book-icon img {
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    object-fit: cover;
+    margin: 3px 3px 0 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+  
+  /* 📌 曜日ラベル（必要に応じて） */
+  .calendar-weekday {
+    font-weight: bold;
+    text-align: center;
+    padding: 8px 0;
+    background-color: #f2f2f2;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #555;
+  }
+  .most-read-banner {
+    background-color: #fff8dc;
+    color: #444;
+    font-size: 18px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    margin: 20px auto;
+    max-width: 500px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  .child-edit,
+.child-delete {
+  margin-left: 10px;
+  font-size: 14px;
+  background-color: transparent;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.child-delete:hover {
+  color: red;
+}
+/* 最後に強制上書きする */
+.btn-primary.btn-narrow {
+    width: auto !important;
+    padding: 6px 18px;
+    display: inline-block;
+}
+.child-edit-container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.child-edit-title {
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.btn-primary.btn-narrow {
+    width: auto !important;
+    padding: 6px 18px;
+    display: inline-block;
+    font-size: 16px;
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-primary.btn-narrow:hover {
+    background-color: #4cae4c;
+}
+.read-minus-button {
+    background: transparent;
+    border: 1px solid #ccc;
+    color: #666;
+    padding: 4px 8px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 5px;
+  }
+  
+  .read-minus-button:hover {
+    background-color: #f5f5f5;
+  }
+  .child-read-list {
+    list-style-position: inside;  /* ・の位置をテキストに近づける */
+    padding-left: 0;
+    margin: 0 auto;
+    display: inline-block;
+    text-align: left;
+  }
+  .child-read-list li {
+    margin: 4px 0;
+    font-size: 16px;
+  }
+  .book-icon {
+    font-size: 30px;  
+    line-height: 1;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;  /* 高さを確保（お好みで） */
+  }
+
+  .book-icon:hover {
+    transform: scale(1.2);  /* ホバーでちょっと大きく */
+  }
+
+  .no-books-message {
+    text-align: center;
+    font-size: 18px;
+    color: #888;
+    margin-top: 40px;
+  }
+  .shelf-line {
+  width: 100%;
+  height: 12px;
+  background-image: url("/static/images/wood_texture.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  margin: 10px 0 20px;
+  border-radius: 3px;
+}
+
+.content {
+    padding-top: 20px;  /* 必要に応じて調整 */
+    margin-top: 0;
+  }
+
+.favorite-page h2,
+.home-page h2 {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}  
+.favorite-page .child-selector {
+    margin-top: -50px!important;
+  }
+/* 共通調整：すべてのページで余白を40pxに */
+.content {
+    padding-top: 40px;
+  }
+  
+  .home-page h2,
+   .book-list {
+    margin-top: 20px;
+  }
+  .home-page .child-selector {
+    margin-top: -40px!important;  /* ← ここで上に寄せる（必要に応じて調整） */
+  }
+  .home-page .search-form {
+    margin-top: -40px;  /* ← 上に移動。数字は調整可能 */
+  }
+  .favorite-page h2 {
+    margin-top: -10px !important;
+    margin-bottom: 10px !important;
+  }
+  /* ✅ 絵本表示エリア（スクロール） */
+.book-list {
+    max-height: calc(100vh - 100px);  /* 画面高 - ヘッダーなどの固定部分 */
+    overflow-y: auto;
+    padding: 0 20px;
+  }
+  
+  /* ✅ 固定ヘッダー下のマージン */
+  .more-read-page h2 {
+    margin-top: -20px!important;
+    margin-bottom: 0px!important;
+  }
+  
+  .more-read-page .child-selector {
+    margin-bottom: 10px!important;
+    margin-top: -40px !important; 
+  }
+  .family-list {
+    list-style: disc inside;
+    padding-left: 0;
+    margin: 0;
+  }
+  
+  .family-list li {
+    margin: 0;
+    font-size: 16px;
+    color: #555;
+    line-height: 1.6; /* ✅ テキストの高さを少し高めにして整える */
+    vertical-align: middle; /* ✅ ・とテキストの縦位置を揃える */
+  }
+  .invite-list {
+    list-style-type: disc;
+    list-style-position: inside;
+    margin-left: 1.2em;
+    padding-left: 0;
+  }
+  
+  
+
+  

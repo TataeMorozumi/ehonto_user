@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>子どもを追加</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">登録</button>
+    </form>
+
+    <a href="{% url 'child_edit' %}">戻る</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// 必要なJSがあればここに追加可能
+</script>
+{% endblock %}
+

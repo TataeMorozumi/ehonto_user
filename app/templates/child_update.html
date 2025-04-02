@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="child-edit-container">
+    <h2 class="child-edit-title">なまえを変更</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.name.label_tag }}
+            {{ form.name }}
+        </div>
+        <button type="submit" class="btn btn-primary btn-narrow">保存</button>
+    </form>
+
+    <div style="margin-top: 15px;">
+        <a href="{% url 'child_edit' %}">戻る</a>
+    </div>
+</div>
+{% endblock %}

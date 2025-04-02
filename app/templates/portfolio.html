@@ -1,0 +1,142 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ehonto ポートフォリオ</title>
+  <style>
+    body {
+      background-color: white;
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    .section {
+      margin: 40px auto;
+    }
+    .screenshots {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr); /* ✅ 2列にする */
+      gap: 16px;
+      justify-items: center;
+      object-fit: cover;
+      margin-top: 30px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .screenshots img {
+      width: 2000%;  /* ✅ 2列でもしっかり表示される大きさに */
+      max-width: 420px;
+      height: auto;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease;
+    }
+
+    .caption {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #333;
+      text-align: center;
+    }
+    .docs a {
+      display: inline-block;
+      margin: 10px;
+      font-size: 20px;
+      text-decoration: none;
+      color: #007bff;
+    }
+    .docs a:hover {
+      text-decoration: underline;
+    }
+    .app-link {
+      margin-top: 40px;
+    }
+
+    .simple-link {
+      font-size: 20px;
+      color: #333;
+      text-decoration: underline;
+    }
+
+    .simple-link:hover {
+      color: #4CAF50;
+    }
+
+  .natural-button {
+    font-size: 18px;
+    padding: 12px 28px;
+    color: #3e5734;  /* 深めの緑で安心感 */
+    background-color: #e9f5e3;  /* やさしいグリーンベージュ */
+    border: 2px solid #a2c3a4;  /* 淡いグリーンで囲む */
+    border-radius: 28px;
+    text-decoration: none;
+    font-weight: bold;
+    display: inline-block;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 6px rgba(100, 150, 100, 0.1);
+  }
+
+  .natural-button:hover {
+    background-color: #d1eacd;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(100, 150, 100, 0.15);
+  }
+
+  .leaf-icon {
+    margin-right: 8px;
+  }
+  </style>
+</head>
+<body>
+
+  <h1> ehonto</h1>
+  <p>絵本の読み聞かせ履歴の記録・管理をし、家族と共有できるアプリです。</p>
+  <p>こどもごとに本棚を登録することができ、お気に入り登録・ふりかえり・メモ保存などの他に、</p>
+  <p>読み聞かせ頻度の少ない絵本を一覧で知ることができ、読み聞かせの偏りを防ぎます。</p>
+  
+  <div class="section">
+    
+    <div class="screenshots">
+      <div>
+        <img src="{% static 'images/portfolio/home.png' %}" alt="ホーム画面">
+        
+      </div>
+      <div>
+        <img src="{% static 'images/portfolio/more_read.png' %}" alt="もっとよんで">
+        
+      </div>
+      <div>
+        <img src="{% static 'images/portfolio/review.png' %}" alt="ふりかえり">
+       
+      </div>
+      <div>
+        <img src="{% static 'images/portfolio/detail.png' %}" alt="絵本詳細">
+
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    
+    <div class="docs">
+      <a href="{% static 'portfolio/plan.pdf' %}" target="_blank">📄 企画書</a>
+      <a href="{% static 'portfolio/design.pdf' %}" target="_blank">📘 画面設計図</a>
+      <a href="{% static 'portfolio/flow.pdf' %}" target="_blank">🗺 画面遷移図</a>
+      <a href="{% static 'portfolio/er.pdf' %}" target="_blank">📊 ER図</a>
+    </div>
+  </div>
+
+  <div class="app-link">
+    <a href="{% url 'login' %}" class="natural-button">
+      <span class="leaf-icon">🍃</span>アプリへ
+    </a>
+  </div>
+  
+
+</body>
+</html>
