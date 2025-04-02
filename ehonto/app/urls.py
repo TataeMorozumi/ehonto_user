@@ -15,7 +15,6 @@ from .views import (
 urlpatterns = [
     # ✅ お気に入り・履歴ページ
     path('favorite/', views.favorite, name='favorite'),
-    path('review/', views.review, name='review'),
     path('more_read/', views.more_read, name='more_read'),
 
     # ✅ 設定・家族招待
@@ -66,7 +65,12 @@ urlpatterns = [
 
     # ✅ 絵本詳細画面
     path('book_detail/<int:book_id>/', views.book_detail, name='book_detail'),
-    
+    # ✅ ふりかえり画面
+    path("review/<int:year>/<int:month>/", views.review, name="review"),
+    path("review/", views.review_default, name="review_default"),
+
+    # ✅ ログインビューの追加
+    path("login/", auth_views.LoginView.as_view(template_name="login.html"), name="login"),
 ]
 
 # ✅ メディアファイルの配信設定（画像を正しく表示するために必要）

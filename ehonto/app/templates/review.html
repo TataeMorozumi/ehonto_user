@@ -6,25 +6,32 @@
 {% block content %}
 <!-- 📅 カレンダーナビゲーション -->
 <div class="calendar-nav">
-  <a href="?month={{ prev_month.month }}&year={{ prev_month.year }}">◀ 前の月</a>
+  <a href="{% url 'review' prev_month.year prev_month.month %}{% if selected_child_id %}?child_id={{ selected_child_id }}{% endif %}">
+    ◀ 前の月
+  </a>
   <span class="current-month">{{ current_date|date:"Y年n月" }}</span>
-  <a href="?month={{ next_month.month }}&year={{ next_month.year }}">次の月 ▶</a>
+  <a href="{% url 'review' next_month.year next_month.month %}{% if selected_child_id %}?child_id={{ selected_child_id }}{% endif %}">
+    次の月 ▶
+  </a>
 </div>
 
+
+
 <!-- 🧒 子ども選択プルダウン -->
-<div class="child-selector">
-  <form method="get" action="{% url 'review' %}" id="childSelectForm">
-    <label for="child">本棚を選択:</label>
-    <select name="child_id" id="child" onchange="document.getElementById('childSelectForm').submit()">
-      <option value="" {% if not selected_child_id %}selected{% endif %}>共通の本棚</option>
-      {% for child in children %}
-        <option value="{{ child.id }}" {% if selected_child_id == child.id|stringformat:"s" %}selected{% endif %}>
-          {{ child.name }}
-        </option>
-      {% endfor %}
-    </select>
-  </form>
+<div class="child-selector" data-year="{{ year }}" data-month="{{ month }}">
+
+
+  <label for="child">本棚を選択:</label>
+  <select name="child_id" id="child">
+    <option value="" {% if not selected_child_id %}selected{% endif %}>共通の本棚</option>
+    {% for child in children %}
+      <option value="{{ child.id }}" {% if selected_child_id == child.id|stringformat:"s" %}selected{% endif %}>
+        {{ child.name }}
+      </option>
+    {% endfor %}
+  </select>
 </div>
+
 
 <!-- 🌟 今月もっとも読まれた絵本 -->
 {% if most_read_title %}
@@ -196,5 +203,25 @@
   window.closeBookModal = function () {
     document.getElementById("bookModal").style.display = "none";
   };
+  document.getElementById("child").addEventListener("change", function () {
+    const selectedChildId = this.value;
+    const wrapper = document.querySelector(".child-selector");
+    const year = wrapper.dataset.year;
+    const month = wrapper.dataset.month;
+
+    // クエリパラメータの構築
+    const params = new URLSearchParams(window.location.search);
+    if (selectedChildId) {
+        params.set('child_id', selectedChildId);
+    } else {
+        params.delete('child_id');
+    }
+
+    // 新しいURLの構築
+    const newUrl = `/app/review/${year}/${month}/` + (params.toString() ? `?${params.toString()}` : '');
+    window.location.href = newUrl;
+});
+
+
 </script>
 {% endblock %}

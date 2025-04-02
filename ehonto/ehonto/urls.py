@@ -29,9 +29,6 @@ urlpatterns = [
 # signup_view を使いたいので、importも必要
     path('signup/', signup_view, name='signup'),  # ✅ これを追加
 
-    # ✅ Django標準のログイン・ログアウト
-    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 ]
 
 # ✅ メディアファイルの配信設定

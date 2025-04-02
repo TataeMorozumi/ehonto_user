@@ -136,10 +136,6 @@ def favorite(request):
     })
 
 
-# ✅ ふりかえりページ
-def review(request):
-    return render(request, 'review.html')
-
 # ✅ もっとよんでページ
 def more_read(request):
     return render(request, 'more_read.html')
@@ -572,79 +568,6 @@ def increment_read_count(request):
 
     return JsonResponse({"count": read_count.count})
 
-# ✅ ふりかえりページ
-
-@login_required
-def review(request):
-    selected_child_id = request.GET.get("child_id")
-    selected_child = None
-    children = Child.objects.filter(user=request.user)
-
-    if selected_child_id:
-        selected_child = get_object_or_404(Child, id=selected_child_id, user=request.user)
-
-    today = date.today()
-    year = int(request.GET.get("year", today.year))
-    month = int(request.GET.get("month", today.month))
-    current_date = date(year, month, 1)
-    days_in_month = calendar.monthrange(year, month)[1]
-    calendar_days = list(range(1, days_in_month + 1))
-    prev_month = current_date - timedelta(days=1)
-    next_month = (current_date + timedelta(days=days_in_month)).replace(day=1)
-
-    if selected_child:
-        histories = ReadHistory.objects.filter(child=selected_child, date__year=year, date__month=month)
-    else:
-        histories = ReadHistory.objects.filter(date__year=year, date__month=month)
-
-    read_history_json = json.dumps([
-        {"date": str(h.date), "title": h.book.title}
-        for h in histories
-    ], cls=DjangoJSONEncoder)
-
-    calendar_data = defaultdict(list)
-    for history in histories:
-        day = history.date.day
-        calendar_data[day].append(history.book)
-
-    calendar_data = {
-        str(day): [
-            {
-                "id": book.id,
-                "title": book.title,
-                "image_url": book.image.url if book.image else ""
-    
-            }
-            for book in set(books)
-        ]
-        for day, books in calendar_data.items()
-    }
-
-    calendar_data_json = json.dumps(calendar_data, cls=DjangoJSONEncoder)
-
-    book_counter = Counter([h.book.title for h in histories])
-    most_read_title = book_counter.most_common(1)[0][0] if book_counter else None
-
-    monthly_total = histories.count()
-    child_totals = defaultdict(int)
-    for h in histories:
-        child_totals[h.child.name] += 1
-
-    return render(request, "review.html", {
-        "children": children,
-        "selected_child_id": selected_child_id,
-        "calendar_days": calendar_days,
-        "calendar_data": calendar_data,
-        "current_date": current_date,
-        "prev_month": {"year": prev_month.year, "month": prev_month.month},
-        "next_month": {"year": next_month.year, "month": next_month.month},
-        "read_history_json": read_history_json,
-        "most_read_title": most_read_title,
-        "monthly_total": monthly_total,
-        "child_totals": dict(child_totals),
-        "calendar_data_json": calendar_data_json,
-    })
-
 @require_POST
 @login_required
 def decrement_read_count(request):
@@ -667,9 +590,12 @@ def decrement_read_count(request):
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)})
 
-            
 @login_required
-def review(request):
+def review_default(request):
+    today = date.today()
+    return redirect("review", year=today.year, month=today.month)            
+@login_required
+def review(request, year, month):
     selected_child_id = request.GET.get("child_id")
     selected_child = None
     children = Child.objects.filter(user=request.user)
@@ -677,9 +603,6 @@ def review(request):
     if selected_child_id:
         selected_child = get_object_or_404(Child, id=selected_child_id, user=request.user)
 
-    today = date.today()
-    year = int(request.GET.get("year", today.year))
-    month = int(request.GET.get("month", today.month))
     current_date = date(year, month, 1)
     days_in_month = calendar.monthrange(year, month)[1]
     calendar_days = list(range(1, days_in_month + 1))
@@ -723,6 +646,7 @@ def review(request):
     for h in histories:
         child_totals[h.child.name] += 1
 
+
     return render(request, "review.html", {
         "children": children,
         "selected_child_id": selected_child_id,
@@ -736,6 +660,9 @@ def review(request):
         "monthly_total": monthly_total,
         "child_totals": dict(child_totals),
         "calendar_data_json": calendar_data_json,
+        "year": year,
+        "month": month,
+
     })
 
 
