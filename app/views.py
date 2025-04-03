@@ -110,13 +110,13 @@ def favorite(request):
     selected_child_id = request.GET.get("child_id")
     selected_child = None
 
-    children = Child.objects.filter(user=request.user)  # ✅ 自分の子どもだけ取得
+    children = Child.objects.filter(user=request.user)  
 
     if selected_child_id:
         selected_child = get_object_or_404(Child, id=selected_child_id, user=request.user)
-        favorites = Favorite.objects.filter(user=request.user, child=selected_child)
+        favorites = Favorite.objects.filter(user=request.user, child=selected_child, child__user=request.user )
     else:
-        favorites = Favorite.objects.filter(user=request.user)
+        favorites = Favorite.objects.filter(user=request.user, child__user=request.user )
 
     # ✅ お気に入りの book も自分のものだけ
     books = Book.objects.filter(
@@ -343,24 +343,27 @@ def home_view(request):
 # ✅ メモを保存するAPI（非同期リクエスト対応）
 @require_POST
 @login_required
-def save_memo(request):
+def increment_read_count(request):
     book_id = request.POST.get("book_id")
     child_id = request.POST.get("child_id")
-    content = request.POST.get("content")
 
     book = get_object_or_404(Book, id=book_id)
     child = get_object_or_404(Child, id=child_id)
 
-    memo, created = Memo.objects.get_or_create(book=book, child=child)
-    memo.content = content
-    memo.save()
+    # Count 更新
+    read_count, _ = ReadCount.objects.get_or_create(book=book, child=child)
+    read_count.count += 1
+    read_count.save()
 
-    return JsonResponse({"status": "ok", "content": memo.content})
+    # 履歴を追加
+    ReadHistory.objects.create(book=book, child=child)
+
+    return JsonResponse({"count": read_count.count})
 
 # ✅ 子ども情報編集画面
 @login_required
 def child_edit(request):
-    children = Child.objects.filter(user=request.user)  # ← 🔧 修正
+    children = Child.objects.filter(user=request.user)  
     form = ChildForm()
 
     if request.method == "POST":
@@ -370,7 +373,7 @@ def child_edit(request):
             form = ChildForm(request.POST)
             if form.is_valid():
                 child = form.save(commit=False)
-                child.user = request.user  # ← 🔧 所有者を設定
+                child.user = request.user  
                 child.save()
                 messages.success(request, "子どもが登録されました。")
                 return redirect('child_edit')
@@ -415,13 +418,16 @@ def toggle_favorite(request):
         child_id = data.get("child_id")
 
         try:
-            book = Book.objects.get(id=book_id, user=request.user)  # ✅ ログインユーザーの book のみ
-            child = Child.objects.get(id=child_id, user=request.user)  # ✅ ログインユーザーの child のみ
+            book = Book.objects.get(id=book_id, user=request.user)
+            child = Child.objects.get(id=child_id, user=request.user)
         except (Book.DoesNotExist, Child.DoesNotExist):
             return JsonResponse({"favorited": False, "error": "該当データなし"})
 
-        user = request.user
-        favorite, created = Favorite.objects.get_or_create(user=user, book=book, child=child)
+        favorite, created = Favorite.objects.get_or_create(
+            user=request.user,
+            book=book,
+            child=child
+        )
 
         if not created:
             favorite.delete()
@@ -431,11 +437,10 @@ def toggle_favorite(request):
 
     return JsonResponse({"error": "Invalid request"}, status=400)
 
-
 # ✅ こども情報編集画面
 @login_required
 def child_update(request, child_id):
-    child = get_object_or_404(Child, id=child_id, user=request.user)  # ← 🔧 修正
+    child = get_object_or_404(Child, id=child_id, user=request.user)  
 
     if request.method == "POST":
         form = ChildForm(request.POST, instance=child)
@@ -450,7 +455,7 @@ def child_update(request, child_id):
 
 @login_required
 def child_delete(request, child_id):
-    child = get_object_or_404(Child, id=child_id, user=request.user)  # ← 🔧 修正
+    child = get_object_or_404(Child, id=child_id, user=request.user)  
 
     if request.method == "POST":
         child.delete()
@@ -467,14 +472,17 @@ def increment_read_count(request):
     book_id = request.POST.get("book_id")
     child_id = request.POST.get("child_id")
 
-    book = get_object_or_404(Book, id=book_id)
-    child = get_object_or_404(Child, id=child_id)
+    book = get_object_or_404(Book, id=book_id, user=request.user)
+    child = get_object_or_404(Child, id=child_id, user=request.user)
 
-    read_count, created = ReadCount.objects.get_or_create(book=book, child=child)
+    read_count, _ = ReadCount.objects.get_or_create(book=book, child=child)
     read_count.count += 1
     read_count.save()
 
+    ReadHistory.objects.create(book=book, child=child)
+
     return JsonResponse({"count": read_count.count})
+
 
 @login_required
 def more_read(request):
@@ -494,8 +502,9 @@ def more_read(request):
         if selected_child:
             count = ReadCount.objects.filter(book=book, child=selected_child).aggregate(total=Sum("count"))["total"] or 0
         else:
-            count = 0
+            count = ReadCount.objects.filter(book=book, child__user=request.user).aggregate(total=Sum("count"))["total"] or 0
         book_with_counts.append((book, count))
+        
 
     sorted_books = sorted(book_with_counts, key=lambda x: x[1])[:6]
     sorted_books_only = [b[0] for b in sorted_books]
@@ -637,21 +646,25 @@ def review(request, year, month):
 
     # ✅ ログインユーザーの履歴のみ取得
     if selected_child:
-        histories = ReadHistory.objects.filter(child=selected_child, date__year=year, date__month=month)
+        histories = ReadHistory.objects.filter(
+            child=selected_child,
+            child__user=request.user,
+            date__year=year,
+            date__month=month
+        )
     else:
         histories = ReadHistory.objects.filter(
             date__year=year,
             date__month=month,
-            book__user=request.user  # ✅ 共通本棚のときもログインユーザーのみ
+            book__user=request.user,
+            child__user=request.user  # ← 共通本棚でも自分の子だけ対象に
         )
 
-    # ✅ JSON 変換用データ
     read_history_json = json.dumps([
         {"date": str(h.date), "title": h.book.title}
         for h in histories
     ], cls=DjangoJSONEncoder)
 
-    # ✅ カレンダー用データ
     calendar_data = defaultdict(list)
     for history in histories:
         day = history.date.day
@@ -695,7 +708,6 @@ def review(request, year, month):
         "year": year,
         "month": month,
     })
-
 
 
 @require_POST
