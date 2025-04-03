@@ -12,9 +12,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-)8jk-b))n$x$f1cpgotan-4f^9h@&rk^(4x2yc$air1vgxhz*!'
 
 # ✅ 開発モード（本番では False に変更）
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['tatae.pythonanywhere.com']
 
 # ✅ アプリケーションの登録
 INSTALLED_APPS = [
