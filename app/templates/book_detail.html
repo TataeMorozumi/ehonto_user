@@ -188,14 +188,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function openEditModal() {
   const modal = document.getElementById("editBookModal");
-  modal.classList.add("modal-show");  // ⭐ 追加
-  modal.style.display = "block";
+  modal.classList.add("modal-show");
 }
 function closeEditModal() {
   const modal = document.getElementById("editBookModal");
-  modal.classList.remove("modal-show");  // ⭐ 追加
-  modal.style.display = "none";
+  modal.classList.remove("modal-show");
 }
+
 
 function decrementRead(bookId, childId) {
   console.log("📉 減らす:", bookId, childId);  // ←確認用ログ
