@@ -96,7 +96,9 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const stars = document.querySelectorAll(".favorite-star");
-
+    const closeBtn = document.querySelector(".modal .close");
+    console.log("✖️ ボタン要素:", closeBtn);
+    
     stars.forEach(star => {
         star.addEventListener("click", function () {
             const bookId = this.dataset.bookId;
