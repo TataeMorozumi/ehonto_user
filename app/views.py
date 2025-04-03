@@ -150,7 +150,6 @@ def family_invite(request):
 
 # ✅ 絵本登録ページ（重複チェック付き）
 from django.views.decorators.csrf import csrf_exempt
-
 def add_book(request):
     if request.method == "POST":
         form = BookForm(request.POST, request.FILES)
@@ -158,14 +157,14 @@ def add_book(request):
             title = form.cleaned_data["title"]
             child_id = request.POST.get("child_id")
 
-            # ✅ 共通の本棚（child_id が空や None の場合）を考慮
             selected_child = None
             if child_id and child_id != "None":
                 try:
-                    selected_child = Child.objects.get(id=int(child_id))
+                    selected_child = Child.objects.get(id=int(child_id), user=request.user)
                     existing_books = Book.objects.filter(
                         title=title,
-                        child=selected_child
+                        child=selected_child,
+                        user=request.user  # ← ここも追加
                     )
                     if existing_books.exists():
                         return JsonResponse({
@@ -179,29 +178,27 @@ def add_book(request):
                     })
 
             book = form.save(commit=False)
-            book.user = request.user  # ← ここを先に！
+            book.user = request.user  # ✅ save前にセット！
             book.save()
             form.save_m2m()
 
             if selected_child:
-                book.child.set([selected_child])  # ✅ 紐づけ（共通の場合はスキップ）
+                book.child.set([selected_child])
 
             return JsonResponse({"success": True})
 
         return JsonResponse({"success": False, "error": "フォームが無効です"})
 
-
-
-    # ✅ GETの場合のみテンプレートを返す！
+    # GET用
     form = BookForm()
     selected_child_id = request.GET.get("child_id")
     children = Child.objects.filter(user=request.user)
-
     return render(request, "add_book.html", {
         "form": form,
         "selected_child_id": selected_child_id,
         "children": children,
     })
+
 
 # ✅ パスワード変更ビュー
 class CustomPasswordChangeView(PasswordChangeView):
