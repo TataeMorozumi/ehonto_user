@@ -315,7 +315,7 @@ def home_view(request):
         selected_child = get_object_or_404(Child, id=selected_child_id, user=request.user)
         books_qs = Book.objects.filter(child=selected_child, user=request.user)
     else:
-        books_qs = Book.objects.filter(user=request.user)
+        books_qs = Book.objects.filter(child=selected_child, user=request.user)
 
     books_qs = books_qs.exclude(image='').exclude(image=None).order_by("-created_at")
 
@@ -347,8 +347,8 @@ def increment_read_count(request):
     book_id = request.POST.get("book_id")
     child_id = request.POST.get("child_id")
 
-    book = get_object_or_404(Book, id=book_id)
-    child = get_object_or_404(Child, id=child_id)
+    book = get_object_or_404(Book, id=book_id, user=request.user)
+    child = get_object_or_404(Child, id=child_id, user=request.user)
 
     # Count 更新
     read_count, _ = ReadCount.objects.get_or_create(book=book, child=child)
@@ -586,10 +586,10 @@ def increment_read_count(request):
     book_id = request.POST.get("book_id")
     child_id = request.POST.get("child_id")
 
-    book = get_object_or_404(Book, id=book_id)
-    child = get_object_or_404(Child, id=child_id)
+    book = get_object_or_404(Book, id=book_id, user=request.user)
+    child = get_object_or_404(Child, id=child_id, user=request.user)
 
-    # Count 更新
+
     read_count, _ = ReadCount.objects.get_or_create(book=book, child=child)
     read_count.count += 1
     read_count.save()
@@ -657,7 +657,7 @@ def review(request, year, month):
             date__year=year,
             date__month=month,
             book__user=request.user,
-            child__user=request.user  # ← 共通本棚でも自分の子だけ対象に
+            child__user=request.user 
         )
 
     read_history_json = json.dumps([
@@ -730,4 +730,19 @@ def decrement_read_count(request):
         return JsonResponse({"success": True, "count": read_count.count})
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)})
-   
+@require_POST
+@login_required
+def save_memo(request):
+    book_id = request.POST.get("book_id")
+    child_id = request.POST.get("child_id")
+    content = request.POST.get("content")
+
+    # ✅ ログインユーザーの book・child のみ許可
+    book = get_object_or_404(Book, id=book_id, user=request.user)
+    child = get_object_or_404(Child, id=child_id, user=request.user)
+
+    memo, _ = Memo.objects.get_or_create(book=book, child=child)
+    memo.content = content
+    memo.save()
+
+    return JsonResponse({"status": "ok", "content": memo.content})  
