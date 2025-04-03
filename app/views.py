@@ -315,7 +315,8 @@ def home_view(request):
         selected_child = get_object_or_404(Child, id=selected_child_id, user=request.user)
         books_qs = Book.objects.filter(child=selected_child, user=request.user)
     else:
-        books_qs = Book.objects.filter(child=selected_child, user=request.user)
+        books_qs = Book.objects.filter(child=None, user=request.user)
+
 
     books_qs = books_qs.exclude(image='').exclude(image=None).order_by("-created_at")
 
