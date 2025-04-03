@@ -179,8 +179,8 @@ def add_book(request):
                     })
 
             book = form.save(commit=False)
+            book.user = request.user  # ← ここを先に！
             book.save()
-            book.user = request.user
             form.save_m2m()
 
             if selected_child:
