@@ -65,7 +65,7 @@
 <!-- ✅ 編集モーダル -->
 <div id="editBookModal" class="modal">
   <div class="modal-content">
-    <span class="close" onclick="closeEditModal()">&times;</span>
+    <span class="close" onclick="closeEditModal()">✖</span>
     <h3>絵本情報を編集</h3>
 
     <form id="editBookForm" method="POST" enctype="multipart/form-data" action="{% url 'edit_book' book.id %}">
@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const stars = document.querySelectorAll(".favorite-star");
     const closeBtn = document.querySelector(".modal .close");
     console.log("✖️ ボタン要素:", closeBtn);
-    
+
     stars.forEach(star => {
         star.addEventListener("click", function () {
             const bookId = this.dataset.bookId;
@@ -187,10 +187,14 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function openEditModal() {
-  document.getElementById("editBookModal").style.display = "block";
+  const modal = document.getElementById("editBookModal");
+  modal.classList.add("modal-show");  // ⭐ 追加
+  modal.style.display = "block";
 }
 function closeEditModal() {
-  document.getElementById("editBookModal").style.display = "none";
+  const modal = document.getElementById("editBookModal");
+  modal.classList.remove("modal-show");  // ⭐ 追加
+  modal.style.display = "none";
 }
 
 function decrementRead(bookId, childId) {
