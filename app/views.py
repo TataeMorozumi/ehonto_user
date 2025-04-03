@@ -110,34 +110,35 @@ def favorite(request):
     selected_child_id = request.GET.get("child_id")
     selected_child = None
 
-    children = Child.objects.filter(user=request.user)  
-
     if selected_child_id:
-        selected_child = get_object_or_404(Child, id=selected_child_id, user=request.user)
-        favorites = Favorite.objects.filter(user=request.user, child=selected_child, child__user=request.user )
+        selected_child = get_object_or_404(Child, id=selected_child_id)
+        favorites = Favorite.objects.filter(user=request.user, child=selected_child)
     else:
-        favorites = Favorite.objects.filter(user=request.user, child__user=request.user )
+        favorites = Favorite.objects.filter(user=request.user)
 
-    # ✅ お気に入りの book も自分のものだけ
-    books = Book.objects.filter(
-        id__in=favorites.values_list("book_id", flat=True),
-        user=request.user
-    ).order_by("-created_at")
+    books = Book.objects.filter(id__in=favorites.values_list("book_id", flat=True)).order_by("-created_at")
 
+    # ✅ ページネーション（7x4 = 28冊）
     paginator = Paginator(books, 28)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    # ✅ 7冊ずつに区切って book_rows を作成
     books_list = list(page_obj)
     book_rows = [books_list[i:i+7] for i in range(0, len(books_list), 7)]
 
     return render(request, "favorite.html", {
         "books": page_obj,
-        "book_rows": book_rows,
-        "children": children,
+        "book_rows": book_rows,  # ← 追加
+        "children": Child.objects.all(),
         "selected_child_id": selected_child_id,
         "page_obj": page_obj,
     })
+
+
+# ✅ もっとよんでページ
+def more_read(request):
+    return render(request, 'more_read.html')
 
 # ✅ 設定ページ
 def settings_view(request):
@@ -150,6 +151,8 @@ def family_invite(request):
 
 # ✅ 絵本登録ページ（重複チェック付き）
 from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt 
 def add_book(request):
     if request.method == "POST":
         form = BookForm(request.POST, request.FILES)
@@ -157,14 +160,14 @@ def add_book(request):
             title = form.cleaned_data["title"]
             child_id = request.POST.get("child_id")
 
+            # ✅ 共通の本棚（child_id が空や None の場合）を考慮
             selected_child = None
             if child_id and child_id != "None":
                 try:
-                    selected_child = Child.objects.get(id=int(child_id), user=request.user)
+                    selected_child = Child.objects.get(id=int(child_id))
                     existing_books = Book.objects.filter(
                         title=title,
-                        child=selected_child,
-                        user=request.user  # ← ここも追加
+                        child=selected_child
                     )
                     if existing_books.exists():
                         return JsonResponse({
@@ -178,36 +181,29 @@ def add_book(request):
                     })
 
             book = form.save(commit=False)
-            book.user = request.user  # ✅ save前にセット！
             book.save()
+            book.user = request.user
             form.save_m2m()
 
             if selected_child:
-                book.child.set([selected_child])
+                book.child.set([selected_child])  # ✅ 紐づけ（共通の場合はスキップ）
 
             return JsonResponse({"success": True})
 
         return JsonResponse({"success": False, "error": "フォームが無効です"})
 
-    # GET用
+
+
+    # ✅ GETの場合のみテンプレートを返す！
     form = BookForm()
     selected_child_id = request.GET.get("child_id")
     children = Child.objects.filter(user=request.user)
+
     return render(request, "add_book.html", {
         "form": form,
         "selected_child_id": selected_child_id,
         "children": children,
     })
-
-
-# ✅ パスワード変更ビュー
-class CustomPasswordChangeView(PasswordChangeView):
-    template_name = 'password_change.html'
-    success_url = reverse_lazy('password_change_done')
-
-password_change_view = login_required(CustomPasswordChangeView.as_view())
-
-
 
 # ✅ パスワード変更ビュー
 class CustomPasswordChangeView(PasswordChangeView):
@@ -249,28 +245,31 @@ def signup_view(request):
             messages.error(request, "パスワードが一致しません")
 
     return render(request, "signup.html")
-
 # ✅ 絵本詳細ビュー
-@login_required
+
 def book_detail(request, book_id):
-    # ✅ 自分の絵本しか取得できないように制限
-    book = get_object_or_404(Book, id=book_id, user=request.user)
+    book = get_object_or_404(Book, id=book_id)
 
-    # ✅ 該当絵本に紐づく子ども
     if book.child.exists():
-        registered_children = book.child.filter(user=request.user)
+        registered_children = book.child.all()
     else:
-        registered_children = Child.objects.filter(user=request.user)
+        registered_children = Child.objects.all()
 
-    favorites = Favorite.objects.filter(user=request.user, book=book)
-    favorited_child_ids = favorites.values_list('child_id', flat=True)
-
-    # ✅ 各子どもの読んだ回数取得
-    read_counts_qs = ReadCount.objects.filter(book=book, child__user=request.user)
+     # ✅ ログインユーザーに紐づくお気に入りのみ取得
+    if request.user.is_authenticated:
+        favorites = Favorite.objects.filter(user=request.user, book=book)
+        favorited_child_ids = favorites.values_list('child_id', flat=True)
+    else:
+        favorited_child_ids = []
+    
+     # ✅ 各子どもに対する読んだ回数を取得
+    from .models import ReadCount
+    read_counts_qs = ReadCount.objects.filter(book=book)
     read_counts = {rc.child.id: rc.count for rc in read_counts_qs}
 
-    # ✅ 各子どものメモ取得
-    memos_qs = Memo.objects.filter(book=book, child__user=request.user)
+     # ✅ メモを渡すための追加処理
+    from .models import Memo
+    memos_qs = Memo.objects.filter(book=book)
     memos = {memo.child.id: memo.content for memo in memos_qs}
 
     return render(request, 'book_detail.html', {
@@ -281,27 +280,17 @@ def book_detail(request, book_id):
         'memos': memos,
     })
 
-
 # ✅ 絵本削除ビュー
-@login_required
 def delete_book(request, book_id):
-    book = get_object_or_404(Book, id=book_id, user=request.user)  # ← 🔧 修正
+    book = get_object_or_404(Book, id=book_id)
 
     if request.method == "POST":
         book.delete()
         messages.success(request, "絵本を削除しました。")
-        return redirect('home')
+        return redirect('home')  # ✅ 削除後はホーム画面へリダイレクト
 
     return render(request, "book_detail.html", {"book": book})
 
-
-
-from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
-from django.shortcuts import render, get_object_or_404
-from django.conf import settings
-
-from .models import Book, Child
 
 @login_required
 def home_view(request):
@@ -310,13 +299,14 @@ def home_view(request):
 
     if selected_child_id:
         selected_child = get_object_or_404(Child, id=selected_child_id, user=request.user)
-        books_qs = Book.objects.filter(child=selected_child, user=request.user)
+        books_qs = Book.objects.filter(child=selected_child)
     else:
-        books_qs = Book.objects.filter(child=None, user=request.user)
+         books_qs = Book.objects.filter(user=request.user)
 
-
+    
     books_qs = books_qs.exclude(image='').exclude(image=None).order_by("-created_at")
 
+    # ✅ ページネーション（7x4 = 28件/ページ）
     paginator = Paginator(books_qs, 28)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -324,7 +314,10 @@ def home_view(request):
     books_list = list(page_obj)
     book_rows = [books_list[i:i+7] for i in range(0, len(books_list), 7)]
 
+
+    # ✅ 子どもリストをコンテキストに追加（ドロップダウン用）
     children = Child.objects.filter(user=request.user).distinct()
+    
 
     context = {
         "books": page_obj,
@@ -332,7 +325,7 @@ def home_view(request):
         "MEDIA_URL": settings.MEDIA_URL,
         "children": children,
         "selected_child_id": selected_child_id,
-        "book_rows": book_rows,
+        "book_rows": book_rows, 
     }
     return render(request, "home.html", context)
 
@@ -341,28 +334,24 @@ def home_view(request):
 # ✅ メモを保存するAPI（非同期リクエスト対応）
 @require_POST
 @login_required
-def increment_read_count(request):
+def save_memo(request):
     book_id = request.POST.get("book_id")
     child_id = request.POST.get("child_id")
+    content = request.POST.get("content")
 
-    book = get_object_or_404(Book, id=book_id, user=request.user)
-    child = get_object_or_404(Child, id=child_id, user=request.user)
+    book = get_object_or_404(Book, id=book_id)
+    child = get_object_or_404(Child, id=child_id)
 
-    # Count 更新
-    read_count, _ = ReadCount.objects.get_or_create(book=book, child=child)
-    read_count.count += 1
-    read_count.save()
+    memo, created = Memo.objects.get_or_create(book=book, child=child)
+    memo.content = content
+    memo.save()
 
-    # 履歴を追加
-    ReadHistory.objects.create(book=book, child=child)
-
-    return JsonResponse({"count": read_count.count})
+    return JsonResponse({"status": "ok", "content": memo.content})
 
 # ✅ 子ども情報編集画面
-@login_required
 def child_edit(request):
-    children = Child.objects.filter(user=request.user)  
-    form = ChildForm()
+    children = Child.objects.all()  # 登録済みの子どもを取得
+    form = ChildForm()  # 新規追加用のフォーム
 
     if request.method == "POST":
         if children.count() >= 3:
@@ -370,20 +359,19 @@ def child_edit(request):
         else:
             form = ChildForm(request.POST)
             if form.is_valid():
-                child = form.save(commit=False)
-                child.user = request.user  
-                child.save()
+                form.save()
                 messages.success(request, "子どもが登録されました。")
-                return redirect('child_edit')
+                return redirect('child_edit')  # ✅ 追加後にページを更新
 
     return render(request, 'child_edit.html', {'children': children, 'form': form})
 
 # ✅ 子ども追加処理
+from django.contrib.auth.decorators import login_required
+
 @login_required
 def child_add(request):
-    # ✅ ログインユーザーの子どもを対象にカウント
+    # ✅ 自分の子どもだけカウント
     existing_children = Child.objects.filter(user=request.user)
-
     if existing_children.count() >= 3:
         messages.error(request, "子どもは最大3人まで登録できます。")
         return redirect("child_edit")
@@ -392,7 +380,7 @@ def child_add(request):
         form = ChildForm(request.POST)
         if form.is_valid():
             child = form.save(commit=False)
-            child.user = request.user  # ✅ ユーザーに紐づけ
+            child.user = request.user
             child.save()
             return redirect('child_edit')
     else:
@@ -404,42 +392,46 @@ def child_add(request):
         'max_children': 3
     })
 
-
-
 # ✅ お気に入り
 @csrf_exempt
 @login_required
 def toggle_favorite(request):
     if request.method == "POST":
+        if not request.user.is_authenticated:
+            print("❌ 未ログインのユーザーがアクセス")
+            return JsonResponse({"favorited": False, "error": "ログインが必要です"})
+
         data = json.loads(request.body)
+        print("✅ 受信したデータ:", data)
+
         book_id = data.get("book_id")
         child_id = data.get("child_id")
 
         try:
-            book = Book.objects.get(id=book_id, user=request.user)
-            child = Child.objects.get(id=child_id, user=request.user)
+            book = Book.objects.get(id=book_id)
+            child = Child.objects.get(id=child_id)
         except (Book.DoesNotExist, Child.DoesNotExist):
             return JsonResponse({"favorited": False, "error": "該当データなし"})
 
-        favorite, created = Favorite.objects.get_or_create(
-            user=request.user,
-            book=book,
-            child=child
-        )
+        user = request.user
+        print("✅ ログインユーザー:", user)
+
+        favorite, created = Favorite.objects.get_or_create(user=user, book=book, child=child)
 
         if not created:
             favorite.delete()
+            print("⭐ お気に入りを解除しました")
             return JsonResponse({"favorited": False})
         else:
+            print("⭐ お気に入りに登録しました")
             return JsonResponse({"favorited": True})
 
     return JsonResponse({"error": "Invalid request"}, status=400)
 
-# ✅ こども情報編集画面
-@login_required
-def child_update(request, child_id):
-    child = get_object_or_404(Child, id=child_id, user=request.user)  
 
+# ✅ こども情報編集画面
+def child_update(request, child_id):
+    child = get_object_or_404(Child, id=child_id)
     if request.method == "POST":
         form = ChildForm(request.POST, instance=child)
         if form.is_valid():
@@ -447,21 +439,14 @@ def child_update(request, child_id):
             return redirect('child_edit')
     else:
         form = ChildForm(instance=child)
-
     return render(request, 'child_update.html', {'form': form})
 
-
-@login_required
 def child_delete(request, child_id):
-    child = get_object_or_404(Child, id=child_id, user=request.user)  
-
+    child = get_object_or_404(Child, id=child_id)
     if request.method == "POST":
         child.delete()
         return redirect('child_edit')
-
     return render(request, 'child_delete_confirm.html', {'child': child})
-
-
 
 # ✅ よんだ回数
 @require_POST
@@ -470,19 +455,16 @@ def increment_read_count(request):
     book_id = request.POST.get("book_id")
     child_id = request.POST.get("child_id")
 
-    book = get_object_or_404(Book, id=book_id, user=request.user)
-    child = get_object_or_404(Child, id=child_id, user=request.user)
+    book = get_object_or_404(Book, id=book_id)
+    child = get_object_or_404(Child, id=child_id)
 
-    read_count, _ = ReadCount.objects.get_or_create(book=book, child=child)
+    read_count, created = ReadCount.objects.get_or_create(book=book, child=child)
     read_count.count += 1
     read_count.save()
 
-    ReadHistory.objects.create(book=book, child=child)
-
     return JsonResponse({"count": read_count.count})
 
-
-@login_required
+# ✅ もっとよんでページ
 def more_read(request):
     selected_child_id = request.GET.get("child_id")
     children = Child.objects.filter(user=request.user)
@@ -490,9 +472,9 @@ def more_read(request):
 
     if selected_child_id:
         selected_child = get_object_or_404(Child, id=selected_child_id, user=request.user)
-        books = Book.objects.filter(child=selected_child, user=request.user).distinct()
+        books = Book.objects.filter(child=selected_child).distinct()
     else:
-        books = Book.objects.filter(child=None, user=request.user).distinct()
+        books = Book.objects.filter(child=None).distinct()
 
     # 絵本ごとの読んだ回数を取得
     book_with_counts = []
@@ -500,13 +482,13 @@ def more_read(request):
         if selected_child:
             count = ReadCount.objects.filter(book=book, child=selected_child).aggregate(total=Sum("count"))["total"] or 0
         else:
-            count = ReadCount.objects.filter(book=book, child__user=request.user).aggregate(total=Sum("count"))["total"] or 0
+            count = 0  # 共通の本棚では後で個別に集計
         book_with_counts.append((book, count))
-        
 
     sorted_books = sorted(book_with_counts, key=lambda x: x[1])[:6]
     sorted_books_only = [b[0] for b in sorted_books]
 
+    # ✅ 読んだ回数データの辞書づくり
     read_counts = {}
     tooltip_counts = defaultdict(dict)
 
@@ -529,23 +511,20 @@ def more_read(request):
         "tooltip_counts": tooltip_counts,
     })
 
-from django.contrib.auth.decorators import login_required
-
 @login_required
 def edit_book(request, book_id):
-    # ✅ 自分の絵本だけ編集できるように制限
-    book = get_object_or_404(Book, id=book_id, user=request.user)
+    book = get_object_or_404(Book, id=book_id)
 
     if request.method == "POST":
         book.title = request.POST.get("title")
         book.author = request.POST.get("author")
 
+        # ✅ 新しい画像があれば更新
         if 'image' in request.FILES:
             book.image = request.FILES['image']
 
         book.save()
         return redirect("book_detail", book_id=book.id)
-
     
 @login_required
 def family_invite(request):
@@ -584,10 +563,10 @@ def increment_read_count(request):
     book_id = request.POST.get("book_id")
     child_id = request.POST.get("child_id")
 
-    book = get_object_or_404(Book, id=book_id, user=request.user)
-    child = get_object_or_404(Child, id=child_id, user=request.user)
+    book = get_object_or_404(Book, id=book_id)
+    child = get_object_or_404(Child, id=child_id)
 
-
+    # Count 更新
     read_count, _ = ReadCount.objects.get_or_create(book=book, child=child)
     read_count.count += 1
     read_count.save()
@@ -623,10 +602,6 @@ def decrement_read_count(request):
 def review_default(request):
     today = date.today()
     return redirect("review", year=today.year, month=today.month)            
-from collections import defaultdict, Counter
-from django.utils.timezone import now
-from django.core.serializers.json import DjangoJSONEncoder
-
 @login_required
 def review(request, year, month):
     selected_child_id = request.GET.get("child_id")
@@ -642,21 +617,10 @@ def review(request, year, month):
     prev_month = current_date - timedelta(days=1)
     next_month = (current_date + timedelta(days=days_in_month)).replace(day=1)
 
-    # ✅ ログインユーザーの履歴のみ取得
     if selected_child:
-        histories = ReadHistory.objects.filter(
-            child=selected_child,
-            child__user=request.user,
-            date__year=year,
-            date__month=month
-        )
+        histories = ReadHistory.objects.filter(child=selected_child, date__year=year, date__month=month)
     else:
-        histories = ReadHistory.objects.filter(
-            date__year=year,
-            date__month=month,
-            book__user=request.user,
-            child__user=request.user 
-        )
+        histories = ReadHistory.objects.filter(date__year=year, date__month=month)
 
     read_history_json = json.dumps([
         {"date": str(h.date), "title": h.book.title}
@@ -690,6 +654,7 @@ def review(request, year, month):
     for h in histories:
         child_totals[h.child.name] += 1
 
+
     return render(request, "review.html", {
         "children": children,
         "selected_child_id": selected_child_id,
@@ -705,6 +670,7 @@ def review(request, year, month):
         "calendar_data_json": calendar_data_json,
         "year": year,
         "month": month,
+
     })
 
 
@@ -728,19 +694,4 @@ def decrement_read_count(request):
         return JsonResponse({"success": True, "count": read_count.count})
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)})
-@require_POST
-@login_required
-def save_memo(request):
-    book_id = request.POST.get("book_id")
-    child_id = request.POST.get("child_id")
-    content = request.POST.get("content")
-
-    # ✅ ログインユーザーの book・child のみ許可
-    book = get_object_or_404(Book, id=book_id, user=request.user)
-    child = get_object_or_404(Child, id=child_id, user=request.user)
-
-    memo, _ = Memo.objects.get_or_create(book=book, child=child)
-    memo.content = content
-    memo.save()
-
-    return JsonResponse({"status": "ok", "content": memo.content})  
+   
