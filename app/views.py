@@ -370,7 +370,7 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def child_add(request):
-    # ✅ 自分の子どもだけカウント
+    # 自分の子どもだけを取得・カウント
     existing_children = Child.objects.filter(user=request.user)
     if existing_children.count() >= 3:
         messages.error(request, "子どもは最大3人まで登録できます。")
@@ -380,7 +380,7 @@ def child_add(request):
         form = ChildForm(request.POST)
         if form.is_valid():
             child = form.save(commit=False)
-            child.user = request.user
+            child.user = request.user  # 🔑←ここが重要
             child.save()
             return redirect('child_edit')
     else:
