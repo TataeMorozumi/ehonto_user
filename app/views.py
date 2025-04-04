@@ -21,7 +21,7 @@ import calendar
 from datetime import datetime, timedelta, date
 from collections import defaultdict, Counter
 
-from .forms import SignupForm, BookForm, UserUpdateForm, ChildForm, SignupForm
+from .forms import SignupForm, BookForm, UserUpdateForm, ChildForm
 from .models import Book, Child, Memo, Favorite, ReadCount, UserProfile, ReadHistory
 from django.contrib.auth.models import AnonymousUser, User
 
