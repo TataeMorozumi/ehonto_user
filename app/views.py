@@ -82,24 +82,28 @@ class HomeView(ListView):
         return context
 
 # ✅ 子どもの本棚ページ
+@login_required
 def child_bookshelf(request, child_id):
     selected_child = get_object_or_404(Child, id=child_id, user=request.user)
 
+    # ✅ 自分の絵本だけ取得（選択した子 + 共通）
+    books = Book.objects.filter(
+        user=request.user
+    ).filter(
+        models.Q(child=selected_child) | models.Q(child=None)
+    ).order_by("-created_at")
 
-# ✅ 共通の本棚 + 選択した子どもの本棚の絵本を取得
-    books = Book.objects.filter(models.Q(child=selected_child) | models.Q(child=None)).order_by("-created_at")
-
-# ✅ ページネーション設定 (7列 × 4行 = 28冊)
-    paginator = Paginator(books, 28)  # 1ページ28冊まで
+    # ✅ ページネーション設定
+    paginator = Paginator(books, 28)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     return render(request, "child_bookshelf.html", {
         "selected_child": selected_child,
         "selected_child_id": str(child_id),
-        "books": page_obj,  # ✅ ページネーションを適用
-        "children": Child.objects.all().distinct(),
-        "page_obj": page_obj,  # ✅ ページネーション情報を渡す
+        "books": page_obj,
+        "children": Child.objects.filter(user=request.user).distinct(),
+        "page_obj": page_obj,
     })
 
 
@@ -169,9 +173,11 @@ def add_book(request):
                 try:
                     selected_child = Child.objects.get(id=int(child_id))
                     existing_books = Book.objects.filter(
-                        title=title,
-                        child=selected_child
-                    )
+                    title=title,
+                    child=selected_child,
+                    user=request.user  # ← これが必要！
+                )
+
                     if existing_books.exists():
                         return JsonResponse({
                             "success": False,
@@ -466,6 +472,7 @@ def increment_read_count(request):
     return JsonResponse({"count": read_count.count})
 
 # ✅ もっとよんでページ
+@login_required
 def more_read(request):
     selected_child_id = request.GET.get("child_id")
     children = Child.objects.filter(user=request.user)
@@ -474,18 +481,20 @@ def more_read(request):
     if selected_child_id:
         selected_child = get_object_or_404(Child, id=selected_child_id, user=request.user)
         books = Book.objects.filter(child=selected_child, user=request.user).distinct()
-
     else:
         books = Book.objects.filter(child=None, user=request.user).distinct()
 
-
-    # 絵本ごとの読んだ回数を取得
+    # ✅ 絵本ごとの読んだ回数を取得
     book_with_counts = []
     for book in books:
         if selected_child:
-            count = ReadCount.objects.filter(book=book, child=selected_child).aggregate(total=Sum("count"))["total"] or 0
+            count = ReadCount.objects.filter(
+                book=book,
+                child=selected_child,
+                child__user=request.user  # ✅ 念のため明示
+            ).aggregate(total=Sum("count"))["total"] or 0
         else:
-            count = 0  # 共通の本棚では後で個別に集計
+            count = 0  # 共通の本棚ではあとで集計
         book_with_counts.append((book, count))
 
     sorted_books = sorted(book_with_counts, key=lambda x: x[1])[:6]
@@ -497,13 +506,21 @@ def more_read(request):
 
     if selected_child:
         read_counts = {
-            book.id: ReadCount.objects.filter(book=book, child=selected_child).aggregate(total=Sum("count"))["total"] or 0
+            book.id: ReadCount.objects.filter(
+                book=book,
+                child=selected_child,
+                child__user=request.user  # ✅ 追加！
+            ).aggregate(total=Sum("count"))["total"] or 0
             for book in sorted_books_only
         }
     else:
         for book in sorted_books_only:
             for child in children:
-                count = ReadCount.objects.filter(book=book, child=child).aggregate(total=Sum("count"))["total"] or 0
+                count = ReadCount.objects.filter(
+                    book=book,
+                    child=child,
+                    child__user=request.user  # ✅ ここも追加！
+                ).aggregate(total=Sum("count"))["total"] or 0
                 tooltip_counts[book.id][child.name] = count
 
     return render(request, "more_read.html", {
@@ -513,6 +530,7 @@ def more_read(request):
         "read_counts": read_counts,
         "tooltip_counts": tooltip_counts,
     })
+
 
 @login_required
 def edit_book(request, book_id):
