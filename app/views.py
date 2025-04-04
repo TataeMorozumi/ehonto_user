@@ -117,7 +117,11 @@ def favorite(request):
     else:
         favorites = Favorite.objects.filter(user=request.user)
 
-    books = Book.objects.filter(id__in=favorites.values_list("book_id", flat=True)).order_by("-created_at")
+    books = Book.objects.filter(
+        id__in=favorites.values_list("book_id", flat=True),
+        user=request.user  # 🔐 ← これを追加！
+    ).order_by("-created_at")
+
 
     # ✅ ページネーション（7x4 = 28冊）
     paginator = Paginator(books, 28)
@@ -251,23 +255,24 @@ from django.shortcuts import get_object_or_404, render
 from .models import Book, Favorite, Memo, ReadCount, Child
 
 @login_required
+@login_required
 def book_detail(request, book_id):
-    # ✅ ログインユーザーが所有するBookだけ取得
+    # ✅ Book: ログインユーザーのbookのみ取得
     book = get_object_or_404(Book, id=book_id, user=request.user)
 
-    # ✅ ログインユーザーに紐づく子どもとの紐づけのみ取得
+    # ✅ Child: ログインユーザーの子どもだけに限定（ManyToManyで紐づく中から）
     registered_children = book.child.filter(user=request.user)
 
-    # ✅ お気に入り取得（ユーザー + book 限定）
+    # ✅ お気に入り（ユーザー & Book 限定）※child もログインユーザーのみに絞られる
     favorites = Favorite.objects.filter(user=request.user, book=book)
     favorited_child_ids = favorites.values_list('child_id', flat=True)
 
-    # ✅ 読んだ回数（そのbookに対しての全child分）
-    read_counts_qs = ReadCount.objects.filter(book=book)
+    # ✅ 読んだ回数（ログインユーザーの子どもに対してのみ）
+    read_counts_qs = ReadCount.objects.filter(book=book, child__user=request.user)
     read_counts = {rc.child.id: rc.count for rc in read_counts_qs}
 
-    # ✅ メモ取得
-    memos_qs = Memo.objects.filter(book=book)
+    # ✅ メモ（ログインユーザーの子どもに対してのみ）
+    memos_qs = Memo.objects.filter(book=book, child__user=request.user)
     memos = {memo.child.id: memo.content for memo in memos_qs}
 
     return render(request, 'book_detail.html', {
@@ -298,14 +303,12 @@ def home_view(request):
 
     if selected_child_id:
         selected_child = get_object_or_404(Child, id=selected_child_id, user=request.user)
-        books_qs = Book.objects.filter(child=selected_child)
+        books_qs = Book.objects.filter(child=selected_child, user=request.user)  # ✅ ここを修正
     else:
-         books_qs = Book.objects.filter(user=request.user)
+        books_qs = Book.objects.filter(user=request.user)
 
-    
     books_qs = books_qs.exclude(image='').exclude(image=None).order_by("-created_at")
 
-    # ✅ ページネーション（7x4 = 28件/ページ）
     paginator = Paginator(books_qs, 28)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -313,10 +316,7 @@ def home_view(request):
     books_list = list(page_obj)
     book_rows = [books_list[i:i+7] for i in range(0, len(books_list), 7)]
 
-
-    # ✅ 子どもリストをコンテキストに追加（ドロップダウン用）
     children = Child.objects.filter(user=request.user).distinct()
-    
 
     context = {
         "books": page_obj,
@@ -324,11 +324,10 @@ def home_view(request):
         "MEDIA_URL": settings.MEDIA_URL,
         "children": children,
         "selected_child_id": selected_child_id,
-        "book_rows": book_rows, 
+        "book_rows": book_rows,
     }
     return render(request, "home.html", context)
 
-  
 
 # ✅ メモを保存するAPI（非同期リクエスト対応）
 @require_POST
@@ -348,8 +347,8 @@ def save_memo(request):
     return JsonResponse({"status": "ok", "content": memo.content})
 
 # ✅ 子ども情報編集画面
-def child_edit(request):
-    children = Child.objects.all()  # 登録済みの子どもを取得
+def child_edit(request): 
+    children = Child.objects.filter(user=request.user)  # ✅ 自分の子どもだけ取得
     form = ChildForm()  # 新規追加用のフォーム
 
     if request.method == "POST":
@@ -358,11 +357,14 @@ def child_edit(request):
         else:
             form = ChildForm(request.POST)
             if form.is_valid():
-                form.save()
+                child = form.save(commit=False)
+                child.user = request.user  # ✅ 所有者を指定
+                child.save()
                 messages.success(request, "子どもが登録されました。")
-                return redirect('child_edit')  # ✅ 追加後にページを更新
+                return redirect('child_edit')
 
     return render(request, 'child_edit.html', {'children': children, 'form': form})
+
 
 # ✅ 子ども追加処理
 from django.contrib.auth.decorators import login_required
@@ -471,9 +473,11 @@ def more_read(request):
 
     if selected_child_id:
         selected_child = get_object_or_404(Child, id=selected_child_id, user=request.user)
-        books = Book.objects.filter(child=selected_child).distinct()
+        books = Book.objects.filter(child=selected_child, user=request.user).distinct()
+
     else:
-        books = Book.objects.filter(child=None).distinct()
+        books = Book.objects.filter(child=None, user=request.user).distinct()
+
 
     # 絵本ごとの読んだ回数を取得
     book_with_counts = []
@@ -618,9 +622,17 @@ def review(request, year, month):
     next_month = (current_date + timedelta(days=days_in_month)).replace(day=1)
 
     if selected_child:
-        histories = ReadHistory.objects.filter(child=selected_child, date__year=year, date__month=month)
+        histories = ReadHistory.objects.filter(
+            child=selected_child,
+            date__year=year,
+            date__month=month
+        )
     else:
-        histories = ReadHistory.objects.filter(date__year=year, date__month=month)
+        histories = ReadHistory.objects.filter(
+            date__year=year,
+            date__month=month,
+            child__user=request.user  # ✅ これを追加して他ユーザーの履歴を除外
+        )
 
     read_history_json = json.dumps([
         {"date": str(h.date), "title": h.book.title}
