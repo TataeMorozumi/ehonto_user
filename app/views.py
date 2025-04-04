@@ -190,9 +190,10 @@ def add_book(request):
                     })
 
             book = form.save(commit=False)
+            book.user = request.user  # 🔑 先に user をセット
             book.save()
-            book.user = request.user
             form.save_m2m()
+
 
             if selected_child:
                 book.child.set([selected_child])  # ✅ 紐づけ（共通の場合はスキップ）
@@ -343,8 +344,9 @@ def save_memo(request):
     child_id = request.POST.get("child_id")
     content = request.POST.get("content")
 
-    book = get_object_or_404(Book, id=book_id)
-    child = get_object_or_404(Child, id=child_id)
+    book = get_object_or_404(Book, id=book_id, user=request.user)
+    child = get_object_or_404(Child, id=child_id, user=request.user)
+
 
     memo, created = Memo.objects.get_or_create(book=book, child=child)
     memo.content = content
@@ -438,7 +440,8 @@ def toggle_favorite(request):
 
 # ✅ こども情報編集画面
 def child_update(request, child_id):
-    child = get_object_or_404(Child, id=child_id)
+    child = get_object_or_404(Child, id=child_id, user=request.user)
+
     if request.method == "POST":
         form = ChildForm(request.POST, instance=child)
         if form.is_valid():
@@ -449,7 +452,8 @@ def child_update(request, child_id):
     return render(request, 'child_update.html', {'form': form})
 
 def child_delete(request, child_id):
-    child = get_object_or_404(Child, id=child_id)
+    child = get_object_or_404(Child, id=child_id, user=request.user)
+
     if request.method == "POST":
         child.delete()
         return redirect('child_edit')
@@ -462,8 +466,9 @@ def increment_read_count(request):
     book_id = request.POST.get("book_id")
     child_id = request.POST.get("child_id")
 
-    book = get_object_or_404(Book, id=book_id)
-    child = get_object_or_404(Child, id=child_id)
+    book = get_object_or_404(Book, id=book_id, user=request.user)
+    child = get_object_or_404(Child, id=child_id, user=request.user)
+
 
     read_count, created = ReadCount.objects.get_or_create(book=book, child=child)
     read_count.count += 1
@@ -534,7 +539,7 @@ def more_read(request):
 
 @login_required
 def edit_book(request, book_id):
-    book = get_object_or_404(Book, id=book_id)
+    book = get_object_or_404(Book, id=book_id, user=request.user)
 
     if request.method == "POST":
         book.title = request.POST.get("title")
