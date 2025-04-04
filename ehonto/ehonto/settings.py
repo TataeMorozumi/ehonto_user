@@ -43,7 +43,8 @@ ROOT_URLCONF = 'ehonto.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "app/templates"],  # ✅ ここはそのまま
+        'DIRS': [BASE_DIR / "ehonto" / "app" / "templates"],
+
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
