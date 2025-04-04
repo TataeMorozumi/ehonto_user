@@ -31,9 +31,6 @@ class PortfolioView(View):
         return render(request, "portfolio.html")
 
 # ✅ 新規登録画面
-from django.contrib.auth.models import User
-from django.contrib import messages
-
 class SignupView(View):
     def get(self, request):
         form = SignupForm()
@@ -50,17 +47,12 @@ class SignupView(View):
             user = form.save(commit=False)
             user.first_name = form.cleaned_data["first_name"]
             user.email = email
-            user.username = email  # ← これがないとusername未設定になる
+            user.username = email
             user.save()
             login(request, user)
             return redirect("home")
 
         return render(request, "signup.html", {"form": form})
-
-# ✅ ログイン画面
-class LoginView(View):
-    def get(self, request):
-        return render(request, "login.html")  
 
 # ✅ ホーム画面（絵本一覧を表示）
 class HomeView(ListView):
@@ -70,25 +62,25 @@ class HomeView(ListView):
     paginate_by = 28  # ✅ 7列×4段
 
     def get_queryset(self):
-        # ✅ すべての本棚の絵本を取得（個人の本棚の絵本も含める）
-        books = Book.objects.exclude(image='').exclude(image=None).order_by('-created_at')
+        # ✅ ログインユーザーに関連する絵本を取得
+        books = Book.objects.filter(user=self.request.user).exclude(image='').exclude(image=None).order_by('-created_at')
         return books
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["MEDIA_URL"] = settings.MEDIA_URL
-        context["children"] = Child.objects.all() .distinct() # ✅ 子どもの本棚を取得
+        context["children"] = Child.objects.filter(user=self.request.user).distinct()  # ✅ ログインユーザーの子どもの本棚
         context["selected_child_id"] = self.request.GET.get("child_id", "")
         return context
 
 # ✅ 子どもの本棚ページ
 def child_bookshelf(request, child_id):
-    selected_child = get_object_or_404(Child, id=child_id)
+    selected_child = get_object_or_404(Child, id=child_id, user=request.user)  # ✅ ログインユーザーの子どもに関連する絵本のみ表示
 
-# ✅ 共通の本棚 + 選択した子どもの本棚の絵本を取得
-    books = Book.objects.filter(models.Q(child=selected_child) | models.Q(child=None)).order_by("-created_at")
+    # ✅ 共通の本棚 + 選択した子どもの本棚の絵本を取得
+    books = Book.objects.filter(models.Q(child=selected_child) | models.Q(child=None), user=request.user).order_by("-created_at")
 
-# ✅ ページネーション設定 (7列 × 4行 = 28冊)
+    # ✅ ページネーション設定 (7列 × 4行 = 28冊)
     paginator = Paginator(books, 28)  # 1ページ28冊まで
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -97,26 +89,23 @@ def child_bookshelf(request, child_id):
         "selected_child": selected_child,
         "selected_child_id": str(child_id),
         "books": page_obj,  # ✅ ページネーションを適用
-        "children": Child.objects.all().distinct(),
+        "children": Child.objects.filter(user=request.user).distinct(),  # ✅ ログインユーザーの子ども情報を渡す
         "page_obj": page_obj,  # ✅ ページネーション情報を渡す
     })
 
-
 # ✅ お気に入りページ
-from django.core.paginator import Paginator
-
 @login_required 
 def favorite(request):
     selected_child_id = request.GET.get("child_id")
     selected_child = None
 
     if selected_child_id:
-        selected_child = get_object_or_404(Child, id=selected_child_id)
+        selected_child = get_object_or_404(Child, id=selected_child_id, user=request.user)  # ✅ ログインユーザーに関連する子どものお気に入り
         favorites = Favorite.objects.filter(user=request.user, child=selected_child)
     else:
         favorites = Favorite.objects.filter(user=request.user)
 
-    books = Book.objects.filter(id__in=favorites.values_list("book_id", flat=True)).order_by("-created_at")
+    books = Book.objects.filter(id__in=favorites.values_list("book_id", flat=True), user=request.user).order_by("-created_at")  # ✅ ユーザーに関連する絵本のみ表示
 
     # ✅ ページネーション（7x4 = 28冊）
     paginator = Paginator(books, 28)
@@ -130,28 +119,12 @@ def favorite(request):
     return render(request, "favorite.html", {
         "books": page_obj,
         "book_rows": book_rows,  # ← 追加
-        "children": Child.objects.all(),
+        "children": Child.objects.filter(user=request.user),  # ✅ ログインユーザーの子ども情報
         "selected_child_id": selected_child_id,
         "page_obj": page_obj,
     })
 
-
-# ✅ もっとよんでページ
-def more_read(request):
-    return render(request, 'more_read.html')
-
-# ✅ 設定ページ
-def settings_view(request):
-    return render(request, 'settings.html')
-
-# ✅ 家族招待ページ
-def family_invite(request):
-    return render(request, 'family_invite.html')
-
-
 # ✅ 絵本登録ページ（重複チェック付き）
-from django.views.decorators.csrf import csrf_exempt
-
 @csrf_exempt 
 def add_book(request):
     if request.method == "POST":
@@ -164,10 +137,11 @@ def add_book(request):
             selected_child = None
             if child_id and child_id != "None":
                 try:
-                    selected_child = Child.objects.get(id=int(child_id))
+                    selected_child = Child.objects.get(id=int(child_id), user=request.user)  # ✅ ログインユーザーの子どもに紐づけ
                     existing_books = Book.objects.filter(
                         title=title,
-                        child=selected_child
+                        child=selected_child,
+                        user=request.user
                     )
                     if existing_books.exists():
                         return JsonResponse({
@@ -181,6 +155,7 @@ def add_book(request):
                     })
 
             book = form.save(commit=False)
+            book.user = request.user  # ✅ ユーザーに紐づけ
             book.save()
 
             if selected_child:
@@ -190,12 +165,9 @@ def add_book(request):
 
         return JsonResponse({"success": False, "error": "フォームが無効です"})
 
-
-
-    # ✅ GETの場合のみテンプレートを返す！
     form = BookForm()
     selected_child_id = request.GET.get("child_id")
-    children = Child.objects.filter(user=request.user)
+    children = Child.objects.filter(user=request.user)  # ✅ ログインユーザーの子ども情報
 
     return render(request, "add_book.html", {
         "form": form,
@@ -203,70 +175,27 @@ def add_book(request):
         "children": children,
     })
 
-# ✅ パスワード変更ビュー
-class CustomPasswordChangeView(PasswordChangeView):
-    template_name = 'password_change.html'
-    success_url = reverse_lazy('password_change_done')
-
-password_change_view = login_required(CustomPasswordChangeView.as_view())
-
-# ✅ Django標準の新規登録ビュー
-def signup_view(request):
-    if request.method == "POST":
-        name = request.POST.get("name")
-        email = request.POST.get("email")
-        password1 = request.POST.get("password1")
-        password2 = request.POST.get("password2")
-
-        if password1 == password2:
-            # ユーザー作成
-            user = User.objects.create_user(username=email, email=email, password=password1)
-            user.first_name = name
-            user.save()
-
-            # ✅ URLパラメータ code を使って招待者を取得
-            invited_by_id = request.POST.get("code")  # ← POSTで受け取るように修正
-
-            inviter = None
-            if invited_by_id:
-                try:
-                    inviter = User.objects.get(id=invited_by_id)
-                except User.DoesNotExist:
-                    pass  # 存在しない場合はスルー
-
-            # ✅ UserProfileを作成して招待者を保存
-            UserProfile.objects.create(user=user, invited_by=inviter)
-
-            login(request, user)
-            return redirect("home")
-        else:
-            messages.error(request, "パスワードが一致しません")
-
-    return render(request, "signup.html")
 # ✅ 絵本詳細ビュー
-
 def book_detail(request, book_id):
-    book = get_object_or_404(Book, id=book_id)
+    book = get_object_or_404(Book, id=book_id, user=request.user)  # ✅ ログインユーザーに紐づく絵本のみ
 
     if book.child.exists():
-        registered_children = book.child.all()
+        registered_children = book.child.filter(user=request.user)  # ✅ ユーザーに関連する子どものみ
     else:
-        registered_children = Child.objects.all()
+        registered_children = Child.objects.filter(user=request.user)  # ✅ ログインユーザーの子ども情報を表示
 
-     # ✅ ログインユーザーに紐づくお気に入りのみ取得
+    # ✅ ログインユーザーに紐づくお気に入りのみ取得
     if request.user.is_authenticated:
         favorites = Favorite.objects.filter(user=request.user, book=book)
         favorited_child_ids = favorites.values_list('child_id', flat=True)
     else:
         favorited_child_ids = []
-    
-     # ✅ 各子どもに対する読んだ回数を取得
-    from .models import ReadCount
+
+    # ✅ 各子どもに対する読んだ回数を取得
     read_counts_qs = ReadCount.objects.filter(book=book)
     read_counts = {rc.child.id: rc.count for rc in read_counts_qs}
 
-     # ✅ メモを渡すための追加処理
-    from .models import Memo
+    # ✅ メモを渡すための追加処理
     memos_qs = Memo.objects.filter(book=book)
     memos = {memo.child.id: memo.content for memo in memos_qs}
 
@@ -280,7 +209,7 @@ def book_detail(request, book_id):
 
 # ✅ 絵本削除ビュー
 def delete_book(request, book_id):
-    book = get_object_or_404(Book, id=book_id)
+    book = get_object_or_404(Book, id=book_id, user=request.user)  # ✅ ユーザーに紐づく絵本のみ削除
 
     if request.method == "POST":
         book.delete()
