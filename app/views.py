@@ -83,7 +83,8 @@ class HomeView(ListView):
 
 # ✅ 子どもの本棚ページ
 def child_bookshelf(request, child_id):
-    selected_child = get_object_or_404(Child, id=child_id)
+    selected_child = get_object_or_404(Child, id=child_id, user=request.user)
+
 
 # ✅ 共通の本棚 + 選択した子どもの本棚の絵本を取得
     books = Book.objects.filter(models.Q(child=selected_child) | models.Q(child=None)).order_by("-created_at")
@@ -111,7 +112,7 @@ def favorite(request):
     selected_child = None
 
     if selected_child_id:
-        selected_child = get_object_or_404(Child, id=selected_child_id)
+        selected_child = get_object_or_404(Child, id=selected_child_id, user=request.user)
         favorites = Favorite.objects.filter(user=request.user, child=selected_child)
     else:
         favorites = Favorite.objects.filter(user=request.user)
@@ -123,18 +124,16 @@ def favorite(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    # ✅ 7冊ずつに区切って book_rows を作成
     books_list = list(page_obj)
     book_rows = [books_list[i:i+7] for i in range(0, len(books_list), 7)]
 
     return render(request, "favorite.html", {
         "books": page_obj,
-        "book_rows": book_rows,  # ← 追加
-        "children": Child.objects.all(),
+        "book_rows": book_rows,
+        "children": Child.objects.filter(user=request.user),  # ✅ 自分の子どものみ表示
         "selected_child_id": selected_child_id,
         "page_obj": page_obj,
     })
-
 
 # ✅ もっとよんでページ
 def more_read(request):
@@ -247,42 +246,42 @@ def signup_view(request):
     return render(request, "signup.html")
 # ✅ 絵本詳細ビュー
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, render
+from .models import Book, Favorite, Memo, ReadCount, Child
+
+@login_required
 def book_detail(request, book_id):
-    book = get_object_or_404(Book, id=book_id)
+    # ✅ ログインユーザーが所有するBookだけ取得
+    book = get_object_or_404(Book, id=book_id, user=request.user)
 
-    if book.child.exists():
-        registered_children = book.child.all()
-    else:
-        registered_children = Child.objects.all()
+    # ✅ ログインユーザーに紐づく子どもとの紐づけのみ取得
+    registered_children = book.child.filter(user=request.user)
 
-     # ✅ ログインユーザーに紐づくお気に入りのみ取得
-    if request.user.is_authenticated:
-        favorites = Favorite.objects.filter(user=request.user, book=book)
-        favorited_child_ids = favorites.values_list('child_id', flat=True)
-    else:
-        favorited_child_ids = []
-    
-     # ✅ 各子どもに対する読んだ回数を取得
-    from .models import ReadCount
+    # ✅ お気に入り取得（ユーザー + book 限定）
+    favorites = Favorite.objects.filter(user=request.user, book=book)
+    favorited_child_ids = favorites.values_list('child_id', flat=True)
+
+    # ✅ 読んだ回数（そのbookに対しての全child分）
     read_counts_qs = ReadCount.objects.filter(book=book)
     read_counts = {rc.child.id: rc.count for rc in read_counts_qs}
 
-     # ✅ メモを渡すための追加処理
-    from .models import Memo
+    # ✅ メモ取得
     memos_qs = Memo.objects.filter(book=book)
     memos = {memo.child.id: memo.content for memo in memos_qs}
 
     return render(request, 'book_detail.html', {
         'book': book,
         'registered_children': registered_children,
-        'favorited_child_ids': list(favorited_child_ids),  
+        'favorited_child_ids': list(favorited_child_ids),
         'read_counts': read_counts,
         'memos': memos,
     })
 
+
 # ✅ 絵本削除ビュー
 def delete_book(request, book_id):
-    book = get_object_or_404(Book, id=book_id)
+    book = get_object_or_404(Book, id=book_id, user=request.user)  # ← これに修正
 
     if request.method == "POST":
         book.delete()
@@ -548,6 +547,7 @@ def search_results(request):
 
     if query:
         results = Book.objects.filter(
+            Q(user=request.user), 
             Q(title__icontains=query) | Q(author__icontains=query)
         ).order_by("-created_at")
 

@@ -13,11 +13,12 @@ class Child(models.Model):
 
 
 class Book(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, )
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     author = models.CharField(max_length=100, blank=True)
     image = models.ImageField(upload_to='books/')
     created_at = models.DateTimeField(auto_now_add=True)
+    child = models.ManyToManyField(Child, related_name="books")  # ✅ ここだけでOK
 
     @property
     def image_url(self):
@@ -25,12 +26,8 @@ class Book(models.Model):
             return self.image.url
         return ""
 
-    # ✅ 多対多関係を定義（共通本棚対応）
-    child = models.ManyToManyField(Child, related_name="books")
-
     def __str__(self):
         return self.title
-
 
 class Memo(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="memos")
