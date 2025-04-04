@@ -21,7 +21,7 @@ import calendar
 from datetime import datetime, timedelta, date
 from collections import defaultdict, Counter
 
-from .forms import SignupForm, BookForm, UserUpdateForm, ChildForm
+from .forms import SignupForm, BookForm, UserUpdateForm, ChildForm, SignupForm
 from .models import Book, Child, Memo, Favorite, ReadCount, UserProfile, ReadHistory
 from django.contrib.auth.models import AnonymousUser, User
 
@@ -34,28 +34,35 @@ class PortfolioView(View):
 from django.contrib.auth.models import User
 from django.contrib import messages
 
-class SignupView(View):
-    def get(self, request):
-        form = SignupForm()
-        return render(request, "signup.html", {"form": form})  
-    
-    def post(self, request):
-        form = SignupForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data["email"]
-            if User.objects.filter(username=email).exists():
-                messages.error(request, "このメールアドレスはすでに使用されています。")
-                return render(request, "signup.html", {"form": form})
+def post(self, request):
+    form = SignupForm(request.POST)
+    if form.is_valid():
+        email = form.cleaned_data["email"]
+        if User.objects.filter(username=email).exists():
+            messages.error(request, "このメールアドレスはすでに使用されています。")
+            return render(request, "signup.html", {"form": form})
 
-            user = form.save(commit=False)
-            user.first_name = form.cleaned_data["first_name"]
-            user.email = email
-            user.username = email  # ← これがないとusername未設定になる
-            user.save()
-            login(request, user)
-            return redirect("home")
+        user = form.save(commit=False)
+        user.first_name = form.cleaned_data["first_name"]
+        user.email = email
+        user.username = email
+        user.save()
 
-        return render(request, "signup.html", {"form": form})
+        # ✅ 招待者を保存する処理
+        invited_by_id = request.GET.get("code")
+        if invited_by_id:
+            try:
+                inviter = User.objects.get(id=invited_by_id)
+                UserProfile.objects.create(user=user, invited_by=inviter)
+            except User.DoesNotExist:
+                UserProfile.objects.create(user=user)
+        else:
+            UserProfile.objects.create(user=user)
+
+        login(request, user)
+        return redirect("home")
+
+    return render(request, "signup.html", {"form": form})
 
 # ✅ ログイン画面
 class LoginView(View):
@@ -230,31 +237,36 @@ def signup_view(request):
         password1 = request.POST.get("password1")
         password2 = request.POST.get("password2")
 
-        if password1 == password2:
-            # ユーザー作成
-            user = User.objects.create_user(username=email, email=email, password=password1)
-            user.first_name = name
-            user.save()
+        # 🔐 すでにメールアドレス（=username）で登録されていないかチェック
+        if User.objects.filter(username=email).exists():
+            messages.error(request, "このメールアドレスはすでに使用されています。")
+            return render(request, "signup.html")
 
-            # ✅ URLパラメータ code を使って招待者を取得
-            invited_by_id = request.POST.get("code")  # ← POSTで受け取るように修正
-
-            inviter = None
-            if invited_by_id:
-                try:
-                    inviter = User.objects.get(id=invited_by_id)
-                except User.DoesNotExist:
-                    pass  # 存在しない場合はスルー
-
-            # ✅ UserProfileを作成して招待者を保存
-            UserProfile.objects.create(user=user, invited_by=inviter)
-
-            login(request, user)
-            return redirect("home")
-        else:
+        if password1 != password2:
             messages.error(request, "パスワードが一致しません")
+            return render(request, "signup.html")
+
+        # ✅ ユーザー作成
+        user = User.objects.create_user(username=email, email=email, password=password1)
+        user.first_name = name
+        user.save()
+
+        # ✅ 招待コード処理
+        invited_by_id = request.POST.get("code")
+        inviter = None
+        if invited_by_id:
+            try:
+                inviter = User.objects.get(id=invited_by_id)
+            except User.DoesNotExist:
+                pass
+        UserProfile.objects.create(user=user, invited_by=inviter)
+
+        # ✅ ログイン後、ホームへリダイレクト
+        login(request, user)
+        return redirect("home")
 
     return render(request, "signup.html")
+
 # ✅ 絵本詳細ビュー
 
 from django.contrib.auth.decorators import login_required
@@ -729,5 +741,4 @@ def decrement_read_count(request):
         return JsonResponse({"success": True, "count": read_count.count})
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)})
-   
    

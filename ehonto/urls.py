@@ -26,8 +26,6 @@ urlpatterns = [
     #path('signup/', SignupView.as_view(), name="signup"),
     path('settings/', settings_view, name="settings_view"),
     path('app/', include('app.urls')),  # ✅ `app/urls.py` でURLを管理
-# signup_view を使いたいので、importも必要
-    path('signup/', signup_view, name='signup'),  # ✅ これを追加
 
 ]
 
