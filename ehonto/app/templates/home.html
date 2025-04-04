@@ -36,7 +36,7 @@
     {% for row in book_rows %}
       <div class="book-row">
         {% for book in row %}
-          {% if book.image %}
+          {% if book.image and book.user == request.user %}
             <div class="book-item">
               <a href="{% url 'book_detail' book.id %}">
                 <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-image">
