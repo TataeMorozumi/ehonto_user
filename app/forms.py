@@ -69,24 +69,6 @@ class UserUpdateForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={'class': 'form-control', 'readonly': True}),
         }
 
-#絵本登録
-from django import forms
-from .models import Book
-
-class BookForm(forms.ModelForm):
-    class Meta:
-        model = Book
-        fields = ['title', 'author', 'image']
-        labels = {
-            'title': 'タイトル',
-            'author': '作者',
-            'image': '画像',
-        }
-        widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '絵本のタイトルを入力'}),
-            'author': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '作者を入力'}),
-            'image': forms.FileInput(attrs={'class': 'form-control'}),
-        }
 
 #こども情報登録
 from django import forms
