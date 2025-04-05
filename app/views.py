@@ -35,6 +35,41 @@ class PortfolioView(View):
 from django.contrib.auth.models import User
 from django.contrib import messages
 
+class SignupView(View):
+    def get(self, request):
+        form = SignupForm()
+        return render(request, "signup.html", {"form": form})
+
+
+    def post(self, request):
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data["email"]
+            if User.objects.filter(username=email).exists():
+                messages.error(request, "このメールアドレスはすでに使用されています。")
+                return render(request, "signup.html", {"form": form})
+
+            user = form.save(commit=False)
+            user.first_name = form.cleaned_data["first_name"]
+            user.email = email
+            user.username = email
+            user.save()
+
+            # ✅ 招待者を保存する処理
+            invited_by_id = request.GET.get("code")
+            if invited_by_id:
+                try:
+                    inviter = User.objects.get(id=invited_by_id)
+                    UserProfile.objects.create(user=user, invited_by=inviter)
+                except User.DoesNotExist:
+                    UserProfile.objects.create(user=user)
+            else:
+                UserProfile.objects.create(user=user)
+
+            login(request, user)
+            return redirect("home")
+
+        return render(request, "signup.html", {"form": form})
 
 # ✅ ログイン画面
 class LoginView(View):
@@ -207,37 +242,40 @@ password_change_view = login_required(CustomPasswordChangeView.as_view())
 @csrf_exempt
 def signup_view(request):
     if request.method == "POST":
-        form = SignupForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data["email"]
-            if User.objects.filter(username=email).exists():
-                messages.error(request, "このメールアドレスはすでに使用されています。")
-                return render(request, "signup.html", {"form": form})
+        name = request.POST.get("name")
+        email = request.POST.get("email")
+        password1 = request.POST.get("password1")
+        password2 = request.POST.get("password2")
 
-            user = form.save(commit=False)
-            user.first_name = form.cleaned_data["first_name"]
-            user.email = email
-            user.username = email
-            user.save()
+        # 🔐 すでにメールアドレス（=username）で登録されていないかチェック
+        if User.objects.filter(username=email).exists():
+            messages.error(request, "このメールアドレスはすでに使用されています。")
+            return render(request, "signup.html")
 
-            # 招待者を保存する処理
-            invited_by_id = request.GET.get("code")
-            if invited_by_id:
-                try:
-                    inviter = User.objects.get(id=invited_by_id)
-                    UserProfile.objects.create(user=user, invited_by=inviter)
-                except User.DoesNotExist:
-                    UserProfile.objects.create(user=user)
-            else:
-                UserProfile.objects.create(user=user)
+        if password1 != password2:
+            messages.error(request, "パスワードが一致しません")
+            return render(request, "signup.html")
 
-            login(request, user)
-            return redirect("home")
+        # ✅ ユーザー作成
+        user = User.objects.create_user(username=email, email=email, password=password1)
+        user.first_name = name
+        user.save()
 
-    else:
-        form = SignupForm()
+        # ✅ 招待コード処理
+        invited_by_id = request.POST.get("code")
+        inviter = None
+        if invited_by_id:
+            try:
+                inviter = User.objects.get(id=invited_by_id)
+            except User.DoesNotExist:
+                pass
+        UserProfile.objects.create(user=user, invited_by=inviter)
 
-    return render(request, "signup.html", {"form": form})
+        # ✅ ログイン後、ホームへリダイレクト
+        login(request, user)
+        return redirect("home")
+
+    return render(request, "signup.html")
 
 # ✅ 絵本詳細ビュー
 

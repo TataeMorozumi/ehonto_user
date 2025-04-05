@@ -4,11 +4,11 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views  # ✅ views モジュール全体をインポート
 from .views import (
-    LoginView, HomeView, book_detail, delete_book, add_book,
+    SignupView, LoginView, HomeView, book_detail, delete_book, add_book,
     child_edit, child_add, child_bookshelf,
     favorite, review, more_read,
     settings_view, family_invite,
-    signup_view, save_memo, home_view,  # signup_viewを追加、SignupViewは削除
+    save_memo, home_view,
 )
 
 
