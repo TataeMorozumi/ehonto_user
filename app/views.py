@@ -25,12 +25,20 @@ from .forms import SignupForm, BookForm, UserUpdateForm, ChildForm, SignupForm
 from .models import Book, Child, Memo, Favorite, ReadCount, UserProfile, ReadHistory
 from django.contrib.auth.models import AnonymousUser, User
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 # ✅ ポートフォリオ画面（最初に表示するページ）
 class PortfolioView(View):
     def get(self, request):
         return render(request, "portfolio.html")
 
+
+class CustomPasswordChangeView(PasswordChangeView):
+    # login_requiredをdispatchメソッドにデコレータとして適用
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+    
 # ✅ 新規登録画面
 from django.contrib.auth.models import User
 from django.contrib import messages
