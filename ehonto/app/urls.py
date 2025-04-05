@@ -8,7 +8,7 @@ from .views import (
     child_edit, child_add, child_bookshelf,
     favorite, review, more_read,
     settings_view, family_invite,
-    signup_view, save_memo, home_view
+    save_memo, home_view
 )
 
 
@@ -29,8 +29,8 @@ urlpatterns = [
     path('signup/', views.signup_view, name='signup'),
 
     # ✅ ホーム & 絵本登録
-    path('', home_view, name='home'),  
-    path('home/', home_view, name='home_alt'),  
+    path('', home_view, name='home'),
+    path('home/', home_view, name='home_alt'),
     path('add_book/', views.add_book, name='add_book'),
 
     # ✅ 子どもの本棚ページ（修正）
@@ -59,7 +59,7 @@ urlpatterns = [
 
     # ✅ 検索結果ページ
     path("search/", views.search_results, name="search_results"),
-    
+
     # ✅ －ボタン
     path('decrement_read_count/', views.decrement_read_count, name='decrement_read_count'),
 
