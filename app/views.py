@@ -236,46 +236,7 @@ class CustomPasswordChangeView(PasswordChangeView):
     template_name = 'password_change.html'
     success_url = reverse_lazy('password_change_done')
 
-password_change_view = login_required(CustomPasswordChangeView.as_view())
-
-# ✅ Django標準の新規登録ビュー
-@csrf_exempt
-def signup_view(request):
-    if request.method == "POST":
-        name = request.POST.get("name")
-        email = request.POST.get("email")
-        password1 = request.POST.get("password1")
-        password2 = request.POST.get("password2")
-
-        # 🔐 すでにメールアドレス（=username）で登録されていないかチェック
-        if User.objects.filter(username=email).exists():
-            messages.error(request, "このメールアドレスはすでに使用されています。")
-            return render(request, "signup.html")
-
-        if password1 != password2:
-            messages.error(request, "パスワードが一致しません")
-            return render(request, "signup.html")
-
-        # ✅ ユーザー作成
-        user = User.objects.create_user(username=email, email=email, password=password1)
-        user.first_name = name
-        user.save()
-
-        # ✅ 招待コード処理
-        invited_by_id = request.POST.get("code")
-        inviter = None
-        if invited_by_id:
-            try:
-                inviter = User.objects.get(id=invited_by_id)
-            except User.DoesNotExist:
-                pass
-        UserProfile.objects.create(user=user, invited_by=inviter)
-
-        # ✅ ログイン後、ホームへリダイレクト
-        login(request, user)
-        return redirect("home")
-
-    return render(request, "signup.html")
+    password_change_view = login_required(CustomPasswordChangeView.as_view())
 
 # ✅ 絵本詳細ビュー
 
