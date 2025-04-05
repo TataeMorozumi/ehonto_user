@@ -1,3 +1,4 @@
+
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
@@ -9,7 +10,7 @@ from .views import (
     settings_view, family_invite,
     save_memo, home_view,
     toggle_favorite, increment_read_count, decrement_read_count,
-    search_results, child_update, child_delete, review_default
+    search_results, child_update, child_delete, review_default, edit_book
 )
 
 urlpatterns = [
@@ -29,8 +30,8 @@ urlpatterns = [
     path("signup/", SignupView.as_view(), name="signup"),
 
     # ✅ ホーム & 絵本登録
-    path('', home_view, name='home'),  
-    path('home/', home_view, name='home_alt'),  
+    path('', home_view, name='home'),
+    path('home/', home_view, name='home_alt'),
     path('add_book/', add_book, name='add_book'),
 
     # ✅ 子どもの本棚ページ（修正）
@@ -58,7 +59,7 @@ urlpatterns = [
 
     # ✅ 検索結果ページ
     path("search/", search_results, name="search_results"),
-    
+
     # ✅ －ボタン
     path('decrement_read_count/', decrement_read_count, name='decrement_read_count'),
 
