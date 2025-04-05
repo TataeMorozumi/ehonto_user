@@ -18,12 +18,12 @@ from django.contrib import admin
 from django.urls import path, include
 from app.views import PortfolioView, LoginView, HomeView, settings_view
 from django.contrib.auth import views as auth_views
-from app.views import signup_view
+from app.views import SignupView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("app/", include("app.urls")),
     path('', PortfolioView.as_view(), name="portfolio"),  # ✅ ポートフォリオをデフォルトページに設定
-    #path('signup/', SignupView.as_view(), name="signup"),
+    path("signup/", SignupView.as_view(), name="signup"),
     path('settings/', settings_view, name="settings_view"),
     path('app/', include('app.urls')),  # ✅ `app/urls.py` でURLを管理
 
