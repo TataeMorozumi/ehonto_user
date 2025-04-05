@@ -206,42 +206,38 @@ password_change_view = login_required(CustomPasswordChangeView.as_view())
 # ✅ Django標準の新規登録ビュー
 @csrf_exempt
 def signup_view(request):
-    print("📥 signup_view にリクエストが届きました！")
     if request.method == "POST":
-        name = request.POST.get("name")
-        email = request.POST.get("email")
-        password1 = request.POST.get("password1")
-        password2 = request.POST.get("password2")
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data["email"]
+            if User.objects.filter(username=email).exists():
+                messages.error(request, "このメールアドレスはすでに使用されています。")
+                return render(request, "signup.html", {"form": form})
 
-        # 🔐 すでにメールアドレス（=username）で登録されていないかチェック
-        if User.objects.filter(username=email).exists():
-            messages.error(request, "このメールアドレスはすでに使用されています。")
-            return render(request, "signup.html")
+            user = form.save(commit=False)
+            user.first_name = form.cleaned_data["first_name"]
+            user.email = email
+            user.username = email
+            user.save()
 
-        if password1 != password2:
-            messages.error(request, "パスワードが一致しません")
-            return render(request, "signup.html")
+            # 招待者を保存する処理
+            invited_by_id = request.GET.get("code")
+            if invited_by_id:
+                try:
+                    inviter = User.objects.get(id=invited_by_id)
+                    UserProfile.objects.create(user=user, invited_by=inviter)
+                except User.DoesNotExist:
+                    UserProfile.objects.create(user=user)
+            else:
+                UserProfile.objects.create(user=user)
 
-        # ✅ ユーザー作成
-        user = User.objects.create_user(username=email, email=email, password=password1)
-        user.first_name = name
-        user.save()
+            login(request, user)
+            return redirect("home")
 
-        # ✅ 招待コード処理
-        invited_by_id = request.POST.get("code")
-        inviter = None
-        if invited_by_id:
-            try:
-                inviter = User.objects.get(id=invited_by_id)
-            except User.DoesNotExist:
-                pass
-        UserProfile.objects.create(user=user, invited_by=inviter)
+    else:
+        form = SignupForm()
 
-        # ✅ ログイン後、ホームへリダイレクト
-        login(request, user)
-        return redirect("home")
-
-    return render(request, "signup.html")
+    return render(request, "signup.html", {"form": form})
 
 # ✅ 絵本詳細ビュー
 

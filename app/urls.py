@@ -4,12 +4,13 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views  # ✅ views モジュール全体をインポート
 from .views import (
-    HomeView, book_detail, delete_book, add_book,
+    LoginView, HomeView, book_detail, delete_book, add_book,
     child_edit, child_add, child_bookshelf,
     favorite, review, more_read,
     settings_view, family_invite,
-    signup_view, save_memo, home_view, SignupView,
+    signup_view, save_memo, home_view,  # signup_viewを追加、SignupViewは削除
 )
+
 
 
 urlpatterns = [
@@ -29,8 +30,8 @@ urlpatterns = [
     path("signup/", SignupView.as_view(), name="signup"),
 
     # ✅ ホーム & 絵本登録
-    path('', home_view, name='home'),  
-    path('home/', home_view, name='home_alt'),  
+    path('', home_view, name='home'),
+    path('home/', home_view, name='home_alt'),
     path('add_book/', views.add_book, name='add_book'),
 
     # ✅ 子どもの本棚ページ（修正）
@@ -59,7 +60,7 @@ urlpatterns = [
 
     # ✅ 検索結果ページ
     path("search/", views.search_results, name="search_results"),
-    
+
     # ✅ －ボタン
     path('decrement_read_count/', views.decrement_read_count, name='decrement_read_count'),
 
