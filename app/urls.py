@@ -27,7 +27,6 @@ urlpatterns = [
     path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(template_name='password_change_done.html'), name='password_change_done'),
 
     # ✅ 認証関連
-    path("signup/", signup_view, name="signup"),
     path("signup/", SignupView.as_view(), name="signup"),
 
     # ✅ ホーム & 絵本登録
