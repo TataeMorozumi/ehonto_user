@@ -189,15 +189,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function openEditModal() {
   const modal = document.getElementById("editBookModal");
-  console.log("モーダル開いた")
-  modal.classList.add("modal-show");
-  modal.style.display = "flex"; // ← 念のため追加
+  modal.style.display = "block";  // ← これだけでOK
 }
 function closeEditModal() {
   const modal = document.getElementById("editBookModal");
-  modal.classList.remove("modal-show");
   modal.style.display = "none";
 }
+
 
 
 

@@ -21,9 +21,10 @@ import calendar
 from datetime import datetime, timedelta, date
 from collections import defaultdict, Counter
 
-from .forms import SignupForm, BookForm, UserUpdateForm, ChildForm
+from .forms import SignupForm, BookForm, UserUpdateForm, ChildForm, SignupForm
 from .models import Book, Child, Memo, Favorite, ReadCount, UserProfile, ReadHistory
 from django.contrib.auth.models import AnonymousUser, User
+from django.views.decorators.csrf import csrf_exempt
 
 # ✅ ポートフォリオ画面（最初に表示するページ）
 class PortfolioView(View):
@@ -33,6 +34,12 @@ class PortfolioView(View):
 # ✅ 新規登録画面
 from django.contrib.auth.models import User
 from django.contrib import messages
+
+class SignupView(View):
+    def get(self, request):
+        form = SignupForm()
+        return render(request, "signup.html", {"form": form})
+
 
 def post(self, request):
     form = SignupForm(request.POST)
@@ -164,7 +171,6 @@ def family_invite(request):
 
 
 # ✅ 絵本登録ページ（重複チェック付き）
-from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt 
 def add_book(request):
@@ -174,17 +180,17 @@ def add_book(request):
             title = form.cleaned_data["title"]
             child_id = request.POST.get("child_id")
 
-            # ✅ 共通の本棚（child_id が空や None の場合）を考慮
             selected_child = None
-            if child_id and child_id != "None":
-                try:
-                    selected_child = Child.objects.get(id=int(child_id))
-                    existing_books = Book.objects.filter(
-                    title=title,
-                    child=selected_child,
-                    user=request.user  # ← これが必要！
-                )
+            is_common = not child_id or child_id == "None"
 
+            if not is_common:
+                try:
+                    selected_child = Child.objects.get(id=int(child_id), user=request.user)
+                    existing_books = Book.objects.filter(
+                        title=title,
+                        child=selected_child,
+                        user=request.user
+                    )
                     if existing_books.exists():
                         return JsonResponse({
                             "success": False,
@@ -197,13 +203,16 @@ def add_book(request):
                     })
 
             book = form.save(commit=False)
-            book.user = request.user  # 🔑 先に user をセット
+            book.user = request.user
             book.save()
             form.save_m2m()
 
-
-            if selected_child:
-                book.child.set([selected_child])  # ✅ 紐づけ（共通の場合はスキップ）
+            if is_common:
+                # ✅ 共通の本棚 → 全ての子どもに紐づけ
+                all_children = Child.objects.filter(user=request.user)
+                book.child.set(all_children)
+            else:
+                book.child.set([selected_child])
 
             return JsonResponse({"success": True})
 
@@ -230,7 +239,9 @@ class CustomPasswordChangeView(PasswordChangeView):
 password_change_view = login_required(CustomPasswordChangeView.as_view())
 
 # ✅ Django標準の新規登録ビュー
+@csrf_exempt
 def signup_view(request):
+    print("📥 signup_view にリクエストが届きました！")
     if request.method == "POST":
         name = request.POST.get("name")
         email = request.POST.get("email")
@@ -489,65 +500,51 @@ def increment_read_count(request):
     return JsonResponse({"count": read_count.count})
 
 # ✅ もっとよんでページ
+from django.db.models import Sum
+
 @login_required
 def more_read(request):
-    selected_child_id = request.GET.get("child_id")
-    children = Child.objects.filter(user=request.user)
-    selected_child = None
+    user = request.user
+    child_id = request.GET.get("child_id")
+    children = Child.objects.filter(user=user)
+    selected_child_id = child_id if child_id else ""
 
-    if selected_child_id:
-        selected_child = get_object_or_404(Child, id=selected_child_id, user=request.user)
-        books = Book.objects.filter(child=selected_child, user=request.user).distinct()
+    if child_id:
+        read_data = ReadCount.objects.filter(child__id=child_id, book__user=user)
+        read_counts = (
+            read_data.values("book")
+            .annotate(total_reads=Sum("count"))
+            .order_by("total_reads")
+        )
+        book_ids = [item["book"] for item in read_counts][:6]
+        books = Book.objects.filter(id__in=book_ids)
+        read_counts_dict = {item["book"]: item["total_reads"] for item in read_counts}
+        tooltip_counts = {}
     else:
-        books = Book.objects.filter(child=None, user=request.user).distinct()
+        # 共通本棚：全子ども分の読書回数を合計
+        read_data = ReadCount.objects.filter(book__user=user)
+        read_counts = (
+            read_data.values("book", "child__name")
+            .annotate(total_reads=Sum("count"))
+        )
+        tooltip_counts = {}
+        count_dict = {}
+        for item in read_counts:
+            book_id = item["book"]
+            name = item["child__name"]
+            count = item["total_reads"]
+            count_dict.setdefault(book_id, {})[name] = count
+        books = Book.objects.filter(user=user)[:6]  # あえて全体から表示
+        read_counts_dict = {}
 
-    # ✅ 絵本ごとの読んだ回数を取得
-    book_with_counts = []
-    for book in books:
-        if selected_child:
-            count = ReadCount.objects.filter(
-                book=book,
-                child=selected_child,
-                child__user=request.user  # ✅ 念のため明示
-            ).aggregate(total=Sum("count"))["total"] or 0
-        else:
-            count = 0  # 共通の本棚ではあとで集計
-        book_with_counts.append((book, count))
-
-    sorted_books = sorted(book_with_counts, key=lambda x: x[1])[:6]
-    sorted_books_only = [b[0] for b in sorted_books]
-
-    # ✅ 読んだ回数データの辞書づくり
-    read_counts = {}
-    tooltip_counts = defaultdict(dict)
-
-    if selected_child:
-        read_counts = {
-            book.id: ReadCount.objects.filter(
-                book=book,
-                child=selected_child,
-                child__user=request.user  # ✅ 追加！
-            ).aggregate(total=Sum("count"))["total"] or 0
-            for book in sorted_books_only
-        }
-    else:
-        for book in sorted_books_only:
-            for child in children:
-                count = ReadCount.objects.filter(
-                    book=book,
-                    child=child,
-                    child__user=request.user  # ✅ ここも追加！
-                ).aggregate(total=Sum("count"))["total"] or 0
-                tooltip_counts[book.id][child.name] = count
-
-    return render(request, "more_read.html", {
-        "books": sorted_books_only,
+    context = {
+        "books": books,
         "children": children,
         "selected_child_id": selected_child_id,
-        "read_counts": read_counts,
+        "read_counts": read_counts_dict,
         "tooltip_counts": tooltip_counts,
-    })
-
+    }
+    return render(request, "more_read.html", context)
 
 @login_required
 def edit_book(request, book_id):

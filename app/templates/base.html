@@ -59,6 +59,19 @@
     .show {
       display: block !important;
     }
+    body.more-read-page {
+  overflow: hidden; /* ✅ スクロールバー非表示 */
+    }
+
+    body.more-read-page::-webkit-scrollbar {
+      display: none;  /* ✅ Chrome, Edge 用 */
+    }
+
+    body.more-read-page {
+      scrollbar-width: none;     /* ✅ Firefox */
+      -ms-overflow-style: none;  /* ✅ IE/Edge */
+    }
+
   </style>
 </head>
 

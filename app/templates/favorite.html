@@ -22,24 +22,25 @@
 </div>
 
 <!-- ✅ 絵本の表示 -->
-
 <div class="book-list">
-    {% for row in book_rows %}
-      <div class="book-row">
-        {% for book in row %}
-          {% if book.image %}
-            <div class="book-item">
-              <a href="{% url 'book_detail' book.id %}">
-                <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-image">
-              </a>
-            </div>
-          {% endif %}
-        {% endfor %}
-      </div>
-      <div class="shelf-line"></div>
-    {% endfor %}
-  </div>
-  
+  {% for row in book_rows %}
+    <div class="book-row">
+      {% for book in row %}
+        {% if book.image %}
+          <div class="book-item">
+            <a href="{% url 'book_detail' book.id %}">
+              <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-image">
+            </a>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div class="shelf-line"></div>
+  {% empty %}
+    <!-- お気に入りがない場合のメッセージ -->
+    <p class="no-books-message">⭐ 登録されたお気に入り絵本はまだありません。</p>
+  {% endfor %}
+</div>
 <!-- ✅ ページネーション -->
 <div class="pagination">
     {% if page_obj.has_previous %}
