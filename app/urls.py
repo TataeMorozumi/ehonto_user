@@ -9,7 +9,7 @@ from .views import (
     settings_view, family_invite,
     save_memo, home_view,
     toggle_favorite, increment_read_count, decrement_read_count,
-    search_results, child_update, child_delete, review_default
+    search_results, child_update, child_delete, review_default,edit_book
 )
 
 urlpatterns = [
