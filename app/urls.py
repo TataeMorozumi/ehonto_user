@@ -63,8 +63,6 @@ urlpatterns = [
     # ✅ －ボタン
     path('decrement_read_count/', views.decrement_read_count, name='decrement_read_count'),
 
-    # ✅ 絵本詳細画面
-    path('book_detail/<int:book_id>/', views.book_detail, name='book_detail'),
     # ✅ ふりかえり画面
     path("review/<int:year>/<int:month>/", views.review, name="review"),
     path("review/", views.review_default, name="review_default"),

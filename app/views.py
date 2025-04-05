@@ -285,7 +285,6 @@ from django.shortcuts import get_object_or_404, render
 from .models import Book, Favorite, Memo, ReadCount, Child
 
 @login_required
-@login_required
 def book_detail(request, book_id):
     # ✅ Book: ログインユーザーのbookのみ取得
     book = get_object_or_404(Book, id=book_id, user=request.user)
