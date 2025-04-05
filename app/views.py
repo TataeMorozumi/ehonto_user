@@ -35,41 +35,6 @@ class PortfolioView(View):
 from django.contrib.auth.models import User
 from django.contrib import messages
 
-class SignupView(View):
-    def get(self, request):
-        form = SignupForm()
-        return render(request, "signup.html", {"form": form})
-
-
-def post(self, request):
-    form = SignupForm(request.POST)
-    if form.is_valid():
-        email = form.cleaned_data["email"]
-        if User.objects.filter(username=email).exists():
-            messages.error(request, "このメールアドレスはすでに使用されています。")
-            return render(request, "signup.html", {"form": form})
-
-        user = form.save(commit=False)
-        user.first_name = form.cleaned_data["first_name"]
-        user.email = email
-        user.username = email
-        user.save()
-
-        # ✅ 招待者を保存する処理
-        invited_by_id = request.GET.get("code")
-        if invited_by_id:
-            try:
-                inviter = User.objects.get(id=invited_by_id)
-                UserProfile.objects.create(user=user, invited_by=inviter)
-            except User.DoesNotExist:
-                UserProfile.objects.create(user=user)
-        else:
-            UserProfile.objects.create(user=user)
-
-        login(request, user)
-        return redirect("home")
-
-    return render(request, "signup.html", {"form": form})
 
 # ✅ ログイン画面
 class LoginView(View):
