@@ -8,7 +8,7 @@ from .views import (
     child_edit, child_add, child_bookshelf,
     favorite, review, more_read,
     settings_view, family_invite,
-    signup_view, save_memo, home_view,  # signup_viewを追加、SignupViewは削除
+    save_memo, home_view,  
 )
 
 
