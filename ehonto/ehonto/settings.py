@@ -90,8 +90,8 @@ STATICFILES_DIRS = [
 ]
 
 # ✅ 本番環境用（collectstatic の保存先）
-if not DEBUG:
-    STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # ✅ メディアファイル（画像アップロード用）
 MEDIA_URL = '/media/'
