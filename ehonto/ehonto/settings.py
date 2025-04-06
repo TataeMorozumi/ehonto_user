@@ -86,6 +86,7 @@ STATIC_URL = '/static/'  # ✅ スラッシュを修正
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'app/static'),
+    os.path.join(BASE_DIR, 'ehonto_user/staticfiles'),
 ]
 
 # ✅ 本番環境用（collectstatic の保存先）
