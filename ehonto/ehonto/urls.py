@@ -28,8 +28,6 @@ urlpatterns = [
     path('', PortfolioView.as_view(), name="portfolio"),  # ✅ ポートフォリオをデフォルトページに設定
    
     path('settings/', settings_view, name="settings_view"),
-    path('app/', include('app.urls')),  # ✅ `app/urls.py` でURLを管理
-
     path("signup/", SignupView.as_view(), name="signup"),
 
 
@@ -41,4 +39,4 @@ from django.conf.urls.static import static
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
