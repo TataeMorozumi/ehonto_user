@@ -29,6 +29,10 @@ from django.contrib.auth.models import AnonymousUser, User
 class PortfolioView(View):
     def get(self, request):
         return render(request, "portfolio.html")
+# ✅ settings_view
+def settings_view(request):
+    # ビューのロジックをここに書く
+    return render(request, 'settings.html')
 
 # ✅ 新規登録画面
 class SignupView(View):
