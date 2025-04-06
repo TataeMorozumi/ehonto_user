@@ -12,7 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-)8jk-b))n$x$f1cpgotan-4f^9h@&rk^(4x2yc$air1vgxhz*!'
 
 # ✅ 開発モード（本番では False に変更）
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['tatae.pythonanywhere.com']
 
@@ -57,7 +57,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'ehonto.wsgi.application'
+WSGI_APPLICATION =  'ehonto.wsgi.application'
 
 # ✅ データベース設定（SQLite）
 DATABASES = {
@@ -86,7 +86,7 @@ STATIC_URL = '/static/'  # ✅ スラッシュを修正
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'app/static'),
-    os.path.join(BASE_DIR, 'ehonto_user/staticfiles'),
+    
 ]
 
 # ✅ 本番環境用（collectstatic の保存先）
