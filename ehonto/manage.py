@@ -5,7 +5,7 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'ehonto.ehonto.settings'
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'ehonto.settings'
 
 
     try:
