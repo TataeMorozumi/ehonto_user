@@ -4,7 +4,7 @@ from django.conf.urls.static import static
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import (
-    SignupView, LoginView, HomeView, book_detail, delete_book, add_book,
+    SignupView, HomeView, book_detail, delete_book, add_book,
     child_edit, child_add, child_bookshelf,
     favorite, review, more_read,
     settings_view, family_invite,

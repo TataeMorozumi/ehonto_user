@@ -79,10 +79,6 @@ class SignupView(View):
 
         return render(request, "signup.html", {"form": form})
 
-# ✅ ログイン画面
-class LoginView(View):
-    def get(self, request):
-        return render(request, "login.html")  
 
 # ✅ ホーム画面（絵本一覧を表示）
 class HomeView(ListView):
