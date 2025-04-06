@@ -5,7 +5,8 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ehonto.ehonto.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ehonto.settings')
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
