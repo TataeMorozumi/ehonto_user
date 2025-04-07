@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load custom_filters %}
 
 {% block title %}ふりかえり{% endblock %}
 
@@ -56,18 +57,20 @@
   {% endfor %}
 
   {% for day in calendar_days %}
-  <div class="calendar-cell">
-    <div class="calendar-day">{{ day }}</div>
-    {% with day|stringformat:"s" as day_str %}
-      {% with calendar_data|get_item:day_str as books %}
-        {% if books %}
-          <div class="book-icon" onclick="openBookModal('{{ day_str }}')">📖</div>
-        {% endif %}
+    <div class="calendar-cell">
+      <div class="calendar-day">{{ day }}</div>
+      {% with day|stringformat:"s" as day_str %}
+          {% if calendar_data|get_item:day_str %}
+              {% with calendar_data|get_item:day_str as books %}
+                  {% if books %}
+                      <div class="book-icon" onclick="openBookModal('{{ day_str }}')">📖</div>
+                  {% endif %}
+              {% endwith %}
+          {% endif %}
       {% endwith %}
-    {% endwith %}
-  </div>
-  {% endfor %}
 
+    </div>
+  {% endfor %}
 </div>
 
 <!-- ✅ モーダル（本の画像を表示） -->
@@ -77,6 +80,7 @@
     <div id="modalBookImages"></div>
   </div>
 </div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -106,14 +110,11 @@
     background: #fff;
     border-radius: 8px;
   }
-  ul li::marker {
-    color: #5cb85c;
-  }
- 
+
   .child-list {
     display: flex;
-    justify-content: center;  /* 中央寄せ */
-    flex-wrap: wrap;          /* 折り返し可能に */
+    justify-content: center;
+    flex-wrap: wrap;
     gap: 16px;
     margin-top: 8px;
   }
@@ -125,7 +126,7 @@
   }
 
   .child-dot {
-    color: #5cb85c; /* ヘッダーと同じ緑 */
+    color: #5cb85c;
     font-size: 18px;
     margin-right: 8px;
   }
@@ -134,30 +135,31 @@
     font-weight: bold;
     margin-right: 4px;
   }
+
   .most-read-banner {
-    background-color: #fff8dc;  /* やさしいクリーム色 */
+    background-color: #fff8dc;
     padding: 12px 20px;
     border-radius: 12px;
     font-size: 18px;
     font-weight: bold;
-    color: #a67c00; /* 王冠に合う金色系 */
+    color: #a67c00;
     margin: 20px auto;
     display: inline-block;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   }
 
   .most-read-title {
-    color: #d35400;  /* タイトルだけ濃いオレンジで強調 */
+    color: #d35400;
   }
+
 </style>
 
 <script>
-  const bookDetailBase = "{% url 'book_detail' 0 %}".replace("0/", "");  // ✅ ここ！
+  const bookDetailBase = "{% url 'book_detail' 0 %}".replace("0/", "");
 
   window.calendarData = JSON.parse(`{{ calendar_data_json|escapejs }}`);
   console.log("📦 calendarData:", calendarData);
 
-  // ✅ base.html の window.openBookModal を上書き
   window.openBookModal = function(dayStr) {
     console.log("📣 openBookModal:", dayStr);
     const books = calendarData[dayStr];
@@ -170,7 +172,7 @@
     container.innerHTML = "";
 
     books.forEach(book => {
-      console.log("📘 book:", book);  // ← book.id が出るはず
+      console.log("📘 book:", book);
 
       const link = document.createElement("a");
       link.href = `${bookDetailBase}${book.id}/`;
@@ -200,17 +202,15 @@
     const year = wrapper.dataset.year;
     const month = wrapper.dataset.month;
 
-    // クエリパラメータの構築
     const params = new URLSearchParams(window.location.search);
     if (selectedChildId) {
-        params.set('child_id', selectedChildId);
+      params.set('child_id', selectedChildId);
     } else {
-        params.delete('child_id');
+      params.delete('child_id');
     }
 
-    // 新しいURLの構築
     const newUrl = `/app/review/${year}/${month}/` + (params.toString() ? `?${params.toString()}` : '');
     window.location.href = newUrl;
-});
+  });
 </script>
 {% endblock %}

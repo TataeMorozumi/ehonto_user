@@ -12,7 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-)8jk-b))n$x$f1cpgotan-4f^9h@&rk^(4x2yc$air1vgxhz*!'
 
 # ✅ 開発モード（本番では False に変更）
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['tatae.pythonanywhere.com']
 
@@ -101,4 +101,24 @@ MEDIA_ROOT = BASE_DIR / 'media'
 LOGIN_URL = '/login/'  # ログインページ
 LOGIN_REDIRECT_URL = '/app/home/'  # ログイン後にリダイレクトするページ
 LOGOUT_REDIRECT_URL = '/app/login/'  # ログアウト後にリダイレクトするページ
+
+import sys
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,  # すでにあるロガーを無効にしない
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,  # 標準出力に表示（PythonAnywhereのログに表示されます）
+        },
+    },
+    'loggers': {
+        'django.db.backends': {
+            'level': 'DEBUG',  # ← これでSQLクエリが出る
+            'handlers': ['console'],
+        },
+    },
+}
 

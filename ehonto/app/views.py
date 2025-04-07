@@ -533,6 +533,7 @@ def decrement_read_count(request):
 def review_default(request):
     today = date.today()
     return redirect("review", year=today.year, month=today.month)            
+
 @login_required
 def review(request, year, month):
     selected_child_id = request.GET.get("child_id")
@@ -549,30 +550,26 @@ def review(request, year, month):
     next_month = (current_date + timedelta(days=days_in_month)).replace(day=1)
 
     if selected_child:
-        histories = ReadHistory.objects.filter(child=selected_child, date__year=year, date__month=month)
+        histories = ReadHistory.objects.filter(
+            child=selected_child,
+            date__year=year,
+            date__month=month
+        )
     else:
-        histories = ReadHistory.objects.filter(date__year=year, date__month=month)
+        histories = ReadHistory.objects.filter(
+            date__year=year,
+            date__month=month,
+            child__user=request.user  # ✅ これを追加して他ユーザーの履歴を除外
+        )
 
-    read_history_json = json.dumps([{
-        "date": str(h.date), "title": h.book.title
-    } for h in histories], cls=DjangoJSONEncoder)
+    read_history_json = json.dumps([{"date": str(h.date), "title": h.book.title} for h in histories], cls=DjangoJSONEncoder)
 
     calendar_data = defaultdict(list)
     for history in histories:
         day = history.date.day
         calendar_data[day].append(history.book)
 
-    calendar_data = {
-        str(day): [
-            {
-                "id": book.id,
-                "title": book.title,
-                "image_url": book.image.url if book.image else ""
-            }
-            for book in set(books)
-        ]
-        for day, books in calendar_data.items()
-    }
+    print("calendar_data:", calendar_data)  # 追加して内容を確認
 
     calendar_data_json = json.dumps(calendar_data, cls=DjangoJSONEncoder)
 
@@ -600,7 +597,6 @@ def review(request, year, month):
         "year": year,
         "month": month,
     })
-
 @require_POST
 @login_required
 def decrement_read_count(request):
