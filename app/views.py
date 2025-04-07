@@ -630,17 +630,18 @@ def review(request, year, month):
             child__user=request.user  # 他ユーザーの履歴を除外
         )
 
-    read_history_json = json.dumps([
-        {"date": str(h.date), "title": h.book.title}
-        for h in histories
-    ], cls=DjangoJSONEncoder)
+    read_history_json = json.dumps([{
+        "date": str(h.date),
+        "title": h.book.title
+    } for h in histories], cls=DjangoJSONEncoder)
 
+    # calendar_data の形式を正しく作成
     calendar_data = defaultdict(list)
     for history in histories:
         day = history.date.day
         calendar_data[day].append(history.book)
 
-    # calendar_dataの形式が正しく作成されているか確認
+    # `calendar_data` を適切な形式で構築
     calendar_data = {
         str(day): [
             {
@@ -648,7 +649,7 @@ def review(request, year, month):
                 "title": book.title,
                 "image_url": book.image.url if book.image else ""
             }
-            for book in set(books)  # booksが定義されていない場合、修正が必要
+            for book in books  # books は `calendar_data[day]` に含まれる
         ]
         for day, books in calendar_data.items()
     }
@@ -681,7 +682,6 @@ def review(request, year, month):
         "year": year,
         "month": month,
     })
-
 
 @require_POST
 @login_required
