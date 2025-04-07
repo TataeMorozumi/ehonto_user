@@ -60,11 +60,13 @@
     <div class="calendar-cell">
       <div class="calendar-day">{{ day }}</div>
       {% with day|stringformat:"s" as day_str %}
-        {% with calendar_data|get_item:day_str as books %}
-          {% if books %}
-            <div class="book-icon" onclick="openBookModal('{{ day_str }}')">📖</div>
-          {% endif %}
-        {% endwith %}
+        {% if calendar_data|get_item:day_str %}
+          {% with calendar_data|get_item:day_str as books %}
+            {% if books %}
+              <div class="book-icon" onclick="openBookModal('{{ day_str }}')">📖</div>
+            {% endif %}
+          {% endwith %}
+        {% endif %}
       {% endwith %}
     </div>
   {% endfor %}
