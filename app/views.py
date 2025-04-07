@@ -605,7 +605,7 @@ def review_default(request):
 def review(request, year, month):
     selected_child_id = request.GET.get("child_id")
     selected_child = None
-    children = Child.objects.filter(user=request.user)
+    children = Child.objects.filter(user=request.user)  # 自分の子どもだけ取得
 
     if selected_child_id:
         selected_child = get_object_or_404(Child, id=selected_child_id, user=request.user)
@@ -616,6 +616,7 @@ def review(request, year, month):
     prev_month = current_date - timedelta(days=1)
     next_month = (current_date + timedelta(days=days_in_month)).replace(day=1)
 
+    # 他ユーザーのデータが表示されないようにuser=request.user を追加
     if selected_child:
         histories = ReadHistory.objects.filter(
             child=selected_child,
@@ -626,7 +627,7 @@ def review(request, year, month):
         histories = ReadHistory.objects.filter(
             date__year=year,
             date__month=month,
-            child__user=request.user  # ✅ これを追加して他ユーザーの履歴を除外
+            child__user=request.user  # 他ユーザーの履歴を除外
         )
 
     read_history_json = json.dumps([
@@ -639,6 +640,7 @@ def review(request, year, month):
         day = history.date.day
         calendar_data[day].append(history.book)
 
+    # calendar_dataの形式が正しく作成されているか確認
     calendar_data = {
         str(day): [
             {
@@ -646,21 +648,22 @@ def review(request, year, month):
                 "title": book.title,
                 "image_url": book.image.url if book.image else ""
             }
-            for book in set(books)
+            for book in set(books)  # booksが定義されていない場合、修正が必要
         ]
         for day, books in calendar_data.items()
     }
 
     calendar_data_json = json.dumps(calendar_data, cls=DjangoJSONEncoder)
 
+    # 最も読まれた絵本を取得
     book_counter = Counter([h.book.title for h in histories])
     most_read_title = book_counter.most_common(1)[0][0] if book_counter else None
 
+    # 月間合計と子どもごとの読んだ回数
     monthly_total = histories.count()
     child_totals = defaultdict(int)
     for h in histories:
         child_totals[h.child.name] += 1
-
 
     return render(request, "review.html", {
         "children": children,
@@ -677,7 +680,6 @@ def review(request, year, month):
         "calendar_data_json": calendar_data_json,
         "year": year,
         "month": month,
-
     })
 
 
