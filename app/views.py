@@ -642,19 +642,18 @@ def review(request, year, month):
         calendar_data[day].append(history.book)
 
     # `calendar_data` を適切な形式で構築
-    calendar_data = {
-        str(day): [
-            {
-                "id": book.id,
-                "title": book.title,
-                "image_url": book.image.url if book.image else ""
-            }
-            for book in books  # books は `calendar_data[day]` に含まれる
-        ]
-        for day, books in calendar_data.items()
-    }
+    # review viewの修正
+        calendar_data = defaultdict(list)
+        for history in histories:
+            day = history.date.day
+            calendar_data[day].append({
+                "id": history.book.id,
+                "title": history.book.title,
+                "image_url": history.book.image.url if history.book.image else ""
+            })
 
-    calendar_data_json = json.dumps(calendar_data, cls=DjangoJSONEncoder)
+        calendar_data_json = json.dumps(calendar_data, cls=DjangoJSONEncoder)
+
 
     # 最も読まれた絵本を取得
     book_counter = Counter([h.book.title for h in histories])
