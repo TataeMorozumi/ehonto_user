@@ -281,8 +281,11 @@ def save_memo(request):
     return JsonResponse({"status": "ok", "content": memo.content})
 
 # ✅ 子ども情報編集画面
+@login_required
 def child_edit(request):
-    children = Child.objects.all()  # 登録済みの子どもを取得
+    # ログインユーザーに紐づく子ども情報のみを取得
+    children = Child.objects.filter(user=request.user)
+
     form = ChildForm()  # 新規追加用のフォーム
 
     if request.method == "POST":
@@ -291,7 +294,11 @@ def child_edit(request):
         else:
             form = ChildForm(request.POST)
             if form.is_valid():
-                form.save()
+                # 新しく登録する子どもに現在のユーザーを紐づけて保存
+                child = form.save(commit=False)
+                child.user = request.user
+                child.save()
+
                 messages.success(request, "子どもが登録されました。")
                 return redirect('child_edit')  # ✅ 追加後にページを更新
 
@@ -392,14 +399,14 @@ def increment_read_count(request):
 # ✅ もっとよんでページ
 def more_read(request):
     selected_child_id = request.GET.get("child_id")
-    children = Child.objects.filter(user=request.user)
+    children = Child.objects.filter(user=request.user)  # ログインユーザーに関連する子ども情報を取得
     selected_child = None
 
     if selected_child_id:
         selected_child = get_object_or_404(Child, id=selected_child_id, user=request.user)
-        books = Book.objects.filter(child=selected_child).distinct()
+        books = Book.objects.filter(child=selected_child).distinct()  # 選択した子どもに紐づく絵本のみ取得
     else:
-        books = Book.objects.filter(child=None).distinct()
+        books = Book.objects.filter(child=None).distinct()  # 共通本棚の絵本のみ取得
 
     # 絵本ごとの読んだ回数を取得
     book_with_counts = []
@@ -407,13 +414,13 @@ def more_read(request):
         if selected_child:
             count = ReadCount.objects.filter(book=book, child=selected_child).aggregate(total=Sum("count"))["total"] or 0
         else:
-            count = 0  # 共通の本棚では後で個別に集計
+            count = 0  # 共通本棚では後で個別に集計
         book_with_counts.append((book, count))
 
     sorted_books = sorted(book_with_counts, key=lambda x: x[1])[:6]
     sorted_books_only = [b[0] for b in sorted_books]
 
-    # ✅ 読んだ回数データの辞書づくり
+    # 読んだ回数データの辞書作成
     read_counts = {}
     tooltip_counts = defaultdict(dict)
 
@@ -435,7 +442,6 @@ def more_read(request):
         "read_counts": read_counts,
         "tooltip_counts": tooltip_counts,
     })
-
 @login_required
 def edit_book(request, book_id):
     book = get_object_or_404(Book, id=book_id)
@@ -527,12 +533,14 @@ def decrement_read_count(request):
 def review_default(request):
     today = date.today()
     return redirect("review", year=today.year, month=today.month)            
+
 @login_required
 def review(request, year, month):
     selected_child_id = request.GET.get("child_id")
     selected_child = None
     children = Child.objects.filter(user=request.user)
 
+    # 選択された子どもがログインユーザーに紐づいているかをチェック
     if selected_child_id:
         selected_child = get_object_or_404(Child, id=selected_child_id, user=request.user)
 
@@ -542,16 +550,18 @@ def review(request, year, month):
     prev_month = current_date - timedelta(days=1)
     next_month = (current_date + timedelta(days=days_in_month)).replace(day=1)
 
+    # もし子どもが選択されていれば、その子どもの履歴を取得
     if selected_child:
         histories = ReadHistory.objects.filter(child=selected_child, date__year=year, date__month=month)
     else:
-        histories = ReadHistory.objects.filter(date__year=year, date__month=month)
+        # 子どもが選択されていない場合は、ログインユーザーに紐づく全ての子どもの履歴を取得
+        histories = ReadHistory.objects.filter(child__user=request.user, date__year=year, date__month=month)
 
-    read_history_json = json.dumps([
-        {"date": str(h.date), "title": h.book.title}
-        for h in histories
-    ], cls=DjangoJSONEncoder)
+    read_history_json = json.dumps([{
+        "date": str(h.date), "title": h.book.title
+    } for h in histories], cls=DjangoJSONEncoder)
 
+    # カレンダーに表示するデータを整形
     calendar_data = defaultdict(list)
     for history in histories:
         day = history.date.day
@@ -571,14 +581,17 @@ def review(request, year, month):
 
     calendar_data_json = json.dumps(calendar_data, cls=DjangoJSONEncoder)
 
+    # もっとも読まれた本
     book_counter = Counter([h.book.title for h in histories])
     most_read_title = book_counter.most_common(1)[0][0] if book_counter else None
 
+    # 月間の読んだ合計回数
     monthly_total = histories.count()
+
+    # 子どもごとの読んだ回数を集計
     child_totals = defaultdict(int)
     for h in histories:
         child_totals[h.child.name] += 1
-
 
     return render(request, "review.html", {
         "children": children,
@@ -595,10 +608,7 @@ def review(request, year, month):
         "calendar_data_json": calendar_data_json,
         "year": year,
         "month": month,
-
     })
-
-
 @require_POST
 @login_required
 def decrement_read_count(request):

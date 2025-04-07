@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load custom_filters %}
 
 {% block title %}ふりかえり{% endblock %}
 
@@ -15,12 +14,8 @@
   </a>
 </div>
 
-
-
 <!-- 🧒 子ども選択プルダウン -->
 <div class="child-selector" data-year="{{ year }}" data-month="{{ month }}">
-
-
   <label for="child">本棚を選択:</label>
   <select name="child_id" id="child">
     <option value="" {% if not selected_child_id %}selected{% endif %}>共通の本棚</option>
@@ -31,7 +26,6 @@
     {% endfor %}
   </select>
 </div>
-
 
 <!-- 🌟 今月もっとも読まれた絵本 -->
 {% if most_read_title %}
@@ -55,7 +49,6 @@
   </div>
 </div>
 
-
 <!-- 📅 カレンダー -->
 <div class="calendar-grid">
   {% for weekday in "日月火水木金土"|make_list %}
@@ -73,10 +66,9 @@
       {% endwith %}
     {% endwith %}
   </div>
-{% endfor %}
+  {% endfor %}
 
 </div>
-
 
 <!-- ✅ モーダル（本の画像を表示） -->
 <div id="bookModal" class="modal" style="display: none;">
@@ -118,7 +110,7 @@
     color: #5cb85c;
   }
  
-    .child-list {
+  .child-list {
     display: flex;
     justify-content: center;  /* 中央寄せ */
     flex-wrap: wrap;          /* 折り返し可能に */
@@ -143,22 +135,20 @@
     margin-right: 4px;
   }
   .most-read-banner {
-  background-color: #fff8dc;  /* やさしいクリーム色 */
-  padding: 12px 20px;
-  border-radius: 12px;
-  font-size: 18px;
-  font-weight: bold;
-  color: #a67c00; /* 王冠に合う金色系 */
-  margin: 20px auto;
-  display: inline-block;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
+    background-color: #fff8dc;  /* やさしいクリーム色 */
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #a67c00; /* 王冠に合う金色系 */
+    margin: 20px auto;
+    display: inline-block;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
 
-.most-read-title {
-  color: #d35400;  /* タイトルだけ濃いオレンジで強調 */
-}
-
-
+  .most-read-title {
+    color: #d35400;  /* タイトルだけ濃いオレンジで強調 */
+  }
 </style>
 
 <script>
@@ -203,6 +193,7 @@
   window.closeBookModal = function () {
     document.getElementById("bookModal").style.display = "none";
   };
+
   document.getElementById("child").addEventListener("change", function () {
     const selectedChildId = this.value;
     const wrapper = document.querySelector(".child-selector");
@@ -221,7 +212,5 @@
     const newUrl = `/app/review/${year}/${month}/` + (params.toString() ? `?${params.toString()}` : '');
     window.location.href = newUrl;
 });
-
-
 </script>
 {% endblock %}

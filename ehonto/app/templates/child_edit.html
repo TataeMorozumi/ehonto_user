@@ -16,6 +16,7 @@
 
   <div class="child-list">
     {% for child in children %}
+      {% if child.user == request.user %}
       <div class="child-item">
         <span class="child-dot">●</span>
         <span class="child-name">{{ child.name }}</span>
@@ -23,6 +24,7 @@
         |
         <a href="{% url 'child_delete' child.id %}" class="child-delete" onclick="return confirm('本当に削除しますか？');">削除</a>
       </div>
+      {% endif %}
     {% empty %}
       <p>登録された子どもがいません。</p>
     {% endfor %}

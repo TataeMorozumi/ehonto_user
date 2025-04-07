@@ -7,20 +7,20 @@
 {% block content %}
 <h2 style="text-align: center; margin-top: 10px;">もっとよんで</h2>
 
-
 <!-- 🔽 子ども選択ドロップダウン -->
 <div class="child-selector">
   <label for="child">本棚を選択:</label>
   <select id="child" name="child_id" onchange="location.href='?child_id=' + this.value;">
     <option value="" {% if not selected_child_id %}selected{% endif %}>共通の本棚</option>
     {% for child in children %}
-      <option value="{{ child.id }}" {% if child.id|stringformat:"s" == selected_child_id %}selected{% endif %}>
-        {{ child.name }}
-      </option>
+      {% if child.user == request.user %}
+        <option value="{{ child.id }}" {% if child.id|stringformat:"s" == selected_child_id %}selected{% endif %}>
+          {{ child.name }}
+        </option>
+      {% endif %}
     {% endfor %}
   </select>
 </div>
-
 
 <!-- 📚 絵本グリッド（3列×2段） -->
 <div class="book-list">
@@ -33,8 +33,8 @@
             src="{{ book.image.url }}"
             alt="{{ book.title }}"
           >
-            <!-- ✅ 共通本棚なら全員分表示 -->
-            {% if not selected_child_id %}
+          <!-- ✅ 共通本棚なら全員分表示 -->
+          {% if not selected_child_id %}
             <span class="tooltip-text">
               {% with tooltip_counts|get_item:book.id as count_dict %}
                 {% for name, count in count_dict.items %}
@@ -47,10 +47,10 @@
               {{ read_counts|get_item:book.id|default:0 }} 回よんだ
             </span>
           {% endif %}
-          
         </a>
       </div>
     {% endfor %}
   </div>
 </div>
 {% endblock %}
+
