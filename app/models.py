@@ -13,7 +13,11 @@ class Child(models.Model):
 
 
 class Book(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        default=User.objects.get(id=1).id  # ここでデフォルトのユーザーを設定
+    )
     title = models.CharField(max_length=100)
     author = models.CharField(max_length=100, blank=True)
     image = models.ImageField(upload_to='books/')
