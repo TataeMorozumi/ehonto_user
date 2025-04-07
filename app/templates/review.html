@@ -1,6 +1,5 @@
 {% extends "base.html" %}
-{% load subfolder.custom_filters %}
-
+{% load custom_filters %}
 
 {% block title %}ふりかえり{% endblock %}
 
@@ -34,6 +33,10 @@
 <div class="most-read-banner">
   👑 今月もっとも読まれた絵本：
   <strong class="most-read-title">{{ most_read_title }}</strong>
+</div>
+{% else %}
+<div class="most-read-banner">
+  👑 今月もっとも読まれた絵本はありません。
 </div>
 {% endif %}
 

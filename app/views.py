@@ -622,13 +622,13 @@ def review(request, year, month):
             child=selected_child,
             date__year=year,
             date__month=month
-        )
+        ).select_related('book')
     else:
         histories = ReadHistory.objects.filter(
             date__year=year,
             date__month=month,
             child__user=request.user  # 他ユーザーの履歴を除外
-        )
+        ).select_related('book')
 
     read_history_json = json.dumps([{
         "date": str(h.date),
@@ -639,21 +639,13 @@ def review(request, year, month):
     calendar_data = defaultdict(list)
     for history in histories:
         day = history.date.day
-        calendar_data[day].append(history.book)
+        calendar_data[day].append({
+            "id": history.book.id,
+            "title": history.book.title,
+            "image_url": history.book.image.url if history.book.image else ""
+        })
 
-    # `calendar_data` を適切な形式で構築
-    # review viewの修正
-        calendar_data = defaultdict(list)
-        for history in histories:
-            day = history.date.day
-            calendar_data[day].append({
-                "id": history.book.id,
-                "title": history.book.title,
-                "image_url": history.book.image.url if history.book.image else ""
-            })
-
-        calendar_data_json = json.dumps(calendar_data, cls=DjangoJSONEncoder)
-
+    calendar_data_json = json.dumps(calendar_data, cls=DjangoJSONEncoder)
 
     # 最も読まれた絵本を取得
     book_counter = Counter([h.book.title for h in histories])
@@ -669,7 +661,7 @@ def review(request, year, month):
         "children": children,
         "selected_child_id": selected_child_id,
         "calendar_days": calendar_days,
-        "calendar_data": calendar_data,
+        "calendar_data_json": calendar_data_json,  # ここで JSON 形式を渡す
         "current_date": current_date,
         "prev_month": {"year": prev_month.year, "month": prev_month.month},
         "next_month": {"year": next_month.year, "month": next_month.month},
@@ -677,10 +669,10 @@ def review(request, year, month):
         "most_read_title": most_read_title,
         "monthly_total": monthly_total,
         "child_totals": dict(child_totals),
-        "calendar_data_json": calendar_data_json,
         "year": year,
         "month": month,
     })
+
 
 @require_POST
 @login_required
