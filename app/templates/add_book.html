@@ -1,3 +1,5 @@
+{% load custom_filters %}
+
   <div id="form-error-box" style="display: none; color: red; margin-bottom: 10px;"></div>
   <form id="addBookForm" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
