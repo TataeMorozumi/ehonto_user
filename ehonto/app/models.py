@@ -17,7 +17,7 @@ class Book(models.Model):
     author = models.CharField(max_length=100, blank=True)
     image = models.ImageField(upload_to='books/')
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
 
     @property
     def image_url(self):
