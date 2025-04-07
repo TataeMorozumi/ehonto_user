@@ -630,6 +630,7 @@ def review(request, year, month):
             child__user=request.user  # 他ユーザーの履歴を除外
         ).select_related('book')
 
+    # 履歴のJSON形式を作成
     read_history_json = json.dumps([{
         "date": str(h.date),
         "title": h.book.title
@@ -645,6 +646,7 @@ def review(request, year, month):
             "image_url": history.book.image.url if history.book.image else ""
         })
 
+    # JSON 形式に変換
     calendar_data_json = json.dumps(calendar_data, cls=DjangoJSONEncoder)
 
     # 最も読まれた絵本を取得
@@ -657,6 +659,7 @@ def review(request, year, month):
     for h in histories:
         child_totals[h.child.name] += 1
 
+    # テンプレートに渡すデータ
     return render(request, "review.html", {
         "children": children,
         "selected_child_id": selected_child_id,
@@ -672,7 +675,6 @@ def review(request, year, month):
         "year": year,
         "month": month,
     })
-
 
 @require_POST
 @login_required
