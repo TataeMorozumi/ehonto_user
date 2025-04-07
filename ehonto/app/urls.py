@@ -4,7 +4,7 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views  # ✅ views モジュール全体をインポート
 from .views import (
-    HomeView, book_detail, delete_book, add_book,
+    SignupView, HomeView, book_detail, delete_book, add_book,
     child_edit, child_add, child_bookshelf,
     favorite, review, more_read,
     settings_view, family_invite,
@@ -26,7 +26,7 @@ urlpatterns = [
     path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(template_name='password_change_done.html'), name='password_change_done'),
 
     # ✅ 認証関連
-    path('signup/', views.signup_view, name='signup'),
+    path('signup/', SignupView.as_view(), name='signup'),
 
     # ✅ ホーム & 絵本登録
     path('', home_view, name='home'),
