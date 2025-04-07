@@ -11,3 +11,11 @@ def is_favorited(child, book):
 @register.filter
 def get_item(dictionary, key):
     return dictionary.get(key)
+
+@register.filter
+def get_item(dictionary, key):
+    """辞書からキーで値を取得するフィルター"""
+    try:
+        return dictionary.get(key)
+    except AttributeError:
+        return None

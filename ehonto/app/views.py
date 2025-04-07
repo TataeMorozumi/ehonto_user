@@ -533,14 +533,12 @@ def decrement_read_count(request):
 def review_default(request):
     today = date.today()
     return redirect("review", year=today.year, month=today.month)            
-
 @login_required
 def review(request, year, month):
     selected_child_id = request.GET.get("child_id")
     selected_child = None
     children = Child.objects.filter(user=request.user)
 
-    # 選択された子どもがログインユーザーに紐づいているかをチェック
     if selected_child_id:
         selected_child = get_object_or_404(Child, id=selected_child_id, user=request.user)
 
@@ -550,18 +548,15 @@ def review(request, year, month):
     prev_month = current_date - timedelta(days=1)
     next_month = (current_date + timedelta(days=days_in_month)).replace(day=1)
 
-    # もし子どもが選択されていれば、その子どもの履歴を取得
     if selected_child:
         histories = ReadHistory.objects.filter(child=selected_child, date__year=year, date__month=month)
     else:
-        # 子どもが選択されていない場合は、ログインユーザーに紐づく全ての子どもの履歴を取得
-        histories = ReadHistory.objects.filter(child__user=request.user, date__year=year, date__month=month)
+        histories = ReadHistory.objects.filter(date__year=year, date__month=month)
 
     read_history_json = json.dumps([{
         "date": str(h.date), "title": h.book.title
     } for h in histories], cls=DjangoJSONEncoder)
 
-    # カレンダーに表示するデータを整形
     calendar_data = defaultdict(list)
     for history in histories:
         day = history.date.day
@@ -581,14 +576,10 @@ def review(request, year, month):
 
     calendar_data_json = json.dumps(calendar_data, cls=DjangoJSONEncoder)
 
-    # もっとも読まれた本
     book_counter = Counter([h.book.title for h in histories])
     most_read_title = book_counter.most_common(1)[0][0] if book_counter else None
 
-    # 月間の読んだ合計回数
     monthly_total = histories.count()
-
-    # 子どもごとの読んだ回数を集計
     child_totals = defaultdict(int)
     for h in histories:
         child_totals[h.child.name] += 1
@@ -609,6 +600,7 @@ def review(request, year, month):
         "year": year,
         "month": month,
     })
+
 @require_POST
 @login_required
 def decrement_read_count(request):
