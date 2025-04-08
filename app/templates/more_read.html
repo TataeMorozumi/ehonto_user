@@ -27,25 +27,22 @@
         <a href="{% url 'book_detail' book.id %}">
           <img class="book-image" src="{{ book.image.url }}" alt="{{ book.title }}">
           
-{% if not selected_child_id %}
-  <span class="tooltip-text">
-    {% with tooltip_counts|get_item:book.id as count_dict %}
-      {% if count_dict %}
-        {% for name, count in count_dict.items %}
-          {{ name }}：{{ count }}回<br>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-  </span>
-{% else %}
-  <span class="tooltip-text">
-    {{ read_counts|get_item:book.id|default:0 }} 回よんだ
-  </span>
-{% endif %}
-
-        </a>
-      </div>
-    {% endfor %}
-  </div>
-</div>
-{% endblock %}
+          {% if not selected_child_id %}
+          <span class="tooltip-text">
+            {% with tooltip_counts|get_item:book.id as count_dict %}
+              DEBUG: count_dict={{ count_dict }}<br>
+              {% if count_dict %}
+                {% for name, count in count_dict.items %}
+                  {{ name }}：{{ count }}回<br>
+                {% endfor %}
+              {% else %}
+                [カウント情報なし]
+              {% endif %}
+            {% endwith %}
+          </span>
+        {% else %}
+          <span class="tooltip-text">
+            {{ read_counts|get_item:book.id|default:0 }} 回よんだ
+          </span>
+        {% endif %}
+        
