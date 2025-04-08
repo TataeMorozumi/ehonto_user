@@ -36,7 +36,7 @@
 <!-- ✅ ツールチップ表示 -->
 {% if not selected_child_id %}
   {% with tooltip_counts|get_item:book.id|stringformat:"s" as count_dict %}
-    <span class="tooltip-text">
+    <div style="font-size: 14px; margin-top: 4px;">
       {% if count_dict %}
         {% for name, count in count_dict.items %}
           {{ name }}：{{ count }}回<br>
@@ -44,12 +44,12 @@
       {% else %}
         データなし
       {% endif %}
-    </span>
+    </div>
   {% endwith %}
 {% else %}
-  <span class="tooltip-text">
+  <div style="font-size: 14px; margin-top: 4px;">
     {{ read_counts|get_item:book.id|default:0 }} 回よんだ
-  </span>
+  </div>
 {% endif %}
 
     </a>
