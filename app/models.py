@@ -20,7 +20,7 @@ class Book(models.Model):
     )
     title = models.CharField(max_length=100)
     author = models.CharField(max_length=100, blank=True)
-    image = models.ImageField(upload_to='books/')
+    image = models.ImageField(upload_to='book_images/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     child = models.ManyToManyField(Child, related_name="books")  # ✅ ここだけでOK
 

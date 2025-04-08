@@ -39,7 +39,11 @@
           {% if book.image %}
             <div class="book-item">
               <a href="{% url 'book_detail' book.id %}">
-                <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-image">
+                {% if book.image %}
+                  <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-image">
+                {% else %}
+                  <p>画像がありません</p>
+                {% endif %}  
               </a>
             </div>
           {% endif %}
