@@ -175,7 +175,6 @@ def family_invite(request):
 
 
 # ✅ 絵本登録ページ（重複チェック付き）
-
 @csrf_exempt 
 def add_book(request):
     if request.method == "POST":
@@ -187,18 +186,23 @@ def add_book(request):
             selected_child = None
             is_common = not child_id or child_id == "None"
 
-            if not is_common:
+            # ✅ 重複チェック
+            if is_common:
+                # 共通の本棚（child=None）に同じタイトルが存在するか
+                if Book.objects.filter(title=title, user=request.user, child=None).exists():
+                    return JsonResponse({
+                        "success": False,
+                        "error": f"「{title}」はすでに共通の本棚に登録されています。"
+                    })
+            else:
                 try:
                     selected_child = Child.objects.get(id=int(child_id), user=request.user)
-                    existing_books = Book.objects.filter(
-                        title=title,
-                        child=selected_child,
-                        user=request.user
-                    )
+                    # 個別の子どもの本棚に同じタイトルが存在するか（ManyToManyなので逆参照）
+                    existing_books = Book.objects.filter(title=title, user=request.user, child=selected_child)
                     if existing_books.exists():
                         return JsonResponse({
                             "success": False,
-                            "error": "同じ絵本がすでにこの本棚に登録されています。"
+                            "error": f"「{title}」はすでに {selected_child.name} の本棚に登録されています。"
                         })
                 except Child.DoesNotExist:
                     return JsonResponse({
@@ -206,13 +210,13 @@ def add_book(request):
                         "error": "子ども情報が見つかりません。"
                     })
 
+            # 登録処理
             book = form.save(commit=False)
             book.user = request.user
             book.save()
             form.save_m2m()
 
             if is_common:
-                # ✅ 共通の本棚 → 全ての子どもに紐づけ
                 all_children = Child.objects.filter(user=request.user)
                 book.child.set(all_children)
             else:
@@ -222,9 +226,7 @@ def add_book(request):
 
         return JsonResponse({"success": False, "error": "フォームが無効です"})
 
-
-
-    # ✅ GETの場合のみテンプレートを返す！
+    # GETリクエスト時
     form = BookForm()
     selected_child_id = request.GET.get("child_id")
     children = Child.objects.filter(user=request.user)
@@ -234,6 +236,8 @@ def add_book(request):
         "selected_child_id": selected_child_id,
         "children": children,
     })
+
+
 
 # ✅ パスワード変更ビュー
 class CustomPasswordChangeView(PasswordChangeView):
