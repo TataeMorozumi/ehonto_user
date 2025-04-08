@@ -161,9 +161,44 @@ def favorite(request):
         "page_obj": page_obj,
     })
 
-# ✅ もっとよんでページ
+
+@login_required
 def more_read(request):
-    return render(request, 'more_read.html')
+    user = request.user  # ←これが必要！
+
+    # 共通本棚：6冊取得
+    books = Book.objects.filter(user=user)[:6]
+    children = Child.objects.filter(user=user)
+
+    # 読んだ回数（ReadCount）を集計
+    read_data = ReadCount.objects.filter(book__in=books, child__in=children)
+    read_counts = (
+        read_data.values("book", "child__name")
+        .annotate(total_reads=Sum("count"))
+    )
+
+    # すべて0回で初期化
+    tooltip_counts = {
+        book.id: {child.name: 0 for child in children}
+        for book in books
+    }
+
+    # 実際の読んだ回数を反映
+    for item in read_counts:
+        book_id = item["book"]
+        child_name = item["child__name"]
+        count = item["total_reads"]
+        tooltip_counts[book_id][child_name] = count
+
+    context = {
+        "books": books,
+        "children": children,
+        "selected_child_id": "",  # 共通本棚なので空
+        "read_counts": {},        # 個別本棚では使うが今回は空でOK
+        "tooltip_counts": tooltip_counts,
+    }
+
+    return render(request, 'more_read.html', context)
 
 # ✅ 設定ページ
 def settings_view(request):
