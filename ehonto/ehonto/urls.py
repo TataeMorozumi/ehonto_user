@@ -26,7 +26,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("app/", include("app.urls")),
     path('', PortfolioView.as_view(), name="portfolio"),  # ✅ ポートフォリオをデフォルトページに設定
-   
+
     path('settings/', settings_view, name="settings_view"),
     path("signup/", SignupView.as_view(), name="signup"),
 
