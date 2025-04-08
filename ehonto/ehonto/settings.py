@@ -4,10 +4,13 @@ Django settings for ehonto project.
 
 from pathlib import Path
 import os
+import sys
+
 
 # ✅ BASE_DIR の定義
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+sys.path.append(str(BASE_DIR.parent / "app"))
 # ✅ セキュリティキー（本番環境では .env ファイルなどに保存する）
 SECRET_KEY = 'django-insecure-)8jk-b))n$x$f1cpgotan-4f^9h@&rk^(4x2yc$air1vgxhz*!'
 

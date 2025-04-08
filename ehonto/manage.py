@@ -5,7 +5,7 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ehonto.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ehonto.ehonto.settings')
 
 
 
