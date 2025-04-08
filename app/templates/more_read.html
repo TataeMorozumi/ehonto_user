@@ -2,7 +2,6 @@
 {% load custom_filters %}
 {% block body_class %}more-read-page{% endblock %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/your-style.css' %}">
 
 {% block content %}
 <h2 style="text-align: center; margin-top: 10px;">もっとよんで</h2>
@@ -27,33 +26,32 @@
       <div class="book-item with-tooltip">
         <a href="{% url 'book_detail' book.id %}">
           <img class="book-image" src="{{ book.image.url }}" alt="{{ book.title }}">
-          
-          <!-- ✅ DEBUG 表示 -->
-          <div style="font-size:12px; color:red; text-align:left;">
-            <strong>book.id:</strong> {{ book.id }}<br>
-            <strong>tooltip_counts[book.id]:</strong> {{ tooltip_counts|get_item:book.id }}
+
+          <!-- ✅ デバッグ表示 -->
+          <div style="color: red; font-size: 12px;">
+            book.id: {{ book.id }}<br>
+            tooltip_counts[book.id]: {{ tooltip_counts|get_item:book.id|stringformat:"s" }}
           </div>
 
+          <!-- ✅ ツールチップ表示 -->
           {% if not selected_child_id %}
             <span class="tooltip-text">
-              {% with tooltip_counts|get_item:book.id|stringformat:"s" as count_dict %}
-
-                {% if count_dict %}
-                  {% for name, count in count_dict.items %}
-                    {{ name }}：{{ count }}回<br>
+              {% with tooltip_counts|get_item:book.id|stringformat:"s" as count_list %}
+                {% if count_list %}
+                  {% for entry in count_list %}
+                    {{ entry }}<br>
                   {% endfor %}
                 {% else %}
                   データなし
                 {% endif %}
               {% endwith %}
-
             </span>
-          
           {% else %}
             <span class="tooltip-text">
-              {{ read_counts|get_item:book.id|default:0 }} 回よんだ
+              {{ read_counts|get_item:book.id|default:"0" }} 回よんだ
             </span>
           {% endif %}
+
         </a>
       </div>
     {% endfor %}
