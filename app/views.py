@@ -514,7 +514,6 @@ def increment_read_count(request):
     return JsonResponse({"count": read_count.count})
 
 # ✅ もっとよんでページ
-from django.db.models import Sum
 
 @login_required
 def more_read(request):
@@ -533,8 +532,9 @@ def more_read(request):
         )
         book_ids = [item["book"] for item in read_counts][:6]
         books = Book.objects.filter(id__in=book_ids)
-        read_counts_dict = {item["book"]: item["total_reads"] for item in read_counts}
+        read_counts_dict = {str(item["book"]): item["total_reads"] for item in read_counts}
         tooltip_counts = {}  # 共通本棚でのみ使う
+
     else:
         # 共通本棚：誰が何回読んだかを book_id ごとに記録
         read_data = ReadCount.objects.filter(book__user=user)
@@ -542,15 +542,16 @@ def more_read(request):
             read_data.values("book", "child__name")
             .annotate(total_reads=Sum("count"))
         )
+
         tooltip_counts = {}
         for item in read_counts:
-            book_id = item["book"]
+            book_id = str(item["book"])  # ✅ 文字列に変換
             child_name = item["child__name"]
             count = item["total_reads"]
             if book_id not in tooltip_counts:
                 tooltip_counts[book_id] = []
             tooltip_counts[book_id].append(f"{child_name}：{count}回")
-        
+
         books = Book.objects.filter(user=user)[:6]
         read_counts_dict = {}  # 共通本棚では使わない
 
@@ -562,6 +563,7 @@ def more_read(request):
         "tooltip_counts": tooltip_counts,
     }
     return render(request, "more_read.html", context)
+
 @login_required
 def edit_book(request, book_id):
     book = get_object_or_404(Book, id=book_id, user=request.user)
