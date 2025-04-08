@@ -187,7 +187,7 @@ def more_read(request):
 
         # ① 0回で初期化（各本について、各子どもごとに 0）
         tooltip_counts = {
-            str(book.id): {child.name: 0 for child in children}
+            book.id: {child.name: 0 for child in children}  # ✅ book.id は整数でOK
             for book in books
         }
 
