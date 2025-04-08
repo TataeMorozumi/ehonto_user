@@ -161,44 +161,54 @@ def favorite(request):
         "page_obj": page_obj,
     })
 
+from collections import defaultdict
+from django.db.models import Sum
 
 @login_required
 def more_read(request):
-    user = request.user  # ←これが必要！
-
-    # 共通本棚：6冊取得
-    books = Book.objects.filter(user=user)[:6]
+    user = request.user
+    child_id = request.GET.get("child_id")
     children = Child.objects.filter(user=user)
+    selected_child_id = child_id if child_id else ""
 
-    # 読んだ回数（ReadCount）を集計
-    read_data = ReadCount.objects.filter(book__in=books, child__in=children)
-    read_counts = (
-        read_data.values("book", "child__name")
-        .annotate(total_reads=Sum("count"))
-    )
+    if child_id:
+        # 個別本棚（今回の対象ではない）
+        ...
+        tooltip_counts = {}
+        read_counts_dict = {...}
+    else:
+        # ✅ 共通本棚
+        books = Book.objects.filter(user=user)[:6]
 
-    # すべて0回で初期化
-    tooltip_counts = {
-        book.id: {child.name: 0 for child in children}
-        for book in books
-    }
+        # ① 0回で初期化（book.id → {子ども名: 0}）
+        tooltip_counts = {
+            book.id: {child.name: 0 for child in children}
+            for book in books
+        }
 
-    # 実際の読んだ回数を反映
-    for item in read_counts:
-        book_id = item["book"]
-        child_name = item["child__name"]
-        count = item["total_reads"]
-        tooltip_counts[book_id][child_name] = count
+        # ② 実際の読書回数を上書き
+        read_data = ReadCount.objects.filter(book__in=books, child__in=children)
+        read_counts = (
+            read_data.values("book", "child__name")
+            .annotate(total_reads=Sum("count"))
+        )
 
-    context = {
+        for item in read_counts:
+            book_id = item["book"]
+            child_name = item["child__name"]
+            count = item["total_reads"]
+            tooltip_counts[book_id][child_name] = count
+
+        read_counts_dict = {}
+
+    return render(request, "more_read.html", {
         "books": books,
         "children": children,
-        "selected_child_id": "",  # 共通本棚なので空
-        "read_counts": {},        # 個別本棚では使うが今回は空でOK
+        "selected_child_id": selected_child_id,
         "tooltip_counts": tooltip_counts,
-    }
+        "read_counts": read_counts_dict,
+    })
 
-    return render(request, 'more_read.html', context)
 
 # ✅ 設定ページ
 def settings_view(request):
