@@ -198,10 +198,7 @@ def more_read(request):
         )
 
         for item in read_counts:
-            book_id = item["book"]
-            child_name = item["child__name"]
-            count = item["total_reads"]
-            tooltip_counts[book_id][child_name] = count
+            tooltip_counts[item["book"]][item["child__name"]] = item["total_reads"]
 
         read_counts_dict = {}
 
