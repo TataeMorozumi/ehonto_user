@@ -169,7 +169,7 @@ def more_read(request):
     selected_child_id = child_id if child_id else ""
 
     if child_id:
-        # 🔸個別本棚
+        # 🔸個別本棚の表示（選択された子ども）
         read_data = ReadCount.objects.filter(child__id=child_id, book__user=user)
         read_counts = (
             read_data.values("book")
@@ -181,15 +181,16 @@ def more_read(request):
         read_counts_dict = {item["book"]: item["total_reads"] for item in read_counts}
         tooltip_counts = {}
     else:
-        # ✅ 共通本棚のとき
+        # ✅ 共通本棚：全体から6冊
         books = Book.objects.filter(user=user)[:6]
 
-        # ① 0回で初期化（book.id → {子ども名: 0}）
-        tooltip_counts = {}
-        for book in books:
-            tooltip_counts[book.id] = {child.name: 0 for child in children}
+        # ✅ ① 0回で初期化
+        tooltip_counts = {
+            book.id: {child.name: 0 for child in children}
+            for book in books
+        }
 
-        # ② 実際の読書回数を上書き
+        # ✅ ② 実際に読んだ回数を上書き
         read_data = ReadCount.objects.filter(book__in=books, child__in=children)
         read_counts = (
             read_data.values("book", "child__name")
@@ -200,10 +201,8 @@ def more_read(request):
             book_id = item["book"]
             child_name = item["child__name"]
             count = item["total_reads"]
-
-            if book_id in tooltip_counts:
+            if book_id in tooltip_counts and child_name in tooltip_counts[book_id]:
                 tooltip_counts[book_id][child_name] = count
-
 
         read_counts_dict = {}
 
