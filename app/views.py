@@ -169,7 +169,7 @@ def more_read(request):
     selected_child_id = child_id if child_id else ""
 
     if child_id:
-        # 🔸個別本棚
+        # 🔸個別本棚の処理
         read_data = ReadCount.objects.filter(child__id=child_id, book__user=user)
         read_counts = (
             read_data.values("book")
@@ -179,18 +179,19 @@ def more_read(request):
         book_ids = [item["book"] for item in read_counts][:6]
         books = Book.objects.filter(id__in=book_ids)
         read_counts_dict = {item["book"]: item["total_reads"] for item in read_counts}
-        tooltip_counts = {}
+        tooltip_counts = {}  # 個別では使わない
+
     else:
-        # 共通本棚のとき
+        # ✅ 共通本棚の処理
         books = Book.objects.filter(user=user)[:6]
 
-        # ① 0回で初期化（book.id → {子ども名: 0}）
+        # ① 0回で初期化（各本について、各子どもごとに 0）
         tooltip_counts = {
             book.id: {child.name: 0 for child in children}
             for book in books
         }
 
-        # ② 実際の読書回数を上書き
+        # ② 実際の読書回数データを取得し、辞書に上書き
         read_data = ReadCount.objects.filter(book__in=books, child__in=children)
         read_counts = (
             read_data.values("book", "child__name")
@@ -201,12 +202,10 @@ def more_read(request):
             book_id = item["book"]
             child_name = item["child__name"]
             count = item["total_reads"]
-            # ✅ 正しい辞書形式に代入
-            tooltip_counts[book_id][child_name] = count
+            if book_id in tooltip_counts:
+                tooltip_counts[book_id][child_name] = count
 
-        
-
-        read_counts_dict = {}
+        read_counts_dict = {}  # 共通の場合は不要
 
     return render(request, "more_read.html", {
         "books": books,
@@ -215,6 +214,7 @@ def more_read(request):
         "read_counts": read_counts_dict,
         "tooltip_counts": tooltip_counts,
     })
+
 
 # ✅ 設定ページ
 def settings_view(request):

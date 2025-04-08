@@ -29,17 +29,13 @@
 
           {% if not selected_child_id %}
             <span class="tooltip-text">
-              book.id = {{ book.id }}<br>
-              tooltip_counts = {{ tooltip_counts }}<br>
-              {% with tooltip_counts|get_item:book.id|stringformat:"i" as count_dict %}
-              count_dict = {{ count_dict }}<br>
+              {% with tooltip_counts|get_item:book.id as count_dict %}
                 {% if count_dict %}
                   {% for name, count in count_dict.items %}
                     {{ name }}：{{ count }}回<br>
                   {% endfor %}
                 {% endif %}
               {% endwith %}
-            
             </span>
           {% else %}
             <span class="tooltip-text">
