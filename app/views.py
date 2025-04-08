@@ -189,19 +189,20 @@ def more_read(request):
             read_data.values("book", "child__name")
             .annotate(total_reads=Sum("count"))
         )
-
-        # ✅ すべての子ども×絵本を0で初期化
+        # ✅ 0で初期化
         tooltip_counts = {
             book.id: {child.name: 0 for child in children}
             for book in books
         }
 
-        # ✅ 実データで上書き
+        # ✅ 実際のデータで上書き（回数を整数で）
         for item in read_counts:
             book_id = item["book"]
             name = item["child__name"]
             count = item["total_reads"]
             tooltip_counts[book_id][name] = count
+
+        
 
         read_counts_dict = {}
 
