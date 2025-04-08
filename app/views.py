@@ -473,6 +473,7 @@ def more_read(request):
     selected_child_id = child_id if child_id else ""
 
     if child_id:
+        # 子ども個別の本棚：その子の読んだ回数が少ない順に表示
         read_data = ReadCount.objects.filter(child__id=child_id, book__user=user)
         read_counts = (
             read_data.values("book")
@@ -482,23 +483,25 @@ def more_read(request):
         book_ids = [item["book"] for item in read_counts][:6]
         books = Book.objects.filter(id__in=book_ids)
         read_counts_dict = {item["book"]: item["total_reads"] for item in read_counts}
-        tooltip_counts = {}
+        tooltip_counts = {}  # 共通本棚でのみ使う
     else:
-        # 共通本棚：全子ども分の読書回数を合計
+        # 共通本棚：誰が何回読んだかを book_id ごとに記録
         read_data = ReadCount.objects.filter(book__user=user)
         read_counts = (
             read_data.values("book", "child__name")
             .annotate(total_reads=Sum("count"))
         )
         tooltip_counts = {}
-        count_dict = {}
         for item in read_counts:
             book_id = item["book"]
-            name = item["child__name"]
+            child_name = item["child__name"]
             count = item["total_reads"]
-            count_dict.setdefault(book_id, {})[name] = count
-        books = Book.objects.filter(user=user)[:6]  # あえて全体から表示
-        read_counts_dict = {}
+            if book_id not in tooltip_counts:
+                tooltip_counts[book_id] = []
+            tooltip_counts[book_id].append(f"{child_name}：{count}回")
+        
+        books = Book.objects.filter(user=user)[:6]
+        read_counts_dict = {}  # 共通本棚では使わない
 
     context = {
         "books": books,
@@ -508,7 +511,6 @@ def more_read(request):
         "tooltip_counts": tooltip_counts,
     }
     return render(request, "more_read.html", context)
-
 @login_required
 def edit_book(request, book_id):
     book = get_object_or_404(Book, id=book_id, user=request.user)

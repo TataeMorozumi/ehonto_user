@@ -1524,4 +1524,28 @@
     max-height: none;
     margin-top: 20px !important;
   }
+  .book-card {
+    position: relative;
+    display: inline-block;
+    margin: 10px;
+  }
+  
+  .book-image {
+    width: 150px;
+    height: auto;
+    border-radius: 8px;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .book-card:hover .book-image {
+    transform: scale(1.05); /* ホバー時に少し拡大 */
+  }
+  
+  .popup-info {
+    display: none; /* 初期状態は非表示 */
+  }
+  
+  .book-card:hover .popup-info {
+    display: block; /* ホバー時にポップアップを表示 */
+  }
   

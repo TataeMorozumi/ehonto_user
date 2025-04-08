@@ -27,11 +27,12 @@
       <div class="book-item with-tooltip">
         <a href="{% url 'book_detail' book.id %}">
           <img class="book-image" src="{{ book.image.url }}" alt="{{ book.title }}">
+          
           {% if not selected_child_id %}
             <span class="tooltip-text">
-              {% with tooltip_counts|get_item:book.id as count_dict %}
-                {% for name, count in count_dict.items %}
-                  {{ name }}：{{ count }}回<br>
+              {% with tooltip_counts|get_item:book.id as count_list %}
+                {% for count in count_list %}
+                  {{ count }}<br>
                 {% endfor %}
               {% endwith %}
             </span>
@@ -40,10 +41,10 @@
               {{ read_counts|get_item:book.id|default:0 }} 回よんだ
             </span>
           {% endif %}
+          
         </a>
       </div>
     {% endfor %}
   </div>
 </div>
-{% endblock %}
 
