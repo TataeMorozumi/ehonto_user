@@ -30,12 +30,13 @@
           {% if not selected_child_id %}
             <span class="tooltip-text">
               {% with tooltip_counts|get_item:book.id as count_dict %}
-                {% for name, count in count_dict.items %}
-                  {{ name }}：{{ count }}回<br>
-                {% empty %}
-                  読書データがありません
-                {% endfor %}
+                {% if count_dict %}
+                  {% for name, count in count_dict.items %}
+                    {{ name }}：{{ count }}回<br>
+                  {% endfor %}
+                {% endif %}
               {% endwith %}
+
             </span>
           {% else %}
             <span class="tooltip-text">
