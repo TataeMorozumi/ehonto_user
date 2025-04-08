@@ -161,9 +161,6 @@ def favorite(request):
         "page_obj": page_obj,
     })
 
-from collections import defaultdict
-from django.db.models import Sum
-
 @login_required
 def more_read(request):
     user = request.user
@@ -172,21 +169,28 @@ def more_read(request):
     selected_child_id = child_id if child_id else ""
 
     if child_id:
-        # 個別本棚（今回の対象ではない）
-        ...
+        # 個別本棚の処理
+        read_data = ReadCount.objects.filter(child__id=child_id, book__user=user)
+        read_counts = (
+            read_data.values("book")
+            .annotate(total_reads=Sum("count"))
+            .order_by("total_reads")
+        )
+        book_ids = [item["book"] for item in read_counts][:6]
+        books = Book.objects.filter(id__in=book_ids)
+        read_counts_dict = {item["book"]: item["total_reads"] for item in read_counts}
         tooltip_counts = {}
-        read_counts_dict = {...}
     else:
-        # ✅ 共通本棚
+        # 共通本棚（すべての子どもの読書回数をまとめる）
         books = Book.objects.filter(user=user)[:6]
 
-        # ① 0回で初期化（book.id → {子ども名: 0}）
+        # すべて0回で初期化
         tooltip_counts = {
             book.id: {child.name: 0 for child in children}
             for book in books
         }
 
-        # ② 実際の読書回数を上書き
+        # 実際の読書回数で上書き
         read_data = ReadCount.objects.filter(book__in=books, child__in=children)
         read_counts = (
             read_data.values("book", "child__name")
@@ -208,7 +212,6 @@ def more_read(request):
         "tooltip_counts": tooltip_counts,
         "read_counts": read_counts_dict,
     })
-
 
 # ✅ 設定ページ
 def settings_view(request):
