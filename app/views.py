@@ -639,16 +639,22 @@ def review(request, year, month):
     } for h in histories], cls=DjangoJSONEncoder)
 
     # calendar_data の形式を正しく作成
-    calendar_data = defaultdict(list)
+    calendar_data = defaultdict(dict)  # 内部も辞書に変更（book.idがキー）
+
     for history in histories:
         day = history.date.day
-        calendar_data[day].append({
-            "id": history.book.id,
-            "title": history.book.title,
-            "image_url": history.book.image.url if history.book.image else ""
-        })
+        book_id = history.book.id
 
-    # JSON 形式に変換
+        # すでにその日付に同じ本が登録されていたらスキップ
+        if book_id not in calendar_data[day]:
+            calendar_data[day][book_id] = {
+                "id": history.book.id,
+                "title": history.book.title,
+                "image_url": history.book.image.url if history.book.image else ""
+            }
+
+    # 最後に JSON化用にリスト形式へ変換
+    calendar_data = {day: list(books.values()) for day, books in calendar_data.items()}
     calendar_data_json = json.dumps(calendar_data, cls=DjangoJSONEncoder)
 
     # 最も読まれた絵本を取得
