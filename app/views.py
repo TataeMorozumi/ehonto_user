@@ -186,18 +186,17 @@ def add_book(request):
             selected_child = None
             is_common = not child_id or child_id == "None"
 
-            # ✅ 重複チェック
             if is_common:
-                # 共通の本棚（child=None）に同じタイトルが存在するか
-                if Book.objects.filter(title=title, user=request.user, child=None).exists():
+                # ✅ 共通本棚はすべての絵本から重複チェック
+                if Book.objects.filter(title=title, user=request.user).exists():
                     return JsonResponse({
                         "success": False,
-                        "error": f"「{title}」はすでに共通の本棚に登録されています。"
+                        "error": f"「{title}」はすでに登録されています。"
                     })
             else:
                 try:
                     selected_child = Child.objects.get(id=int(child_id), user=request.user)
-                    # 個別の子どもの本棚に同じタイトルが存在するか（ManyToManyなので逆参照）
+                    # ✅ 子どもごとの絵本から重複チェック
                     existing_books = Book.objects.filter(title=title, user=request.user, child=selected_child)
                     if existing_books.exists():
                         return JsonResponse({
@@ -210,7 +209,7 @@ def add_book(request):
                         "error": "子ども情報が見つかりません。"
                     })
 
-            # 登録処理
+            # 重複がなければ登録処理
             book = form.save(commit=False)
             book.user = request.user
             book.save()
@@ -236,7 +235,6 @@ def add_book(request):
         "selected_child_id": selected_child_id,
         "children": children,
     })
-
 
 
 # ✅ パスワード変更ビュー
