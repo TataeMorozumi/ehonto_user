@@ -27,18 +27,25 @@
       <div class="book-item with-tooltip">
         <a href="{% url 'book_detail' book.id %}">
           <img class="book-image" src="{{ book.image.url }}" alt="{{ book.title }}">
+          
+          <!-- ✅ DEBUG 表示 -->
+          <div style="font-size:12px; color:red; text-align:left;">
+            <strong>book.id:</strong> {{ book.id }}<br>
+            <strong>tooltip_counts[book.id]:</strong> {{ tooltip_counts|get_item:book.id }}
+          </div>
 
           {% if not selected_child_id %}
             <span class="tooltip-text">
-              {% with tooltip_counts|get_item:book.id|stringformat:"i" as count_dict %}
+              {% with tooltip_counts|get_item:book.id as count_dict %}
                 {% if count_dict %}
                   {% for name, count in count_dict.items %}
                     {{ name }}：{{ count }}回<br>
                   {% endfor %}
                 {% else %}
-                  ⚠️ 読書データがありません
+                  データなし
                 {% endif %}
               {% endwith %}
+
             </span>
           
           {% else %}
