@@ -61,18 +61,9 @@
   {% endfor %}
 
   {% for day in calendar_days %}
-    <div class="calendar-cell">
+    <div class="calendar-cell" id="calendar-cell-{{ day }}">
       <div class="calendar-day">{{ day }}</div>
-      {% with day|stringformat:"s" as day_str %}
-          {% if calendar_data|get_item:day_str %}
-              {% with calendar_data|get_item:day_str as books %}
-                  {% if books %}
-                      <div class="book-icon" onclick="openBookModal('{{ day_str }}')">📖</div>
-                  {% endif %}
-              {% endwith %}
-          {% endif %}
-      {% endwith %}
-
+      <!-- 📖 アイコンはJSで差し込まれる -->
     </div>
   {% endfor %}
 </div>
@@ -164,6 +155,23 @@
   window.calendarData = JSON.parse(`{{ calendar_data_json|escapejs }}`);
   console.log("📦 calendarData:", calendarData);
 
+  // 📖アイコンを日付のセルに挿入する処理
+  document.addEventListener("DOMContentLoaded", function () {
+    for (const [day, books] of Object.entries(calendarData)) {
+      const cell = document.getElementById(`calendar-cell-${day}`);
+      if (cell && books.length > 0) {
+        const icon = document.createElement("div");
+        icon.classList.add("book-icon");
+        icon.innerText = "📖";
+        icon.onclick = function () {
+          openBookModal(day); // モーダルを開く関数
+        };
+        cell.appendChild(icon);
+      }
+    }
+  });
+
+  // モーダルを開く処理
   window.openBookModal = function(dayStr) {
     console.log("📣 openBookModal:", dayStr);
     const books = calendarData[dayStr];
@@ -180,8 +188,6 @@
 
       const link = document.createElement("a");
       link.href = `${bookDetailBase}${book.id}/`;
-
-      console.log("🔗 遷移URL:", link.href);
       link.target = "_self";
 
       const img = document.createElement("img");
@@ -196,10 +202,12 @@
     document.getElementById("bookModal").style.display = "block";
   };
 
+  // モーダルを閉じる処理
   window.closeBookModal = function () {
     document.getElementById("bookModal").style.display = "none";
   };
 
+  // 子どもプルダウン変更でURL切り替え
   document.getElementById("child").addEventListener("change", function () {
     const selectedChildId = this.value;
     const wrapper = document.querySelector(".child-selector");
