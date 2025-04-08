@@ -187,9 +187,10 @@ def more_read(request):
 
         # ① 0回で初期化（各本について、各子どもごとに 0）
         tooltip_counts = {
-            book.id: {child.name: 0 for child in children}
+            str(book.id): {child.name: 0 for child in children}
             for book in books
         }
+
 
         # ② 実際の読書回数データを取得し、辞書に上書き
         read_data = ReadCount.objects.filter(book__in=books, child__in=children)
@@ -199,7 +200,7 @@ def more_read(request):
         )
 
         for item in read_counts:
-            book_id = item["book"]
+            book_id = str(item["book"])  # ← strに変換
             child_name = item["child__name"]
             count = item["total_reads"]
             if book_id in tooltip_counts:
