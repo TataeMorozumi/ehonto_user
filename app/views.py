@@ -181,26 +181,28 @@ def more_read(request):
         read_counts_dict = {item["book"]: item["total_reads"] for item in read_counts}
         tooltip_counts = {}
     else:
-        # 🔸共通本棚
+        # 共通本棚のとき
         books = Book.objects.filter(user=user)[:6]
-        read_data = ReadCount.objects.filter(book__in=books, child__user=user)
 
-        read_counts = (
-            read_data.values("book", "child__name")
-            .annotate(total_reads=Sum("count"))
-        )
-        # ✅ 0で初期化
+        # ① 0回で初期化（book.id → {子ども名: 0}）
         tooltip_counts = {
             book.id: {child.name: 0 for child in children}
             for book in books
         }
 
-        # ✅ 実際のデータで上書き（回数を整数で）
+        # ② 実際の読書回数を上書き
+        read_data = ReadCount.objects.filter(book__in=books, child__in=children)
+        read_counts = (
+            read_data.values("book", "child__name")
+            .annotate(total_reads=Sum("count"))
+        )
+
         for item in read_counts:
             book_id = item["book"]
-            name = item["child__name"]
+            child_name = item["child__name"]
             count = item["total_reads"]
-            tooltip_counts[book_id][name] = count
+            # ✅ 正しい辞書形式に代入
+            tooltip_counts[book_id][child_name] = count
 
         
 
