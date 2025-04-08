@@ -38,8 +38,8 @@
   {% with tooltip_counts|get_item:book.id|stringformat:"s" as count_dict %}
     <span class="tooltip-text">
       {% if count_dict %}
-        {% for name, count in count_dict.items %}
-          {{ name }}：{{ count }}回<br>
+        {% for pair in count_dict|dictsort %}
+          {{ pair.0 }}：{{ pair.1 }}回<br>
         {% endfor %}
       {% else %}
         データなし
@@ -51,8 +51,8 @@
     {{ read_counts|get_item:book.id|default:0 }} 回よんだ
   </span>
 {% endif %}
-
-        </a>
+   
+    </a>
       </div>
     {% endfor %}
   </div>
