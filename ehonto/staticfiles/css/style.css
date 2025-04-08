@@ -1,3 +1,4 @@
+
 /* ✅ 共通ページネーション */
 .pagination {
     display: flex;
@@ -28,6 +29,10 @@
     padding: 8px 12px;
     font-weight: bold;
 }
+
+
+
+
 /* ✅ ホーム画面：画像一覧 */
 .book-container {
     display: grid;
@@ -39,7 +44,7 @@
     padding: 20px;
     position: relative;
     z-index: 0;
-    background-color: rgba(255, 255, 255, 0.6);  /* うっすら白 */
+    background-color: transparent;
     border-radius: 8px;
     padding-top: 0;
     margin-top: 0;
@@ -58,10 +63,31 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-end;  /* ✅ 上下の整列 */
+  } 
+/* ========================= */
+/* 📚 本棚（ホーム）のグリッド表示 */
+/* ========================= */
+.book-container {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-auto-rows: 1fr;
+    gap: 10px;
+    justify-items: center;
+    align-items: end;
+    background-color: rgba(255, 255, 255, 0.6);  /* うっすら白 */
+    padding: 20px;
+    border-radius: 8px;
+  }
+  
+  .book-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
     align-items: center;
     width: 100%;
     height: 100%;
     text-align: center;
+
 }
 .book-image {
     width: 100%;
@@ -100,7 +126,83 @@
     border-radius: 10px;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
 }
-.book-detail-container {
+  
+  .book-image {
+    width: 100%;
+    height: auto;
+    max-height: 250px;
+    object-fit: contain;
+  }
+  
+  /* ========================= */
+  /* 🔍 検索ボックス（右端配置） */
+  /* ========================= */
+  .search-form {
+    position: absolute;
+    top: 70px;
+    right: 20px;
+    display: flex;
+    gap: 6px;
+    z-index: 10;
+  }
+  
+  .search-input {
+    padding: 6px 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .search-button {
+    padding: 6px 10px;
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .search-button:hover {
+    background-color: #4cae4c;
+  }
+  
+  /* ========================= */
+  /* 🧒 子ども選択プルダウン */
+  /* ========================= */
+  .child-selector {
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-start;
+    margin-left: 20px;
+    margin-top: 10px;
+    z-index: 10;
+  }
+  
+  .child-selector select {
+    width: 180px;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    background-color: white;
+    margin-right: 10px;
+  }
+  
+  .child-edit-icon {
+    font-size: 20px;
+    text-decoration: none;
+    color: #5cb85c;
+    cursor: pointer;
+  }
+  
+  .child-edit-icon:hover {
+    color: #4a9c4a;
+  }
+  
+  /* ========================= */
+  /* 📖 詳細ページ：画像・子ども情報 */
+  /* ========================= */
+  .book-detail-container {
     display: flex;
     justify-content: space-between;
     max-width: 900px;
@@ -117,6 +219,15 @@
 .book-owners {
     width: 40%;
     text-align: left;
+  }
+  
+  .book-info {
+    width: 40%;
+    text-align: left;
+  }
+  
+  .book-owners {
+    width: 60%;
     display: flex;
     flex-direction: column;
     gap: 15px;
@@ -217,7 +328,17 @@
     text-align: left;
   }
   
-.child-entry {
+  .book-detail-image {
+    max-width: 300px;
+    height: auto;
+    display: block;
+    margin: 20px auto;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* 子どもごとの表示ブロック */
+  .child-entry {
     background: #f9f9f9;
     padding: 14px;
     border-radius: 10px;
@@ -232,6 +353,55 @@
     display: inline-block;  /* ← これで必要な分だけの幅に */
     padding: 8px 20px;
     font-size: 16px;
+  }
+  
+  /* 顔 + 名前 + ☆（横一列） */
+  .child-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  
+  .child-icon {
+    font-size: 20px;
+  }
+  
+  .child-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    white-space: nowrap;
+  }
+  
+  .favorite-star {
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    background-color: #fff8dc;
+    line-height: 1;
+    transition: transform 0.2s ease;
+  }
+  
+  .favorite-star.favorited {
+    background-color: #ffeaa7;
+    color: #e67e22;
+    transform: scale(1.1);
+  }
+  
+  /* よんだ + 回数（横並び） */
+  .read-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 30px;
+    margin-bottom: 10px;
+  }
+  
+  .read-button {
+    padding: 6px 14px;
+    font-size: 14px;
     background-color: #5cb85c;
     color: white;
     border: none;
@@ -288,6 +458,45 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    white-space: nowrap;
+  }
+  
+  .read-button:hover {
+    background-color: #4cae4c;
+  }
+  
+  .read-count {
+    font-size: 14px;
+    color: #333;
+    white-space: nowrap;
+  }
+  
+  /* メモ欄（横に広く表示） */
+  .memo-box-inline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .memo-box-inline textarea {
+    flex-grow: 1;
+    height: 70px;
+    padding: 8px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    resize: vertical;
+    box-sizing: border-box;
+  }
+  
+  .memo-save-btn {
+    background-color: #5cb85c;
+    color: white;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 13px;
   }
   
   .memo-save-btn:hover {
@@ -346,7 +555,123 @@
     background-color: #fff8dc;
     transform: scale(1.15);
 }
-.add-button {
+  /* ========================= */
+  /* ➕ モーダル（絵本追加・編集） */
+  /* ========================= */
+  .modal {
+    display: none;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 400px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    z-index: 999;
+  }
+  
+  .modal-content {
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .modal .close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 20px;
+    cursor: pointer;
+    color: #333;
+  }
+  
+  /* ボタン（追加・保存） */
+  .submit-button {
+    width: 100%;
+    padding: 10px;
+    background: #5cb85c;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .submit-button:hover {
+    background: #4cae4c;
+  }
+  
+  /* ========================= */
+  /* 📆 カレンダー（ふりかえり） */
+  /* ========================= */
+  .calendar-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 20px;
+    font-size: 18px;
+  }
+  
+  .calendar-nav a {
+    text-decoration: none;
+    color: #007bff;
+  }
+  .calendar-nav a:hover {
+    text-decoration: underline;
+  }
+  
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+  }
+  
+  .calendar-cell {
+    border: 1px solid #ccc;
+    padding: 6px;
+    min-height: 100px;
+    background: #fff;
+    position: relative;
+  }
+  
+  .calendar-day {
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+  
+  .book-icon img {
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
+    margin-right: 4px;
+    border-radius: 4px;
+  }
+  
+  /* ========================= */
+  /* 🗑️ ごみ箱ボタン（詳細ページ） */
+  /* ========================= */
+  .delete-button {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 20px;
+    cursor: pointer;
+    margin-top: 10px;
+    margin-left: 10px;
+    transition: color 0.2s ease;
+  }
+  
+  .delete-button:hover {
+    color: red;
+  }
+  
+  /* ========================= */
+  /* ➕ モーダルを開くボタン（＋） */
+  /* ========================= */
+  .add-button {
     position: fixed;
     bottom: 20px;
     right: 20px;
@@ -379,6 +704,8 @@
     border-radius: 10px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
     text-align: center;
+    z-index: 1000;
+    overflow: visible;
 }
 .modal-show {
     display: flex;
@@ -390,10 +717,14 @@
     left: 0;
     width: 100%;
     height: 100%;
+    z-index: 1000;
 }
 .modal-content {
     padding: 20px;
     text-align: center;
+    position: relative;
+    z-index: 10;
+    overflow: visible;
 }
 .modal-form-container {
     width: 100%;
@@ -434,6 +765,7 @@
     font-size: 20px;
     cursor: pointer;
     color: #333;
+    z-index: 20;
 }
 .close {
     float: right;
@@ -1066,7 +1398,163 @@
     margin-left: 1.2em;
     padding-left: 0;
   }
+  p {
+    line-height: 1.8;
+    margin-bottom: 1.5em;
+    font-size: 17px;
+  }
+  .password-change-container {
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    text-align: left;
+  }
+  .password-change-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .password-change-container button {
+    display: block;
+    margin: 0 auto;
+  }
+  body.search-results .shelf-line {
+    display: none !important;
+  }
+  .modal .close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+    z-index: 9999;
+    display: block; /* ← 見えない場合の対処として明示的に */
+  }
+  .modal-content .close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+    z-index: 9999;
+    display: block;
+  }
   
+  .add-button:hover {
+    background-color: #0056b3;
+  }
   
+ /* 📅 カレンダー用 */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* 7列（日～土） */
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .calendar-cell {
+    border: 1px solid #ccc;
+    padding: 6px;
+    min-height: 100px;
+    background-color: #fff;
+    position: relative;
+    text-align: center;
+    vertical-align: top;
+    font-size: 14px;
+  }
+  
+  .calendar-day {
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+  
+  .book-icon img {
+    width: 36px;
+    height: 36px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-top: 4px;
+  }
+    .book-icon {
+    font-size: 50px;
+    cursor: pointer;
+    line-height: 1;
+    transition: transform 0.2s ease;
+  }
 
+  .book-icon:hover {
+    transform: scale(1.2);
+  }
+
+  .shelf-line {
+    width: 100%;
+    height: 8px;
+    background-image: url("/static/images/wood_texture.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    border-radius: 4px;
+    margin-top: 10px;
+  }
+  .no-header-page header {
+    display: none !important;
+  }
+  
+  .no-header-page .wood-line {
+    display: none;
+  }
+  .more-read-page .book-image {
+    max-height: 210px; /* ← 画像の高さを調整 */
+    object-fit: contain;
+  }
+  .more-read-page .book-container.more-read {
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: auto;
+    gap: 20px;
+    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+    padding-top: 5px !important;
+  }
+  .more-read-page .book-list {
+    overflow: visible;
+    max-height: none;
+    margin-top: 20px !important;
+  }
+  .book-card {
+    position: relative;
+    display: inline-block;
+    margin: 10px;
+  }
+  
+  .book-image {
+    width: 150px;
+    height: auto;
+    border-radius: 8px;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .book-card:hover .book-image {
+    transform: scale(1.05); /* ホバー時に少し拡大 */
+  }
+  
+  .popup-info {
+    display: none; /* 初期状態は非表示 */
+  }
+  
+  .book-card:hover .popup-info {
+    display: block; /* ホバー時にポップアップを表示 */
+  }
+  .tooltip-text {
+    white-space: nowrap;
+    background-color: rgba(0,0,0,0.7);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    max-width: 200px;
+  }
   

@@ -57,7 +57,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION =  'ehonto.wsgi.application'
+WSGI_APPLICATION =  'ehonto.ehonto.wsgi.application'
 
 # ✅ データベース設定（SQLite）
 DATABASES = {
