@@ -36,6 +36,11 @@ class BookForm(forms.ModelForm):
     class Meta:
         model = Book
         fields = ['title', 'author', 'image']  # ✅ 画像フィールドを含める
+        labels = {
+            'title': 'タイトル',
+            'author': '作者',
+            'image': '画像',
+        }
 
     def clean_image(self):
         image = self.cleaned_data.get('image')
