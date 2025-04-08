@@ -516,56 +516,6 @@ def increment_read_count(request):
 # ✅ もっとよんでページ
 
 @login_required
-def more_read(request):
-    user = request.user
-    child_id = request.GET.get("child_id")
-    children = Child.objects.filter(user=user)
-    selected_child_id = child_id if child_id else ""
-
-    if child_id:
-        # 子ども個別の本棚：その子の読んだ回数が少ない順に表示
-        read_data = ReadCount.objects.filter(child__id=child_id, book__user=user)
-        read_counts = (
-            read_data.values("book")
-            .annotate(total_reads=Sum("count"))
-            .order_by("total_reads")
-        )
-        book_ids = [item["book"] for item in read_counts][:6]
-        books = Book.objects.filter(id__in=book_ids)
-        read_counts_dict = {str(item["book"]): item["total_reads"] for item in read_counts}
-        tooltip_counts = {}  # 共通本棚でのみ使う
-
-    else:
-        # 共通本棚：誰が何回読んだかを book_id ごとに記録
-        read_data = ReadCount.objects.filter(book__user=user)
-        read_counts = (
-            read_data.values("book", "child__name")
-            .annotate(total_reads=Sum("count"))
-        )
-
-        tooltip_counts = {}
-        for item in read_counts:
-            book_id = str(item["book"])  # ✅ 文字列に変換
-            child_name = item["child__name"]
-            count = item["total_reads"]
-            if book_id not in tooltip_counts:
-                tooltip_counts[str(book_id)] = []
-            tooltip_counts[str(book_id)].append(f"{child_name}：{count}回")
-
-
-        books = Book.objects.filter(user=user)[:6]
-        read_counts_dict = {}  # 共通本棚では使わない
-
-    context = {
-        "books": books,
-        "children": children,
-        "selected_child_id": selected_child_id,
-        "read_counts": read_counts_dict,
-        "tooltip_counts": tooltip_counts,
-    }
-    return render(request, "more_read.html", context)
-
-@login_required
 def edit_book(request, book_id):
     book = get_object_or_404(Book, id=book_id, user=request.user)
 
