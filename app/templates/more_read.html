@@ -28,29 +28,30 @@
           <img class="book-image" src="{{ book.image.url }}" alt="{{ book.title }}">
 
           <!-- ✅ デバッグ表示 -->
-          <div style="color: red; font-size: 12px;">
-            book.id: {{ book.id }}<br>
-            tooltip_counts[book.id]: {{ tooltip_counts|get_item:book.id|stringformat:"s" }}
-          </div>
+<div style="color: red; font-size: 12px;">
+  book.id: {{ book.id }}<br>
+  tooltip_counts[book.id]: {{ tooltip_counts|get_item:book.id|stringformat:"s" }}
+</div>
 
-          <!-- ✅ ツールチップ表示 -->
-          {% if not selected_child_id %}
-            <span class="tooltip-text">
-              {% with tooltip_counts|get_item:book.id|stringformat:"s" as count_list %}
-                {% if count_list %}
-                  {% for entry in count_list %}
-                    {{ entry }}<br>
-                  {% endfor %}
-                {% else %}
-                  データなし
-                {% endif %}
-              {% endwith %}
-            </span>
-          {% else %}
-            <span class="tooltip-text">
-              {{ read_counts|get_item:book.id|default:"0" }} 回よんだ
-            </span>
-          {% endif %}
+<!-- ✅ ツールチップ表示 -->
+{% if not selected_child_id %}
+  <span class="tooltip-text">
+    {% with tooltip_counts|get_item:book.id|stringformat:"s" as count_list %}
+      {% if count_list %}
+        {% for entry in count_list %}
+          {{ entry }}<br>
+        {% endfor %}
+      {% else %}
+        データなし
+      {% endif %}
+    {% endwith %}
+  </span>
+{% else %}
+  <span class="tooltip-text">
+    {{ read_counts|get_item:book.id|default:"0" }} 回よんだ
+  </span>
+{% endif %}
+
 
         </a>
       </div>

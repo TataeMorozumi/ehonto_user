@@ -549,8 +549,9 @@ def more_read(request):
             child_name = item["child__name"]
             count = item["total_reads"]
             if book_id not in tooltip_counts:
-                tooltip_counts[book_id] = []
-            tooltip_counts[book_id].append(f"{child_name}：{count}回")
+                tooltip_counts[str(book_id)] = []
+            tooltip_counts[str(book_id)].append(f"{child_name}：{count}回")
+
 
         books = Book.objects.filter(user=user)[:6]
         read_counts_dict = {}  # 共通本棚では使わない
