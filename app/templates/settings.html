@@ -55,32 +55,21 @@
     display: flex;
     justify-content: space-between;
     margin-top: 30px;
+    padding: 0 10px;
   }
 
   .settings-links a {
+    text-decoration: underline;
     font-weight: bold;
-    text-decoration: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    display: inline-block;
+    font-size: 14px;
+    color: #6c5ce7;
+    background: none;
+    border: none;
+    padding: 0;
   }
 
-  .btn-warning {
-    background-color: #f0ad4e;
-    color: white;
-  }
-
-  .btn-warning:hover {
-    background-color: #ec971f;
-  }
-
-  .btn-secondary {
-    background-color: #5bc0de;
-    color: white;
-  }
-
-  .btn-secondary:hover {
-    background-color: #31b0d5;
+  .settings-links a:hover {
+    color: #341f97;
   }
 
   .alert-success {
@@ -114,10 +103,10 @@
     <button type="submit" class="btn-primary">変更する</button>
   </form>
 
-  <!-- ✅ パスワード変更とホームリンク -->
+  <!-- ✅ 下線付きテキストリンク風 -->
   <div class="settings-links">
-    <a href="{% url 'password_change' %}" class="btn-warning">🔒 パスワード変更</a>
-    <a href="{% url 'home' %}" class="btn-secondary">🏠 ホームへ戻る</a>
+    <a href="{% url 'password_change' %}">🔒 パスワード変更</a>
+    <a href="{% url 'home' %}">🏠 ホームへ戻る</a>
   </div>
 </div>
 {% endblock %}
