@@ -31,15 +31,22 @@
 
   <hr>
 
-  {% if children|length < max_children %}
+{% if form and children|length < max_children %}
   <form method="POST" class="child-form">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit" class="btn btn-success">登録</button>
   </form>
-{% else %}
-  <p style="color: red; text-align: center;">※ 子どもの登録は最大3人までです。</p>
 {% endif %}
+
+{% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li class="{{ message.tags }}" style="color: red; text-align: center;">{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
 
 
   <div style="text-align: center; margin-top: 20px;">
