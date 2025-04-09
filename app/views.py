@@ -412,11 +412,13 @@ from django.contrib.auth.decorators import login_required
 def child_add(request):
     existing_children = Child.objects.filter(user=request.user)
 
-    if request.method == "POST":
-        if existing_children.count() >= 3:
-            messages.error(request, "※ 子どもの登録は最大3人までです。")
-            return redirect("child_edit")
+    # 子どもがすでに3人なら追加できない（GETでもPOSTでも対応）
+    if existing_children.count() >= 3:
+        messages.error(request, "※ 子どもの登録は最大3人までです。")
+        return redirect("child_edit")
 
+    # POSTのときのみ追加処理
+    if request.method == "POST":
         form = ChildForm(request.POST)
         if form.is_valid():
             child = form.save(commit=False)
@@ -424,7 +426,6 @@ def child_add(request):
             child.save()
             return redirect("child_edit")
     else:
-        # ✅ GETリクエストのときだけフォームを表示
         form = ChildForm()
 
     return render(request, "child_edit.html", {
