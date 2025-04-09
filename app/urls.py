@@ -19,7 +19,7 @@ urlpatterns = [
     path('more_read/', views.more_read, name='more_read'),
 
     # ✅ 設定・家族招待
-    path('settings/', views.settings_view, name='settings_view'),
+    path("settings/", settings_view, name="settings"),
     path('family_invite/', views.family_invite, name='family_invite'),
 
     # ✅ パスワード変更関連
