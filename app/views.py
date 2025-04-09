@@ -214,8 +214,22 @@ def more_read(request):
     })
 
 # ✅ 設定ページ
+@login_required
 def settings_view(request):
-    return render(request, 'settings.html')
+    if request.method == "POST":
+        first_name = request.POST.get("first_name")
+        email = request.POST.get("email")
+
+        user = request.user
+        user.first_name = first_name
+        user.email = email
+        user.save()
+
+        messages.success(request, "ユーザー情報を更新しました。")
+        return redirect("settings")
+
+    return render(request, "settings.html")
+
 
 # ✅ 絵本登録ページ（重複チェック付き）
 @csrf_exempt 
