@@ -414,7 +414,7 @@ def child_add(request):
 
     if request.method == "POST":
         if existing_children.count() >= 3:
-            messages.error(request, "子どもは最大3人まで登録できます。")
+            messages.error(request, "※ 子どもの登録は最大3人までです。")
             return redirect("child_edit")
 
         form = ChildForm(request.POST)

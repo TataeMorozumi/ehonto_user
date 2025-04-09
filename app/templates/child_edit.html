@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load custom_filters %}
+
 {% block content %}
 <div class="child-edit-container">
   <h2 class="child-edit-title">子ども情報編集</h2>
@@ -7,11 +8,21 @@
   <a href="{% url 'child_add' %}" class="btn btn-success">＋ 子どもを追加</a>
 
   {% if messages %}
-  <ul class="messages">
-    {% for message in messages %}
-      <li class="{{ message.tags }}">{{ message }}</li>
-    {% endfor %}
-  </ul>
+    <ul class="messages">
+      {% for message in messages %}
+        <li class="{{ message.tags }}" style="color: red; text-align: center;">
+          {{ message }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if children|length < max_children %}
+    <form method="POST" class="child-form">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-success">登録</button>
+    </form>
   {% endif %}
 
   <div class="child-list">
@@ -20,33 +31,12 @@
         <span class="child-dot">●</span>
         <span class="child-name">{{ child.name }}</span>
         <a href="{% url 'child_update' child.id %}" class="child-edit">編集</a>
-        <a href="{% url 'child_delete' child.id %}"class="child-edit">削除</a>
-
-
+        <a href="{% url 'child_delete' child.id %}" class="child-edit">削除</a>
       </div>
     {% empty %}
       <p>登録された子どもがいません。</p>
     {% endfor %}
   </div>
-
-  <hr>
-
-{% if children|length < max_children %}
-  <form method="POST" class="child-form">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-success">登録</button>
-  </form>
-{% endif %}
-
-{# ✅ メッセージはこの位置で常に表示する #}
-{% if messages %}
-  <ul class="messages">
-    {% for message in messages %}
-      <li class="{{ message.tags }}" style="color: red; text-align: center;">{{ message }}</li>
-    {% endfor %}
-  </ul>
-{% endif %}
 
   <div style="text-align: center; margin-top: 20px;">
     <a href="{% url 'home' %}" class="btn btn-secondary">キャンセル</a>
