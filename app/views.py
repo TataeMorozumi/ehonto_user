@@ -45,9 +45,9 @@ from django.contrib import messages
 
 class SignupView(View):
     def get(self, request):
+        code = request.GET.get("code")  # ✅ 招待コードを取得
         form = SignupForm()
-        return render(request, "signup.html", {"form": form})
-
+        return render(request, "signup.html", {"form": form, "code": code})  # ✅ 渡す
 
     def post(self, request):
         form = SignupForm(request.POST)
@@ -63,8 +63,8 @@ class SignupView(View):
             user.username = email
             user.save()
 
-            # ✅ 招待者を保存する処理
-            invited_by_id = request.GET.get("code")
+            # ✅ POSTからcodeを取得
+            invited_by_id = request.POST.get("code")
             if invited_by_id:
                 try:
                     inviter = User.objects.get(id=invited_by_id)
@@ -78,7 +78,6 @@ class SignupView(View):
             return redirect("home")
 
         return render(request, "signup.html", {"form": form})
-
 
 # ✅ ホーム画面（絵本一覧を表示）
 class HomeView(ListView):
