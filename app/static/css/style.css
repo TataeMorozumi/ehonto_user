@@ -1557,5 +1557,9 @@
     font-size: 14px;
     max-width: 200px;
   }
-
+  .icon:hover {
+    transform: scale(1.3) !important;
+    color: #2e7d32 !important;
+  }
+  
   
