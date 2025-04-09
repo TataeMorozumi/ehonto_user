@@ -5,6 +5,15 @@
 <div class="container">
     <h2>子どもを追加</h2>
 
+    <!-- ✅ 登録時のみ表示されるメッセージ -->
+    {% if messages %}
+      <ul class="text-danger">
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
     <form method="POST">
         {% csrf_token %}
         {{ form.as_p }}

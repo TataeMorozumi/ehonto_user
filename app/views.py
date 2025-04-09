@@ -412,10 +412,10 @@ from django.contrib.auth.decorators import login_required
 def child_add(request):
     # 自分の子どもだけを取得・カウント
     existing_children = Child.objects.filter(user=request.user)
-    if existing_children.count() >= 3:
-        messages.error(request, "子どもは最大3人まで登録できます。")
+    if existing_children.count() >= 3 and request.method == "POST":
+        messages.error(request, "※ 子どもの登録は最大3人までです。")
         return redirect("child_edit")
-
+    
     if request.method == "POST":
         form = ChildForm(request.POST)
         if form.is_valid():
