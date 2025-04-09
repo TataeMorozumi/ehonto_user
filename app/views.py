@@ -410,11 +410,8 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def child_add(request):
-    # 自分の子どもだけを取得
-    existing_children = Child.objects.filter(user=request.user)
-
-    # POST のときのみフォームを扱う（それ以外は何もせずリダイレクト）
     if request.method == "POST":
+        existing_children = Child.objects.filter(user=request.user)
         if existing_children.count() >= 3:
             messages.error(request, "子どもは最大3人まで登録できます。")
             return redirect("child_edit")
@@ -426,14 +423,8 @@ def child_add(request):
             child.save()
             return redirect('child_edit')
 
-    else:
-        form = ChildForm()
-
-    return render(request, 'child_edit.html', {
-        'form': form,
-        'children': existing_children,
-        'max_children': 3
-    })
+    # GETアクセスなら常にリダイレクトだけ（フォームは表示しない）
+    return redirect("child_edit")
 
 # ✅ お気に入り
 @csrf_exempt
