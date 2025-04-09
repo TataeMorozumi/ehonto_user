@@ -725,3 +725,6 @@ def decrement_read_count(request):
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)})
    
+@login_required
+def logout_confirm_view(request):
+    return render(request, 'logout_confirm.html')

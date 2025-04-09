@@ -69,6 +69,10 @@ urlpatterns = [
 
     # ✅ ログインビューの追加
     path("login/", auth_views.LoginView.as_view(template_name="login.html"), name="login"),
+
+    # ✅ ログアウト
+    path('logout/confirm/', views.logout_confirm_view, name='logout_confirm'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 ]
 
 # ✅ メディアファイルの配信設定（画像を正しく表示するために必要）

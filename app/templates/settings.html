@@ -12,6 +12,7 @@
     background-color: #fff;
     border-radius: 12px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    position: relative;
   }
 
   .settings-title {
@@ -57,13 +58,12 @@
   }
 
   .settings-links {
-    display: flex;
-    justify-content: space-between;
+    text-align: center;
     margin-top: 35px;
-    padding: 0 8px;
   }
 
   .settings-links a {
+    display: inline-block;
     text-decoration: underline;
     font-weight: bold;
     font-size: 16px;
@@ -83,9 +83,36 @@
     margin-bottom: 15px;
     font-size: 16px;
   }
+
+  /* ✅ ログアウトボタン */
+  .logout-form {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+
+  .logout-form button {
+    background-color: #d9534f;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .logout-form button:hover {
+    background-color: #c9302c;
+  }
 </style>
 
 <div class="settings-container">
+  <!-- ✅ ログアウトボタン（右上に表示） -->
+  <form method="post" action="{% url 'logout' %}" class="logout-form">
+    {% csrf_token %}
+    <button type="submit">ログアウト</button>
+  </form>
+
   <h2 class="settings-title">ユーザー情報変更</h2>
 
   {% if messages %}
@@ -109,10 +136,11 @@
     <button type="submit" class="btn-primary">変更する</button>
   </form>
 
-  <!-- ✅ 下線付きテキストリンク風 -->
+  <!-- ✅ 下部中央に「ホームへ戻る」リンク -->
   <div class="settings-links">
     <a href="{% url 'password_change' %}">🔒 パスワード変更</a>
     <a href="{% url 'home' %}">🏠 ホームへ戻る</a>
+    <a href="{% url 'logout_confirm' %}" style="color: #d9534f;">🚪 ログアウト</a>
   </div>
-</div>
+  
 {% endblock %}
