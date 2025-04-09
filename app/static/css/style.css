@@ -1557,4 +1557,12 @@
     font-size: 14px;
     max-width: 200px;
   }
-  
+  .child-edit-icon .icon {
+    font-size: 32px; /* アイコンの大きさを調整 */
+    margin-right: 8px; /* アイコンとテキストの間隔 */
+    transition: transform 0.3s ease; /* マウスオーバー時に拡大 */
+}
+
+.child-edit-icon:hover .icon {
+    transform: scale(1.2); /* ホバー時にアイコンを少し大きく */
+}
