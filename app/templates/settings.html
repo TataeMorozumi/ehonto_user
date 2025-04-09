@@ -173,10 +173,10 @@
   </form>
 
   <!-- ✅ アクションボタン：縦並び -->
-<div class="settings-actions">
-  <a href="{% url 'password_change' %}" class="action-button btn-secondary">🔒 パスワード変更</a>
-  <a href="{% url 'logout_confirm' %}" class="action-button btn-danger">📤 ログアウト</a>
-</div>
-
+  <div class="settings-links-inline">
+    <a href="{% url 'password_change' %}">🔒 パスワード変更</a>
+    <a href="{% url 'logout_confirm' %}">📤 ログアウト</a>
+  </div>
+  
   
 {% endblock %}
