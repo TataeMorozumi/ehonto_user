@@ -216,21 +216,26 @@ def more_read(request):
 # ✅ 設定ページ
 @login_required
 def settings_view(request):
-    if request.method == "POST":
-        first_name = request.POST.get("first_name")
-        email = request.POST.get("email")
+    user = request.user
 
-        user = request.user
-        user.first_name = first_name
-        user.email = email
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name', '').strip()
+        email = request.POST.get('email', '').strip()
+
+        if first_name:
+            user.first_name = first_name
+        if email:
+            user.email = email
+            user.username = email  # email を username として使う場合
+
         user.save()
-
         messages.success(request, "ユーザー情報を更新しました。")
-        return redirect("settings")
+        return redirect('settings')  # ✅ urls.py 側で name='settings' になっていることを確認
 
-    return render(request, "settings.html")
-
-
+    # GETリクエスト：現在の情報を渡す（テンプレートでも使いやすく）
+    return render(request, 'settings.html', {
+        'user': user,
+    })
 # ✅ 絵本登録ページ（重複チェック付き）
 @csrf_exempt 
 def add_book(request):
