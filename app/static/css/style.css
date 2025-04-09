@@ -1560,7 +1560,7 @@
 
   .child-edit-icon .icon {
     display: inline-block;
-    font-size: 32px;       /* ← アイコンをやや大きく */
+    font-size: 32px!important;       /* ← アイコンをやや大きく */
     position: relative;
     top: 5px;               /* ← 絶妙に下げる（4～6で調整可） */
     vertical-align: middle;
