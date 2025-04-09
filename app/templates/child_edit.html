@@ -37,9 +37,10 @@
     {{ form.as_p }}
     <button type="submit" class="btn btn-success">登録</button>
   </form>
-  {% else %}
+{% else %}
   <p style="color: red; text-align: center;">※ 子どもの登録は最大3人までです。</p>
-  {% endif %}
+{% endif %}
+
 
   <div style="text-align: center; margin-top: 20px;">
     <a href="{% url 'home' %}" class="btn btn-secondary">キャンセル</a>
