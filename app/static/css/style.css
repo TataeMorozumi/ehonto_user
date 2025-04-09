@@ -1559,13 +1559,12 @@
   }
 
   .child-edit-icon .icon {
-    display: inline-block;
-    font-size: 32px!important;       /* ← アイコンをやや大きく */
+    font-size: 32px !important;  /* ← これで強制的に反映される */
     position: relative;
-    top: 5px;               /* ← 絶妙に下げる（4～6で調整可） */
+    top: 5px;
     vertical-align: middle;
-    transition: transform 0.2s ease;
   }
+  
   
   .child-edit-icon .icon:hover {
     transform: scale(1.2);  /* ホバーで拡大 */
