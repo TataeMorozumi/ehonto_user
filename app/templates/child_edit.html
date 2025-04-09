@@ -7,15 +7,12 @@
 
   <a href="{% url 'child_add' %}" class="btn btn-success">＋ 子どもを追加</a>
 
-  {% if messages %}
-    <ul class="messages">
-      {% for message in messages %}
-        <li class="{{ message.tags }}" style="color: red; text-align: center;">
-          {{ message }}
-        </li>
-      {% endfor %}
-    </ul>
-  {% endif %}
+{% if messages %}
+  {% for message in messages %}
+    <p style="color: red; text-align: center; margin: 0;">{{ message }}</p>
+  {% endfor %}
+{% endif %}
+
 
   {% if children|length < max_children %}
     <form method="POST" class="child-form">
