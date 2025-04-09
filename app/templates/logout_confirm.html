@@ -3,13 +3,65 @@
 {% block title %}ログアウト確認{% endblock %}
 
 {% block content %}
-<div class="settings-container">
-  <h2 class="settings-title">ログアウトしますか？</h2>
+<style>
+  .logout-confirm-container {
+    max-width: 400px;
+    margin: 80px auto;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+
+  .logout-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    color: #333;
+  }
+
+  .logout-button {
+    display: inline-block;
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 15px;
+  }
+
+  .btn-logout {
+    background-color: #e74c3c;
+    color: white;
+  }
+
+  .btn-logout:hover {
+    background-color: #c0392b;
+  }
+
+  .btn-cancel {
+    background-color: #ccc;
+    color: #333;
+  }
+
+  .btn-cancel:hover {
+    background-color: #bbb;
+  }
+</style>
+
+<div class="logout-confirm-container">
+  <h2 class="logout-title">ログアウトしますか？</h2>
+
   <form method="post" action="{% url 'logout' %}">
     {% csrf_token %}
-    <button type="submit" class="btn-primary">はい、ログアウトする</button>
+    <button type="submit" class="logout-button btn-logout">はい、ログアウトする</button>
   </form>
-  <br>
-  <a href="{% url 'settings' %}" class="btn-primary" style="background-color: gray;">キャンセル</a>
+
+  <a href="{% url 'settings' %}">
+    <button class="logout-button btn-cancel">キャンセル</button>
+  </a>
 </div>
 {% endblock %}
+
