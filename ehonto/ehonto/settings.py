@@ -105,7 +105,8 @@ LOGIN_URL = '/login/'  # ログインページ
 LOGIN_REDIRECT_URL = '/app/home/'  # ログイン後にリダイレクトするページ
 LOGOUT_REDIRECT_URL = '/app/login/'  # ログアウト後にリダイレクトするページ
 
-import sys
+SITE_DOMAIN = 'https://tatae.pythonanywhere.com'
+
 
 LOGGING = {
     'version': 1,

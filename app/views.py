@@ -218,11 +218,6 @@ def more_read(request):
 def settings_view(request):
     return render(request, 'settings.html')
 
-# ✅ 家族招待ページ
-def family_invite(request):
-    return render(request, 'family_invite.html')
-
-
 # ✅ 絵本登録ページ（重複チェック付き）
 @csrf_exempt 
 def add_book(request):
@@ -529,20 +524,21 @@ def edit_book(request, book_id):
 
         book.save()
         return redirect("book_detail", book_id=book.id)
-    
+
+# ✅ 家族招待
+from django.conf import settings  
+
 @login_required
 def family_invite(request):
-    invite_url = f"http://127.0.0.1:8000/app/signup/?code={request.user.id}"
+    invite_url = f"{settings.SITE_DOMAIN}/app/signup/?code={request.user.id}"  # ✅ 修正：本番URLに対応
 
-
-    # ✅ 自分が招待したユーザーを取得（← これが必要！）
+    # ✅ 自分が招待したユーザーを取得
     invited_users = User.objects.filter(userprofile__invited_by=request.user)
 
     return render(request, 'family_invite.html', {
         'invite_url': invite_url,
         'invited_users': invited_users,
     })
-
 
 
 # ✅ 検索結果ページ
