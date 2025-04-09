@@ -85,25 +85,45 @@
   }
 
   /* ✅ ログアウトボタン */
-  .logout-float-button {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    background-color: #d9534f;
-    color: white;
-    padding: 12px 18px;
-    font-size: 16px;
-    border: none;
-    border-radius: 8px;
-    text-decoration: none;
-    z-index: 1000;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    transition: background-color 0.3s ease;
-  }
+  
+.settings-actions {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+}
 
-  .logout-float-button:hover {
-    background-color: #c9302c;
-  }
+.action-button {
+  display: inline-block;
+  width: 80%;
+  max-width: 300px;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 8px;
+  text-decoration: none;
+}
+
+.btn-secondary {
+  background-color: #dcdde1;
+  color: #2d3436;
+}
+
+.btn-secondary:hover {
+  background-color: #b2bec3;
+}
+
+.btn-danger {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #c0392b;
+}
+
 </style>
 
 <div class="settings-container">
@@ -131,12 +151,11 @@
     <button type="submit" class="btn-primary">変更する</button>
   </form>
 
-  <!-- ✅ 下部中央に「ホームへ戻る」リンク -->
-  <div class="settings-links">
-    <a href="{% url 'password_change' %}">🔒 パスワード変更</a>
+  <!-- ✅ アクションボタン：縦並び -->
+<div class="settings-actions">
+  <a href="{% url 'password_change' %}" class="action-button btn-secondary">🔒 パスワード変更</a>
+  <a href="{% url 'logout_confirm' %}" class="action-button btn-danger">📤 ログアウト</a>
+</div>
 
-    <a href="{% url 'logout_confirm' %}">ログアウト</a>
-
-  </div>
   
 {% endblock %}
