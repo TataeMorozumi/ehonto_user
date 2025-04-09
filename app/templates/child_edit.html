@@ -31,25 +31,22 @@
 
   <hr>
 
-  <hr>
+{% if children|length < max_children %}
+  <form method="POST" class="child-form">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">登録</button>
+  </form>
+{% endif %}
 
-  {% if children|length < max_children %}
-    <form method="POST" class="child-form">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit" class="btn btn-success">登録</button>
-    </form>
-  {% endif %}
-  
-  {% if messages %}
-    <ul class="messages">
-      {% for message in messages %}
-        <li class="{{ message.tags }}" style="color: red; text-align: center;">{{ message }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}  
-
-
+{# ✅ メッセージはこの位置で常に表示する #}
+{% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li class="{{ message.tags }}" style="color: red; text-align: center;">{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
 
   <div style="text-align: center; margin-top: 20px;">
     <a href="{% url 'home' %}" class="btn btn-secondary">キャンセル</a>
