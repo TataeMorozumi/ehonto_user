@@ -20,10 +20,8 @@
             </option>
           {% endfor %}
         </select>
-        
-          <a href="{% url 'child_edit' %}" class="child-edit-icon">
-            <span class="icon" >📝</span> 
-          </a>
+
+        <a href="{% url 'child_edit' %}" class="icon child-edit-icon">📝</a>
 
       </form>
     </div>
@@ -34,15 +32,7 @@
       <button type="submit" class="search-button">検索</button>
     </form>
   </div>
-
-  <!-- ✅ ここに追加（確認用テストアイコン） -->
-<div style="margin: 20px;">
-  <a href="#"
-    style="font-size: 36px; transition: transform 0.3s ease; display:inline-block;"
-    onmouseover="this.style.transform='scale(1.3)'"
-    onmouseout="this.style.transform='scale(1)'">🧪 ホバー確認</a>
-</div>
-
+  
 <!-- ✅ 登録された絵本の表示エリア -->
 <div class="book-list">
   {% if book_rows %}
