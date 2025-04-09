@@ -1558,15 +1558,4 @@
     max-width: 200px;
   }
 
-  .child-edit-icon .icon {
-    font-size: 32px !important;  /* ← これで強制的に反映される */
-    position: relative;
-    top: 5px;
-    vertical-align: middle;
-  }
-  
-  
-  .child-edit-icon .icon:hover {
-    transform: scale(1.2);  /* ホバーで拡大 */
-  }
   
