@@ -30,15 +30,12 @@
       <button type="submit" class="btn btn-primary">変更する</button>
   </form>
 
-  <!-- ✅ パスワード変更ボタン -->
-  <div class="text-center mt-4">
-    <a href="{% url 'password_change' %}" class="btn btn-warning px-4 py-2" style="width: 100%;">パスワード変更</a>
+  <!-- ✅ パスワード変更 & ホームへ戻るボタンを中央に横並び -->
+<div class="d-flex justify-content-center mt-4" style="gap: 20px;">
+    <a href="{% url 'password_change' %}" class="btn btn-warning px-4 py-2">パスワード変更</a>
+    <a href="{% url 'home' %}" class="btn btn-secondary px-4 py-2">ホームへ戻る</a>
   </div>
-
-  <!-- ✅ ホームへ戻るボタン -->
-  <div class="text-center mt-3">
-    <a href="{% url 'home' %}" class="btn btn-secondary px-4 py-2" style="width: 100%;">ホームへ戻る</a>
-  </div>
+  
 
 </div>
 {% endblock %}
