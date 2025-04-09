@@ -1572,5 +1572,5 @@
   margin-left: 8px;
   vertical-align: middle; /* 基本揃える */
   position: relative;
-  top: 4px;  /* ←これで下に少しずらす（2〜5pxあたりで調整） */
+  top: 7px;  /* ←これで下に少しずらす（2〜5pxあたりで調整） */
 }
