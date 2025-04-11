@@ -562,35 +562,36 @@
     padding: 20px;
     display: flex;
     flex-direction: column;
-    align-items: center; /* ← 入力欄・ボタンなどを中央揃え */
+    align-items: center; /* 中央揃え */
     gap: 15px;
   }
   
   .modal-content label {
-    align-self: flex-start; /* ラベルは左に揃える */
-    margin-left: 5px;
+    align-self: flex-start;
+    margin-bottom: 5px;
     font-weight: bold;
   }
   
   .modal-content input[type="text"],
-  .modal-content input[type="file"] {
+  .modal-content input[type="file"],
+  .submit-button {
     width: 100%;
-    max-width: 350px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    max-width: 350px; /* フォームの幅を固定して中央に配置 */
+    box-sizing: border-box;
   }
   
   .submit-button {
-    width: 100%;
-    max-width: 350px;
-    padding: 10px;
     background: #5cb85c;
     color: white;
     font-size: 16px;
     border: none;
     border-radius: 5px;
+    padding: 10px;
     cursor: pointer;
+  }
+  
+  .submit-button:hover {
+    background: #4cae4c;
   }
   
   /* ========================= */
