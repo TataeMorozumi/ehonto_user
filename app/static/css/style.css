@@ -558,39 +558,32 @@
   /* ========================= */
   /* ➕ モーダル（絵本追加・編集） */
   /* ========================= */
-  .modal {
-    display: none;
-    position: fixed;
-    left: 50%; /* ← 正確に中央に配置 */
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%;
-    max-width: 400px;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-    z-index: 999;
-  }
-  
-  
   .modal-content {
     padding: 20px;
-    text-align: center;  /* 中央揃え */
-    position: relative;  /* ×ボタンを内包して調整しやすくする */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* ← 入力欄・ボタンなどを中央揃え */
+    gap: 15px;
   }
   
-  .modal .close {
-    position: absolute;
-    top: 10px;
-    right: 10px;  /* ←この値で位置調整できます */
-    font-size: 22px;
-    cursor: pointer;
-    color: #333;
+  .modal-content label {
+    align-self: flex-start; /* ラベルは左に揃える */
+    margin-left: 5px;
+    font-weight: bold;
+  }
+  
+  .modal-content input[type="text"],
+  .modal-content input[type="file"] {
+    width: 100%;
+    max-width: 350px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
   }
   
   .submit-button {
     width: 100%;
+    max-width: 350px;
     padding: 10px;
     background: #5cb85c;
     color: white;
@@ -598,11 +591,6 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    margin-top: 15px;
-  }
-  
-  .submit-button:hover {
-    background: #4cae4c;
   }
   
   /* ========================= */
