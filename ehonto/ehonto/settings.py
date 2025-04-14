@@ -27,7 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'ehonto_user.app.apps.AppConfig',
+    'app.apps.EhontoAppConfig',
 ]
 
 MIDDLEWARE = [
