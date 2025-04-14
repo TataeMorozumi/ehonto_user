@@ -92,6 +92,10 @@ STATICFILES_DIRS = [
 
 ]
 
+# キャッシュ対策：ハッシュ付きファイル名を生成
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+
+
 # ✅ 本番環境用（collectstatic の保存先）
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
