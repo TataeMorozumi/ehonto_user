@@ -88,7 +88,7 @@ USE_TZ = True
 STATIC_URL = '/static/'  # ✅ スラッシュを修正
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR,'../app/static'),
+     '/home/Tatae/ehonto_user/app/static',
 
 ]
 
