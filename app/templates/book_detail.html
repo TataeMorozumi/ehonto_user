@@ -14,7 +14,9 @@
     <p>登録日: {{ book.created_at|date:"Y年m月d日" }}</p>
 
     <!-- ✅ 編集ボタン（画像の下などに配置） -->
-    <button class="edit-book-button" onclick="openEditModal()">編集</button>
+    <button class="read-button" onclick="openEditModal()" title="この絵本を編集する">
+      ✏️ 編集
+    </button>
 
     <!-- ✅ ごみ箱アイコンボタン -->
     <form method="POST" action="{% url 'delete_book' book.id %}" onsubmit="return confirm('本当に削除しますか？');" style="display: inline;">
