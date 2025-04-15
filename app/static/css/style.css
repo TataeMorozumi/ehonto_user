@@ -1585,7 +1585,9 @@
     overflow-x: auto;
     white-space: nowrap;     /* 🔸改行させない */
   }
-  
+  .text-lg {
+    font-size: 1.125rem;
+  }
   
  
   
