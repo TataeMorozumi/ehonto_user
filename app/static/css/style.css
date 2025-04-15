@@ -1577,7 +1577,18 @@
   body {
     background-color: lightblue !important;
   }
-
+  .invite-url {
+    font-size: 18px;         /* 🔸文字大きく */
+    font-family: monospace;  /* 🔸等幅フォントでURLらしく */
+    color: #333;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 10px;
+    overflow-x: auto;
+    white-space: nowrap;     /* 🔸改行させない */
+  }
+  
   
  
   

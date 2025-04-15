@@ -72,11 +72,12 @@ DATABASES = {
 
 # ✅ 認証設定
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+    {'NAME': 'app.validators.CustomUserAttributeSimilarityValidator'},
+    {'NAME': 'app.validators.CustomMinimumLengthValidator'},
+    {'NAME': 'app.validators.CustomCommonPasswordValidator'},
+    {'NAME': 'app.validators.CustomNumericPasswordValidator'},
 ]
+
 
 # ✅ 言語・タイムゾーン
 LANGUAGE_CODE = 'ja'
