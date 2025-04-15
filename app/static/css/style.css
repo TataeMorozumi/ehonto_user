@@ -1574,9 +1574,6 @@
     color: #2e7d32 !important;
   }
 
-  body {
-    background-color: lightblue !important;
-  }
   .invite-url {
     font-size: 18px;         /* 🔸文字大きく */
     font-family: monospace;  /* 🔸等幅フォントでURLらしく */
