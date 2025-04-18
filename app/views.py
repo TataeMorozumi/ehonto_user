@@ -133,11 +133,12 @@ def favorite(request):
     selected_child_id = request.GET.get("child_id")
     selected_child = None
 
-    if selected_child_id:
+    if selected_child_id and selected_child_id.isdigit():
         selected_child = get_object_or_404(Child, id=selected_child_id, user=user)
         favorites = Favorite.objects.filter(user=user, child=selected_child)
     else:
         favorites = Favorite.objects.filter(user=user)
+
 
     books = Book.objects.filter(
         id__in=favorites.values_list("book_id", flat=True),

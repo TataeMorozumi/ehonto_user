@@ -20,15 +20,15 @@
             </option>
           {% endfor %}
         </select>
-
-        <a href="{% url 'child_edit' %}" class="icon child-edit-icon custom-tooltip">
-          🧒
-          <span class="tooltip-text">子どもを登録・編集</span>
-        </a>
-        
       </form>
+    
+      <!-- ✅ フォームの外に移動 -->
+      <a href="{% url 'child_edit' %}" class="icon child-edit-icon custom-tooltip">
+        🧒
+        <span class="tooltip-text">子どもを登録・編集</span>
+      </a>
     </div>
-  
+    
     <!-- 🔍 検索フォーム -->
     <form method="get" action="{% url 'search_results' %}" class="search-form">
       <input type="text" name="q" placeholder="タイトル・作者で検索" class="search-input">
