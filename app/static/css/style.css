@@ -1631,14 +1631,4 @@
     visibility: visible;
     opacity: 1;
   }
-  .child-edit-icon {
-    font-size: 20px;  /* 通常サイズ：小さめ */
-    transition: font-size 0.2s ease-in-out, transform 0.2s ease-in-out;
-    display: inline-block;
-  }
-  
-  .child-edit-icon:hover {
-    font-size: 28px;  /* ホバー時に拡大 */
-    transform: translateY(-2px); /* 少し浮かせて視覚的にわかりやすく */
-  }
   
