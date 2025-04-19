@@ -42,6 +42,13 @@
   {% else %}
     <p class="text-gray-500 ml-6">・まだ招待された家族はいません。</p>
   {% endif %}
+
+  {% if inviter %}
+  <p style="margin-top: 20px; color: #333;">
+    あなたは <strong>{{ inviter.first_name|default:inviter.email }}</strong> さんに招待されました。
+  </p>
+  {% endif %}
+
 </div>
 
   

@@ -561,9 +561,15 @@ def family_invite(request):
     else:
         invited_users = User.objects.filter(userprofile__invited_by=request.user)
 
+    inviter = None
+    if profile.invited_by:
+        inviter = profile.invited_by
+
+
     return render(request, 'family_invite.html', {
         'invite_url': invite_url,
         'invited_users': invited_users,
+        'inviter': inviter,  
     })
 
 # ✅ 検索結果ページ
