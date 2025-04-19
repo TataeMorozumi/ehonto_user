@@ -544,21 +544,27 @@ def edit_book(request, book_id):
 
 
 # ✅ 家族招待
-from django.conf import settings  
-
 @login_required
 def family_invite(request):
     profile = request.user.userprofile
+
+    # invite_code の自動生成（念のため）
+    if not profile.invite_code:
+        profile.invite_code = profile.generate_invite_code()
+        profile.save()
+
     invite_url = request.build_absolute_uri(f"/signup/?code={profile.invite_code}")
 
-    # ✅ 自分が招待したユーザーを取得
-    invited_users = User.objects.filter(userprofile__invited_by=request.user)
+    # ✅ request.user が正しくログインユーザーであるか確認（int型IDが前提）
+    if not isinstance(request.user.id, int):
+        invited_users = []
+    else:
+        invited_users = User.objects.filter(userprofile__invited_by=request.user)
 
     return render(request, 'family_invite.html', {
         'invite_url': invite_url,
         'invited_users': invited_users,
     })
-
 
 # ✅ 検索結果ページ
 def search_results(request):
