@@ -64,15 +64,16 @@ class SignupView(View):
             user.save()
 
             # ✅ POSTからcodeを取得
-            invited_by_id = request.POST.get("code")
-            if invited_by_id:
+            invite_code = request.POST.get("code")
+            if invite_code:
                 try:
-                    inviter = User.objects.get(id=invited_by_id)
-                    UserProfile.objects.create(user=user, invited_by=inviter)
-                except User.DoesNotExist:
+                    inviter_profile = UserProfile.objects.get(invite_code=invite_code)
+                    UserProfile.objects.create(user=user, invited_by=inviter_profile.user)
+                except UserProfile.DoesNotExist:
                     UserProfile.objects.create(user=user)
             else:
                 UserProfile.objects.create(user=user)
+
 
             login(request, user)
             return redirect("home")
@@ -547,7 +548,8 @@ from django.conf import settings
 
 @login_required
 def family_invite(request):
-    invite_url = f"{settings.SITE_DOMAIN}/app/signup/?code={request.user.id}"  # ✅ 修正：本番URLに対応
+    profile = request.user.userprofile
+    invite_url = request.build_absolute_uri(f"/signup/?code={profile.invite_code}")
 
     # ✅ 自分が招待したユーザーを取得
     invited_users = User.objects.filter(userprofile__invited_by=request.user)

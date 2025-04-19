@@ -1,7 +1,8 @@
 from django.db import models
 from django.utils.timezone import now 
 from django.contrib.auth.models import User
- 
+import secrets
+import string 
 
 class Child(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # null=True を削除
@@ -65,9 +66,19 @@ class ReadCount(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     invited_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='invited_users')
+    invite_code = models.CharField(max_length=50, unique=True, blank=True, null=True)  # ✅ 追加
 
     def __str__(self):
         return self.user.username
+
+    def generate_invite_code(self, length=24):
+        characters = string.ascii_letters + string.digits
+        return ''.join(secrets.choice(characters) for _ in range(length))
+    
+    def save(self, *args, **kwargs):
+        if not self.invite_code:
+            self.invite_code = self.generate_invite_code()
+        super().save(*args, **kwargs)
 
 class ReadHistory(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
