@@ -138,7 +138,7 @@ def favorite(request):
         selected_child = get_object_or_404(Child, id=selected_child_id, user=user)
         favorites = Favorite.objects.filter(user=user, child=selected_child)
     else:
-        favorites = Favorite.objects.filter(user=user)
+        favorites = Favorite.objects.filter(user=user,child=None)
 
 
     books = Book.objects.filter(
@@ -167,7 +167,12 @@ def more_read(request):
     children = Child.objects.filter(user=user)
     selected_child_id = child_id if child_id else ""
 
-    if child_id:
+    tooltip_counts = {}
+    read_counts_dict = {}
+
+    if child_id and child_id.isdigit():
+        selected_child = get_object_or_404(Child, id=child_id, user=user)
+
         read_data = ReadCount.objects.filter(child__id=child_id, book__user=user)
         read_counts = (
             read_data.values("book")
@@ -175,9 +180,9 @@ def more_read(request):
             .order_by("total_reads")
         )
         book_ids = [item["book"] for item in read_counts][:6]
-        books = Book.objects.filter(id__in=book_ids)
+        books = Book.objects.filter(id__in=book_ids, child=selected_child, user=user)
         read_counts_dict = {item["book"]: item["total_reads"] for item in read_counts}
-        tooltip_counts = {}
+        
     else:
         books = Book.objects.filter(user=user)[:6]
         tooltip_counts = {
@@ -355,11 +360,11 @@ def home_view(request):
     selected_child = None
     base_user = get_related_user(request)  # 🔑 招待者 or 自分自身を取得
 
-    if selected_child_id:
+    if selected_child_id and selected_child_id.isdigit():
         selected_child = get_object_or_404(Child, id=selected_child_id, user=base_user)
         books_qs = Book.objects.filter(child=selected_child, user=base_user)
     else:
-        books_qs = Book.objects.filter(user=base_user)
+        books_qs = Book.objects.filter(user=base_user, child=None)
 
     books_qs = books_qs.exclude(image='').exclude(image=None).order_by("-created_at")
 
