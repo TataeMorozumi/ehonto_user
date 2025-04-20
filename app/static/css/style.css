@@ -1635,7 +1635,8 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   padding: 20px; /* 内側の余白 */
-  max-height: 70vh;
+  max-height: 80vh;
+  margin-bottom: 50px;
 }
 
 /* モーダルの内容部分 */
@@ -1669,4 +1670,12 @@
     color: black;
     text-decoration: none;
     cursor: pointer;
+}
+button {
+  margin-top: 20px; /* ボタンの上にスペースを追加 */
+  width: 100%; /* ボタンを横いっぱいに広げる */
+  padding: 10px; /* ボタンの高さを調整 */
+  font-size: 16px; /* ボタンの文字サイズ */
+  cursor: pointer;
+  border-radius: 4px; /* ボタンの角を丸くする */
 }
