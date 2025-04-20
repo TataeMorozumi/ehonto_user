@@ -92,34 +92,6 @@
         </div>
     </div>
 </div>
-
-{% endblock %}  <!-- ✅ content ブロックの終了 -->
-
-
 {% block scripts %}
-<script>
-
-  // ✅ モーダル処理
-  function loadAddBookModal(childId = null) {
-    const modal = document.getElementById("addBookModal");
-    const modalBody = document.getElementById("modal-body");
-
-    fetch("{% url 'add_book' %}?child_id=" + childId)
-      .then(response => response.text())
-      .then(html => {
-        modalBody.innerHTML = html;
-        modal.style.display = "flex";
-      })
-      .catch(error => {
-        modalBody.innerHTML = "<p>フォームを読み込めませんでした。</p>";
-        console.error("❌ モーダルエラー:", error);
-      });
-  }
-
-  function closeModal() {
-    document.getElementById("addBookModal").style.display = "none";
-  }
-</script>
-{% endblock %}
-
+{% endblock %} 
 

@@ -224,33 +224,33 @@ window.loadAddBookModal = function (childId = null) {
     const modalBody = document.getElementById("modal-body");
 
     fetch("{% url 'add_book' %}" + (childId ? "?child_id=" + childId : ""))
-    .then(response => response.text())
-    .then(html => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, "text/html");
-        const form = doc.querySelector("form");
+        .then(response => response.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, "text/html");
+            const form = doc.querySelector("form");
 
-        if (childId) {
-        const hiddenInput = document.createElement("input");
-        hiddenInput.type = "hidden";
-        hiddenInput.name = "child_id";
-        hiddenInput.value = childId;
-        form.appendChild(hiddenInput);
-        }
+            if (childId) {
+            const hiddenInput = document.createElement("input");
+            hiddenInput.type = "hidden";
+            hiddenInput.name = "child_id";
+            hiddenInput.value = childId;
+            form.appendChild(hiddenInput);
+            }
 
-        form.addEventListener("submit", function (event) {
-        event.preventDefault();
-        submitAddBookForm(form, childId);
+            form.addEventListener("submit", function (event) {
+            event.preventDefault();
+            submitAddBookForm(form, childId);
+            });
+
+            modalBody.innerHTML = "";
+            modalBody.appendChild(form);
+            modal.style.display = "flex";
+        })
+        .catch(error => {
+            modalBody.innerHTML = "<p>フォーム読み込み失敗</p>";
+            console.error("❌ モーダルエラー:", error);
         });
-
-        modalBody.innerHTML = "";
-        modalBody.appendChild(form);
-        modal.style.display = "flex";
-    })
-    .catch(error => {
-        modalBody.innerHTML = "<p>フォーム読み込み失敗</p>";
-        console.error("❌ モーダルエラー:", error);
-    });
 };
 
 window.closeModal = function () {
