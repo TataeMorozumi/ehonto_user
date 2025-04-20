@@ -31,9 +31,16 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      position: relative;   /* ✅ z-indexを効かせるために必要 */
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%; 
       z-index: 1001; 
     }
+    .content {
+      padding-top: 70px;  /* ← ヘッダーの高さに合わせて調整 */
+    }
+
     .menu-icon {
       font-size: 36px;
       cursor: pointer;

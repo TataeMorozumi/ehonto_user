@@ -1369,7 +1369,7 @@
   }
 /* 共通調整：すべてのページで余白を40pxに */
 .content {
-    padding-top: 40px;
+    padding-top: 70px;
   }
   
   .home-page h2,
