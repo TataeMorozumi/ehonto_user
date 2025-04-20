@@ -1623,4 +1623,15 @@
     visibility: visible;
     opacity: 1;
   }
+  .checkbox-inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 10px;
+  }
   
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
