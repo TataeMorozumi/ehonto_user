@@ -197,10 +197,21 @@
 
 {% block scripts %}
 <script>
-   console.log("✅ base.html の JavaScript 読み込まれた");
-
    document.addEventListener("DOMContentLoaded", function () {
     // メニュー関連
+    const addBookButton = document.getElementById("addBookButton");
+       
+       if (addBookButton) {
+           console.log("ボタンが見つかりました");
+           addBookButton.addEventListener("click", function(event) {
+               console.log("ボタンがクリックされた");  // ログが表示されるか確認
+               event.preventDefault();  // デフォルトの動作を防止
+               loadAddBookModal('{{ selected_child_id }}');
+           });
+       } else {
+           console.error("ボタンが見つかりませんでした");
+       }
+
     const menuButton = document.getElementById("menu-button");
     const navMenu = document.getElementById("nav-menu");
 
@@ -254,7 +265,7 @@
     window.submitAddBookForm = function (form, childId) {
         const formData = new FormData(form);
         if (childId) {
-        formData.append("child_id", childId);
+            formData.append("child_id", childId);
         }
 
         const errorBox = form.querySelector("#form-error-box");
