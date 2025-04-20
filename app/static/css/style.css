@@ -1623,21 +1623,4 @@
     visibility: visible;
     opacity: 1;
   }
-  ul.checkboxselectmultiple {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    justify-content: center;
-    padding-left: 0;
-    list-style: none;
-  }
-  
-  ul.checkboxselectmultiple li {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 8px;
-    border-radius: 8px;
-    background-color: #f0f0f0;
-  }
   

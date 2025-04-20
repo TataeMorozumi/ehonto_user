@@ -28,7 +28,23 @@
     {# <input type="hidden" name="child_id" value="{{ selected_child_id|default_if_none:'' }}"> #}
   
     <button type="submit" class="submit-button">登録</button>
-  </form>  
+  </form>
+  <style>
+    ul.checkboxselectmultiple {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 0;
+      list-style: none;
+    }
+    ul.checkboxselectmultiple li {
+      display: flex;
+      align-items: center;
+    }
+  </style>
+  
+    
  
 </div>
 
