@@ -216,9 +216,6 @@
   </div>
 </div>
 
-<!-- ✅ 共通JS -->
-<a href="#" class="add-button" id="addBookButton">＋</a>
-
 {% block scripts %}
 <script>
    console.log("✅ base.html の JavaScript 読み込まれた");
@@ -230,7 +227,7 @@
 
     if (menuButton && navMenu) {
         menuButton.addEventListener("click", function () {
-        navMenu.classList.toggle("show");
+            navMenu.classList.toggle("show");
         });
     }
 
@@ -334,5 +331,6 @@
   });
 </script>
 {% endblock %}
+
 </body>
 </html>
