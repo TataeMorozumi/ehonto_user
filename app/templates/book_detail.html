@@ -54,9 +54,14 @@
           <span class="read-count" id="read-count-{{ child.id }}">
             {{ read_counts|get_item:child.id|default:"0" }} 回
           </span>
-          <button class="read-decrement" onclick="decrementRead({{ book.id }}, {{ child.id }})">－</button>
+          <button class="read-decrement"
+                  onclick="decrementRead('{{ book.id }}', '{{ child.id }}')">
+            －
+          </button>
+
+
         </div>
-      
+
     
         <!-- 📝 メモ欄 -->
         <div class="memo-box-inline">
@@ -183,75 +188,74 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
-    function saveMemo(bookId, childId) {
-      const content = document.getElementById(`memo-${childId}`).value;
+  function saveMemo(bookId, childId) {
+    const content = document.getElementById(`memo-${childId}`).value;
 
-      fetch("{% url 'save_memo' %}", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "X-CSRFToken": "{{ csrf_token }}",
-        },
-        body: `book_id=${bookId}&child_id=${childId}&content=${encodeURIComponent(content)}`
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.status === "ok") {
-          showToast("💾 メモが保存されました！");
-        } else {
-          showToast("❌ 保存に失敗しました");
-        }
-      })
-      .catch(error => {
-        console.error("❌ メモ保存エラー:", error);
-        showToast("⚠ 通信エラーが発生しました");
-      });
-    }
-function showToast(message) {
-  const toast = document.getElementById("toast");
-  toast.textContent = message;
-  toast.classList.add("show");
-  setTimeout(() => {
-    toast.classList.remove("show");
-  }, 3000);
-}
+    fetch("{% url 'save_memo' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "X-CSRFToken": "{{ csrf_token }}",
+      },
+      body: `book_id=${bookId}&child_id=${childId}&content=${encodeURIComponent(content)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.status === "ok") {
+        showToast("💾 メモが保存されました！");
+      } else {
+        showToast("❌ 保存に失敗しました");
+      }
+    })
+    .catch(error => {
+      console.error("❌ メモ保存エラー:", error);
+      showToast("⚠ 通信エラーが発生しました");
+    });
+  }
+  function showToast(message) {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.classList.add("show");
+    setTimeout(() => {
+      toast.classList.remove("show");
+    }, 3000);
+  }
 
-function openEditModal() {
-  const modal = document.getElementById("editBookModal");
-  modal.style.display = "block";  // ← これだけでOK
-}
-function closeEditModal() {
-  const modal = document.getElementById("editBookModal");
-  modal.style.display = "none";
-}
+  window.openEditModal = function () {
+    const modal = document.getElementById("editBookModal");
+    modal.style.display = "block";  // ← これだけでOK
+  }
+  window.closeEditModal = function () {
+    const modal = document.getElementById("editBookModal");
+    modal.style.display = "none";
+  }
+  window.decrementRead = function (bookId, childId) {
+    bookId = parseInt(bookId);
+    childId = parseInt(childId);
+    
+    console.log("📉 減らす:", bookId, childId);  // ←確認用ログ
 
+    fetch("{% url 'decrement_read_count' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token }}"
+      },
+      body: JSON.stringify({ book_id: bookId, child_id: childId })
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log("📥 レスポンス:", data);  // ←結果確認
+      if (data.success) {
+        const countElement = document.getElementById(`read-count-${childId}`);
+        countElement.textContent = `${data.count} 回`;
+      }
+    })
+    .catch(error => {
+      console.error("❌ エラー:", error);
+    });
+  };
 
-
-
-function decrementRead(bookId, childId) {
-  console.log("📉 減らす:", bookId, childId);  // ←確認用ログ
-
-  fetch("{% url 'decrement_read_count' %}", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-CSRFToken": "{{ csrf_token }}"
-    },
-    body: JSON.stringify({ book_id: bookId, child_id: childId })
-  })
-
-  .then(response => response.json())
-  .then(data => {
-    console.log("📥 レスポンス:", data);  // ←結果確認
-    if (data.success) {
-      const countElement = document.getElementById(`read-count-${childId}`);
-      countElement.textContent = `${data.count} 回`;
-    }
-  })
-  .catch(error => {
-    console.error("❌ エラー:", error);
-  });
-}
 });
 </script>
 {% endblock %}
