@@ -237,55 +237,38 @@ def settings_view(request):
         'user': user,
     })
 # ✅ 絵本登録ページ（重複チェック付き）
-@csrf_exempt 
+@csrf_exempt
 def add_book(request):
     related_user = get_related_user(request)
 
     if request.method == "POST":
         form = BookForm(request.POST, request.FILES)
+        form.fields["children"].queryset = Child.objects.filter(user=related_user)
+
         if form.is_valid():
             title = form.cleaned_data["title"]
-            child_id = request.POST.get("child_id")
-            selected_child = None
-            is_common = not child_id or child_id in ["None", ""]
-            selected_child = None
+            selected_children = form.cleaned_data["children"]
 
-            if is_common:
-                if Book.objects.filter(title=title, user=related_user).exists():
+            # ✅ 重複チェック（同じ子どもに同じタイトルが既にあるか）
+            for child in selected_children:
+                if Book.objects.filter(title=title, user=related_user, child=child).exists():
                     return JsonResponse({
                         "success": False,
-                        "error": f"「{title}」はすでに登録されています。"
-                    })
-            else:
-                try:
-                    selected_child = Child.objects.get(id=int(child_id), user=related_user)
-                    existing_books = Book.objects.filter(title=title, user=related_user, child=selected_child)
-                    if existing_books.exists():
-                        return JsonResponse({
-                            "success": False,
-                            "error": f"「{title}」はすでに {selected_child.name} の本棚に登録されています。"
-                        })
-                except Child.DoesNotExist:
-                    return JsonResponse({
-                        "success": False,
-                        "error": "子ども情報が見つかりません。"
+                        "error": f"「{title}」はすでに {child.name} の本棚に登録されています。"
                     })
 
             book = form.save(commit=False)
             book.user = related_user
             book.save()
-
-            if is_common:
-                all_children = Child.objects.filter(user=related_user)
-                book.child.set(all_children)
-            else:
-                book.child.set([selected_child])
+            book.child.set(selected_children)
 
             return JsonResponse({"success": True})
 
-        return JsonResponse({"success": False, "error": "フォームが無効です"})
+        return JsonResponse({"success": False, "error": "フォームが無効です", "errors": form.errors})
 
     form = BookForm()
+    form.fields["children"].queryset = Child.objects.filter(user=related_user)
+
     selected_child_id = request.GET.get("child_id")
     children = Child.objects.filter(user=related_user)
 
@@ -294,7 +277,6 @@ def add_book(request):
         "selected_child_id": selected_child_id,
         "children": children,
     })
-
 
 # ✅ パスワード変更ビュー
 class CustomPasswordChangeView(PasswordChangeView):

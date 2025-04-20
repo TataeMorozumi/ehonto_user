@@ -33,6 +33,13 @@ from django import forms
 from .models import Book
 
 class BookForm(forms.ModelForm):
+    children = forms.ModelMultipleChoiceField(
+        queryset=Child.objects.none(),  # 初期は空、ビューで指定する
+        widget=forms.CheckboxSelectMultiple,
+        required=True,
+        label="本棚を選択（複数可）"
+    )
+    
     class Meta:
         model = Book
         fields = ['title', 'author', 'image']  # ✅ 画像フィールドを含める

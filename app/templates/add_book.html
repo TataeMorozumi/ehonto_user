@@ -3,10 +3,27 @@
   <div id="form-error-box" style="display: none; color: red; margin-bottom: 10px;"></div>
   <form id="addBookForm" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.as_p }}
-    <input type="hidden" name="child_id" value="{{ selected_child_id|default_if_none:'' }}">
+  
+    <!-- ✅ タイトル・作者・画像 -->
+    {{ form.title.label_tag }}<br>
+    {{ form.title }}<br><br>
+  
+    {{ form.author.label_tag }}<br>
+    {{ form.author }}<br><br>
+  
+    {{ form.image.label_tag }}<br>
+    {{ form.image }}<br><br>
+  
+    <!-- ✅ 本棚の選択（複数可） -->
+    <label>{{ form.children.label }}</label><br>
+    {{ form.children }}<br><br>
+  
+    <!-- ✅ hidden child_id（旧仕様）削除！ -->
+    {# <input type="hidden" name="child_id" value="{{ selected_child_id|default_if_none:'' }}"> #}
+  
     <button type="submit" class="submit-button">登録</button>
   </form>
+  
   
 </div>
 
