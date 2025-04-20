@@ -114,71 +114,50 @@
       color: #2e7d32 !important;
     }
     .back-button {
-    display: inline-block;
-    margin: 20px 0;
-    font-size: 16px;
-    color: #2e7d32;
-    text-decoration: none;
-    font-weight: bold;
-    }
+  display: inline-block;
+  margin: 20px 0;
+  font-size: 16px;
+  color: #2e7d32;
+  text-decoration: none;
+  font-weight: bold;
+}
 
-    .back-button:hover {
-      text-decoration: underline;
-    }
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: #4caf50;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      opacity: 0;
-      transition: opacity 0.4s ease-in-out;
-      z-index: 9999;
-      font-size: 14px;
-    }
-    .toast.show {
-      display: block;
-      opacity: 1;
-    }
-    .checkbox-inline {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-      margin-top: 10px;
-    }
+.back-button:hover {
+  text-decoration: underline;
+}
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  opacity: 0;
+  transition: opacity 0.4s ease-in-out;
+  z-index: 9999;
+  font-size: 14px;
+}
+.toast.show {
+  display: block;
+  opacity: 1;
+}
+.checkbox-inline {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 10px;
+}
 
-    .checkbox-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 9999; /* ヘッダーより高くする */
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5); /* 背景を暗く */
-      justify-content: center;
-      align-items: center;
-      display: flex;
-    }
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
 
-    .modal-content {
-      background-color: white;
-      padding: 30px;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 500px;
-      max-height: 90vh;
-      overflow-y: auto;
-      margin-top: 60px;  /* ←これがヘッダーを避けるポイント！ */
-    }
+
 
   </style>
 </head>
