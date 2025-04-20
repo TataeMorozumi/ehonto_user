@@ -330,6 +330,8 @@ def book_detail(request, book_id):
     # ✅ メモ（同上）
     memos_qs = Memo.objects.filter(book=book, child__user=related_user)
     memos = {memo.child.id: memo.content for memo in memos_qs}
+    
+    selected_child_id = request.GET.get("child_id")
 
     return render(request, 'book_detail.html', {
         'book': book,
@@ -337,6 +339,7 @@ def book_detail(request, book_id):
         'favorited_child_ids': list(favorited_child_ids),
         'read_counts': read_counts,
         'memos': memos,
+        'selected_child_id': selected_child_id,
     })
 
 # ✅ 絵本削除ビュー

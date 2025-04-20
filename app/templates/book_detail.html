@@ -4,6 +4,10 @@
 {% load custom_filters %}
 
 {% block content %}
+<a href="{% url 'home' %}?child_id={{ selected_child_id }}" class="back-button">
+  ← 本棚に戻る
+</a>
+
 <div class="book-detail-container">
 
   <!-- ✅ 左側（表紙画像・タイトル・著者・登録日） -->
