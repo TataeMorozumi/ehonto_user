@@ -1632,8 +1632,10 @@
   max-width: 600px; /* 最大幅の調整（お好みで） */
   background-color: white;
   z-index: 1000;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 影をつける */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
+  padding: 20px; /* 内側の余白 */
+  overflow: auto; 
 }
 
 /* モーダルの内容部分 */
@@ -1649,7 +1651,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5); /* 半透明の背景 */
+  background: rgba(0, 0, 0, 0.3); /* 半透明の背景 */
   z-index: 999;
 }
 
