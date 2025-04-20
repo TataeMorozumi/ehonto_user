@@ -198,10 +198,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       })
       .catch(error => {
-    console.error("❌ メモ保存エラー:", error);
-    showToast("⚠ 通信エラーが発生しました");
-  });
-}
+        console.error("❌ メモ保存エラー:", error);
+        showToast("⚠ 通信エラーが発生しました");
+      });
+    }
 function showToast(message) {
   const toast = document.getElementById("toast");
   toast.textContent = message;
@@ -247,8 +247,6 @@ function decrementRead(bookId, childId) {
     console.error("❌ エラー:", error);
   });
 }
-
-
-
+});
 </script>
 {% endblock %}
