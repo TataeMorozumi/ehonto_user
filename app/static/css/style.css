@@ -1354,11 +1354,6 @@
   border-radius: 3px;
 }
 
-.content {
-    padding-top: 20px;  /* 必要に応じて調整 */
-    margin-top: 0;
-  }
-
 .favorite-page h2,
 .home-page h2 {
   margin-top: 10px;
@@ -1367,10 +1362,14 @@
 .favorite-page .child-selector {
     margin-top: -50px!important;
   }
-/* 共通調整：すべてのページで余白を40pxに */
+
 .content {
-    padding-top: 120px;
+    padding-top: 200px;
   }
+  .toolbar-container {
+    margin-top: 10px;
+  }
+  
   
   .home-page h2,
    .book-list {
