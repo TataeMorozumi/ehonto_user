@@ -1634,6 +1634,7 @@
     padding-top: 100px;       /* ← ヘッダー分の余白を確保（60～100pxなど調整可能） */
     padding-top: 80px; 
     box-sizing: border-box;
+    overflow-y: auto;
   }
   
   .modal-content {
