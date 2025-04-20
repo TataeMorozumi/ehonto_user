@@ -31,7 +31,7 @@ class SignupForm(UserCreationForm):
 
 
 from django import forms
-from .models import Book
+from .models import Book, Child
 
 class BookForm(forms.ModelForm):
     children = forms.ModelMultipleChoiceField(
