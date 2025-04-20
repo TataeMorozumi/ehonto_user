@@ -1628,7 +1628,7 @@
   top: 15%;
   left: 50%;
   transform: translate(-50%); /* 画面中央に配置 */
-  width: 80%; /* 幅の調整（お好みで） */
+  width: 90%; /* 幅の調整（お好みで） */
   max-width: 600px; /* 最大幅の調整（お好みで） */
   background-color: white;
   z-index: 1000;
@@ -1642,6 +1642,7 @@
 /* モーダルの内容部分 */
 .modal-content {
   padding: 20px;
+  width: 100%;
 }
 
 /* モーダル背景のスタイル */
