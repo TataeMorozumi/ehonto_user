@@ -260,23 +260,24 @@ def add_book(request):
             book = form.save(commit=False)
             book.user = related_user
             book.save()
-            book.child.set(form.cleaned_data["children"])
-
+            book.child.set(selected_children)
             return JsonResponse({"success": True})
 
         return JsonResponse({"success": False, "error": "フォームが無効です", "errors": form.errors})
+    
+    else:
 
-    form = BookForm()
-    form.fields["children"].queryset = Child.objects.filter(user=related_user)
+        form = BookForm()
+        form.fields["children"].queryset = Child.objects.filter(user=related_user)
 
-    selected_child_id = request.GET.get("child_id")
-    children = Child.objects.filter(user=related_user)
+        selected_child_id = request.GET.get("child_id")
+        children = Child.objects.filter(user=related_user)
 
-    return render(request, "add_book.html", {
-        "form": form,
-        "selected_child_id": selected_child_id,
-        "children": children,
-    })
+        return render(request, "add_book.html", {
+            "form": form,
+            "selected_child_id": selected_child_id,
+            "children": children,
+        })
 
 # ✅ パスワード変更ビュー
 class CustomPasswordChangeView(PasswordChangeView):
