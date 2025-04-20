@@ -358,7 +358,10 @@ def delete_book(request, book_id):
 def home_view(request):
     selected_child_id = request.GET.get("child_id")
     selected_child = None
-    base_user = get_related_user(request)  # 🔑 招待者 or 自分自身を取得
+    base_user = get_related_user(request)  
+
+    children = Child.objects.filter(user=base_user).distinct()
+
 
     if selected_child_id and selected_child_id.isdigit():
         selected_child = get_object_or_404(Child, id=selected_child_id, user=base_user)
@@ -376,8 +379,6 @@ def home_view(request):
 
     books_list = list(page_obj)
     book_rows = [books_list[i:i+7] for i in range(0, len(books_list), 7)]
-
-    children = Child.objects.filter(user=base_user).distinct()
 
     context = {
         "books": page_obj,
