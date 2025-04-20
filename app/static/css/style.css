@@ -1635,14 +1635,12 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   padding: 20px; /* 内側の余白 */
-  overflow: hidden;
-  max-height: 80vh;
+  max-height: 70vh;
 }
 
 /* モーダルの内容部分 */
 .modal-content {
   padding: 20px;
-  overflow: auto;
 }
 
 /* モーダル背景のスタイル */
