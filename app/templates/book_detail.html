@@ -60,9 +60,12 @@
     
         <!-- 📝 メモ欄 -->
         <div class="memo-box-inline">
-          <textarea data-book-id="{{ book.id }}" data-child-id="{{ child.id }}" class="memo-textarea">
-            {{ memo.content|default_if_none:"" }}
-          </textarea>
+          <textarea
+            id="memo-{{ child.id }}"
+            data-book-id="{{ book.id }}"
+            data-child-id="{{ child.id }}"
+            class="memo-textarea">{{ memos|get_item:child.id|default_if_none:"" }}</textarea>
+
           <button class="memo-save-btn">保存</button>
         </div>
         
@@ -70,6 +73,8 @@
     </div>
   {% endfor %}
 </div>
+<div id="toast" class="toast" style="display: none;">保存しました ✅</div>
+
 <!-- ✅ 編集モーダル -->
 <div id="editBookModal" class="modal">
   <div class="modal-content">
@@ -186,14 +191,25 @@ document.addEventListener("DOMContentLoaded", function () {
       })
       .then(response => response.json())
       .then(data => {
-        alert("💾 メモが保存されました！");
+        if (data.status === "ok") {
+          showToast("💾 メモが保存されました！");
+        } else {
+          showToast("❌ 保存に失敗しました");
+        }
       })
       .catch(error => {
-        console.error("❌ メモ保存エラー:", error);
-      });
-    }
-
-});
+    console.error("❌ メモ保存エラー:", error);
+    showToast("⚠ 通信エラーが発生しました");
+  });
+}
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 3000);
+}
 
 function openEditModal() {
   const modal = document.getElementById("editBookModal");
