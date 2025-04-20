@@ -1623,15 +1623,16 @@
     visibility: visible;
     opacity: 1;
   }
-  .checkbox-inline {
+  ul.checkboxselectmultiple {
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
-    margin-top: 10px;
     justify-content: center;
+    padding-left: 0;
+    list-style: none;
   }
   
-  .checkbox-item {
+  ul.checkboxselectmultiple li {
     display: flex;
     align-items: center;
     gap: 6px;
