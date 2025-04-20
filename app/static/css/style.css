@@ -1626,12 +1626,17 @@
   .checkbox-inline {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 16px;
     margin-top: 10px;
+    justify-content: center;
   }
   
   .checkbox-item {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    background-color: #f0f0f0;
   }
+  
