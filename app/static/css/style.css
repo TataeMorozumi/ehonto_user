@@ -1627,7 +1627,6 @@
   position: fixed;
   top: 15%;
   left: 50%;
-  right: 50%;
   transform: translate(-50%); /* 画面中央に配置 */
   width: 80%; /* 幅の調整（お好みで） */
   max-width: 600px; /* 最大幅の調整（お好みで） */
