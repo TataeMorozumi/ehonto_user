@@ -18,9 +18,12 @@
     <label>{{ form.children.label }}</label><br>
     <div class="checkbox-inline">
       {% for checkbox in form.children %}
-        <label>{{ checkbox.tag }} {{ checkbox.choice_label }}</label>
+        <label class="checkbox-item">
+          {{ checkbox.tag }} {{ checkbox.choice_label }}
+        </label>
       {% endfor %}
-    </div><br>
+    </div>
+    
     <!-- ✅ hidden child_id（旧仕様）削除！ -->
     {# <input type="hidden" name="child_id" value="{{ selected_child_id|default_if_none:'' }}"> #}
   
@@ -30,16 +33,17 @@
     .checkbox-inline {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 20px;
       margin-top: 10px;
     }
-  
-    .checkbox-inline label {
+    
+    .checkbox-item {
       display: flex;
       align-items: center;
       gap: 5px;
     }
-  </style>
+    </style>
+    
  
 </div>
 
