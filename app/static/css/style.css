@@ -686,6 +686,7 @@
     font-size: 30px;
     text-align: center;
     line-height: 50px;
+    outline: none;
     border-radius: 50%;
     text-decoration: none;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);

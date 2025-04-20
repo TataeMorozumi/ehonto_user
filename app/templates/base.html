@@ -217,7 +217,8 @@
 </div>
 
 <!-- ✅ 共通JS -->
-<button id="addBookButton" class="add-button">＋</button>
+<a href="#" class="add-button" id="addBookButton">＋</a>
+
 {% block scripts %}
 <script>
    console.log("✅ base.html の JavaScript 読み込まれた");
@@ -254,7 +255,26 @@
         fetch("{% url 'add_book' %}" + (childId ? "?child_id=" + childId : ""))
             .then(response => response.text())
             .then(html => {
-                modalBody.innerHTML = html;
+                console.log("フォーム読み込み成功");
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, "text/html");
+                const form = doc.querySelector("form");
+
+                if (childId) {
+                    const hiddenInput = document.createElement("input");
+                    hiddenInput.type = "hidden";
+                    hiddenInput.name = "child_id";
+                    hiddenInput.value = childId;
+                    form.appendChild(hiddenInput);
+                }
+
+                form.addEventListener("submit", function (event) {
+                    event.preventDefault();
+                    submitAddBookForm(form, childId);
+                });
+
+                modalBody.innerHTML = "";
+                modalBody.appendChild(form);
                 modal.style.display = "flex";
             })
             .catch(error => {
