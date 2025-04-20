@@ -39,14 +39,15 @@ class BookForm(forms.ModelForm):
         required=True,
         label="本棚を選択（複数可）"
     )
-    
+
     class Meta:
         model = Book
-        fields = ['title', 'author', 'image']  # ✅ 画像フィールドを含める
+        fields = ['title', 'author', 'image', 'children']  # ✅ 画像フィールドを含める
         labels = {
             'title': 'タイトル',
             'author': '作者',
             'image': '画像',
+            'children': '本棚を選択（複数可）',
         }
 
     def clean_image(self):

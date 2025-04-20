@@ -242,7 +242,7 @@ def add_book(request):
     related_user = get_related_user(request)
 
     if request.method == "POST":
-        form = BookForm(request.POST, request.FILES)
+        form = BookForm(request.POST, request.FILES or None)
         form.fields["children"].queryset = Child.objects.filter(user=related_user)
 
         if form.is_valid():
@@ -260,7 +260,7 @@ def add_book(request):
             book = form.save(commit=False)
             book.user = related_user
             book.save()
-            book.child.set(selected_children)
+            book.child.set(form.cleaned_data["children"])
 
             return JsonResponse({"success": True})
 
