@@ -73,15 +73,24 @@
 
 {% endblock %}
 
+<div id="addBookModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <div id="modal-body">
+      <!-- フォームが挿入される -->
+    </div>
+  </div>
+</div>
+
 {% block scripts %}
 <script>
   // ✅ モーダル処理
-  function loadAddBookModal(childId = null) {
+  window.loadAddBookModal = function(childId = null) {
     console.log("✅ loadAddBookModal 実行", childId);
     const modal = document.getElementById("addBookModal");
     const modalBody = document.getElementById("modal-body");
 
-    fetch("{% url 'add_book' %}?child_id=" + childId)
+    fetch("{% url 'add_book' %}" + (childId ? "?child_id=" + childId : ""))
       .then(response => response.text())
       .then(html => {
         modalBody.innerHTML = html;
