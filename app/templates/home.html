@@ -70,9 +70,110 @@
 
 <button id="addBookButton" class="add-button">＋</button>
 
-
-{% endblock %}
-
 {% block scripts %}
-<!-- ここは空でもOKだが、必ずこの block が存在する必要あり -->
+<script>
+   console.log("✅ base.html の JavaScript 読み込まれた");
+
+   document.addEventListener("DOMContentLoaded", function () {
+       // ボタンのクリックイベントを確認
+       const addBookButton = document.getElementById("addBookButton");
+       
+       if (addBookButton) {
+           console.log("ボタンが見つかりました");
+           addBookButton.addEventListener("click", function(event) {
+               console.log("ボタンがクリックされた");  // ログが表示されるか確認
+               event.preventDefault();  // デフォルトの動作を防止
+               loadAddBookModal('{{ selected_child_id }}');
+           });
+       } else {
+           console.error("ボタンが見つかりませんでした");
+       }
+
+       // モーダルを表示する関数
+       window.loadAddBookModal = function (childId = null) {
+           console.log("✅ loadAddBookModal 実行", childId);
+           const modal = document.getElementById("addBookModal");
+           const modalBody = document.getElementById("modal-body");
+
+           fetch("{% url 'add_book' %}" + (childId ? "?child_id=" + childId : ""))
+               .then(response => response.text())
+               .then(html => {
+                   console.log("フォーム読み込み成功");
+                   const parser = new DOMParser();
+                   const doc = parser.parseFromString(html, "text/html");
+                   const form = doc.querySelector("form");
+
+                   if (childId) {
+                       const hiddenInput = document.createElement("input");
+                       hiddenInput.type = "hidden";
+                       hiddenInput.name = "child_id";
+                       hiddenInput.value = childId;
+                       form.appendChild(hiddenInput);
+                   }
+
+                   form.addEventListener("submit", function (event) {
+                       event.preventDefault();
+                       submitAddBookForm(form, childId);
+                   });
+
+                   modalBody.innerHTML = "";
+                   modalBody.appendChild(form);
+                   modal.style.display = "flex";
+               })
+               .catch(error => {
+                   modalBody.innerHTML = "<p>フォーム読み込み失敗</p>";
+                   console.error("❌ モーダルエラー:", error);
+               });
+       };
+
+       window.closeModal = function () {
+           document.getElementById("addBookModal").style.display = "none";
+       };
+
+       window.submitAddBookForm = function (form, childId) {
+           const formData = new FormData(form);
+           if (childId) {
+               formData.append("child_id", childId);
+           }
+
+           const errorBox = form.querySelector("#form-error-box");
+
+           fetch("{% url 'add_book' %}", {
+               method: "POST",
+               body: formData,
+               headers: {
+                   "X-CSRFToken": formData.get("csrfmiddlewaretoken")
+               }
+           })
+           .then(response => {
+               const contentType = response.headers.get("content-type") || "";
+               if (!contentType.includes("application/json")) {
+                   throw new Error("⚠ JSON形式のレスポンスではありません");
+               }
+               return response.json();
+           })
+           .then(data => {
+               if (data.success) {
+                   if (errorBox) errorBox.style.display = "none";
+                   closeModal();
+                   window.location.reload();
+               } else {
+                   if (errorBox) {
+                       errorBox.textContent = data.error || "登録に失敗しました";
+                       errorBox.style.display = "block";
+                   } else {
+                       alert(data.error || "登録に失敗しました");
+                   }
+               }
+           })
+           .catch(error => {
+               console.error("❌ 通信エラー:", error);
+               if (errorBox) {
+                   errorBox.textContent = error.message || "通信エラーが発生しました";
+                   errorBox.style.display = "block";
+               }
+           });
+       };
+   });
+</script>
 {% endblock %}

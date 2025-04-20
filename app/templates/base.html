@@ -210,18 +210,6 @@
         });
     }
 
-    // 「＋」ボタンのクリックイベントリスナーを設定
-    const addBookButton = document.getElementById("addBookButton");
-    if (addBookButton) {
-        addBookButton.addEventListener("click", function(event) {
-            console.log("ボタンがクリックされた");
-            event.preventDefault();  // デフォルトの動作を防止
-            loadAddBookModal('{{ selected_child_id }}');
-        });
-    } else {
-        console.error("ボタンが見つかりませんでした");
-    }
-
     // モーダルを表示する関数
     window.loadAddBookModal = function (childId = null) {
         console.log("✅ loadAddBookModal 実行", childId);
