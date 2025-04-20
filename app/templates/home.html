@@ -70,39 +70,6 @@
 
 <!-- ✅ 「＋」ボタンを押すとモーダルを開く -->
 <a href="#" class="add-button" onclick="event.preventDefault(); loadAddBookModal('{{ selected_child_id }}');">＋</a>
-
-<div id="addBookModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <span class="close" onclick="closeModal()">&times;</span>
-    <div id="modal-body">
-      <!-- フォームが挿入される -->
-    </div>
-  </div>
-</div>
-{% endblock %}
-
 {% block scripts %}
-<script>
-  // ✅ モーダル処理
-  window.loadAddBookModal = function(childId = null) {
-    console.log("✅ loadAddBookModal 実行", childId);
-    const modal = document.getElementById("addBookModal");
-    const modalBody = document.getElementById("modal-body");
-
-    fetch("{% url 'add_book' %}" + (childId ? "?child_id=" + childId : ""))
-      .then(response => response.text())
-      .then(html => {
-        modalBody.innerHTML = html;
-        modal.style.display = "flex";
-      })
-      .catch(error => {
-        modalBody.innerHTML = "<p>フォームを読み込めませんでした。</p>";
-        console.error("❌ モーダルエラー:", error);
-      });
-  }
-
-  function closeModal() {
-    document.getElementById("addBookModal").style.display = "none";
-  }
-</script>
+<!-- ここは空でもOKだが、必ずこの block が存在する必要あり -->
 {% endblock %}
