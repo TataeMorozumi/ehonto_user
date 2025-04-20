@@ -205,6 +205,7 @@
 <div class="content">
   {% block content %}{% endblock %}
 </div>
+
 <!-- ✅ 絵本登録モーダル -->
 <div id="addBookModal" class="modal">
   <div class="modal-content">
@@ -216,10 +217,14 @@
 </div>
 
 <!-- ✅ 共通JS -->
+<a href="#" id="addBookButton" class="add-button">＋</a>
+
 {% block scripts %}
 <script>
    console.log("✅ base.html の JavaScript 読み込まれた");
-document.addEventListener("DOMContentLoaded", function () {
+
+   document.addEventListener("DOMContentLoaded", function () {
+    // メニュー関連
     const menuButton = document.getElementById("menu-button");
     const navMenu = document.getElementById("nav-menu");
 
@@ -229,93 +234,86 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-  window.loadAddBookModal = function (childId = null) {
-      console.log("✅ loadAddBookModal 実行", childId);
-      const modal = document.getElementById("addBookModal");
-      const modalBody = document.getElementById("modal-body");
+    // 「＋」ボタンのクリックイベントリスナーを設定
+    const addBookButton = document.getElementById("addBookButton");
+    if (addBookButton) {
+        addBookButton.addEventListener("click", function(event) {
+            console.log("ボタンがクリックされた");
+            event.preventDefault();  // デフォルトの動作を防止
+            loadAddBookModal('{{ selected_child_id }}');
+        });
+    } else {
+        console.error("ボタンが見つかりませんでした");
+    }
 
-      fetch("{% url 'add_book' %}" + (childId ? "?child_id=" + childId : ""))
-          .then(response => response.text())
-          .then(html => {
-              const parser = new DOMParser();
-              const doc = parser.parseFromString(html, "text/html");
-              const form = doc.querySelector("form");
+    // モーダルを表示する関数
+    window.loadAddBookModal = function (childId = null) {
+        console.log("✅ loadAddBookModal 実行", childId);
+        const modal = document.getElementById("addBookModal");
+        const modalBody = document.getElementById("modal-body");
 
-              if (childId) {
-              const hiddenInput = document.createElement("input");
-              hiddenInput.type = "hidden";
-              hiddenInput.name = "child_id";
-              hiddenInput.value = childId;
-              form.appendChild(hiddenInput);
-              }
+        fetch("{% url 'add_book' %}" + (childId ? "?child_id=" + childId : ""))
+            .then(response => response.text())
+            .then(html => {
+                modalBody.innerHTML = html;
+                modal.style.display = "flex";
+            })
+            .catch(error => {
+                modalBody.innerHTML = "<p>フォーム読み込み失敗</p>";
+                console.error("❌ モーダルエラー:", error);
+            });
+    };
 
-              form.addEventListener("submit", function (event) {
-              event.preventDefault();
-              submitAddBookForm(form, childId);
-              });
+    window.closeModal = function () {
+        document.getElementById("addBookModal").style.display = "none";
+    };
 
-              modalBody.innerHTML = "";
-              modalBody.appendChild(form);
-              modal.style.display = "flex";
-          })
-          .catch(error => {
-              modalBody.innerHTML = "<p>フォーム読み込み失敗</p>";
-              console.error("❌ モーダルエラー:", error);
-          });
-  };
+    window.submitAddBookForm = function (form, childId) {
+        const formData = new FormData(form);
+        if (childId) {
+        formData.append("child_id", childId);
+        }
 
-  window.closeModal = function () {
-      document.getElementById("addBookModal").style.display = "none";
-  };
+        const errorBox = form.querySelector("#form-error-box");
 
-  window.submitAddBookForm = function (form, childId) {
-      const formData = new FormData(form);
-      if (childId) {
-      formData.append("child_id", childId);
-      }
-
-      const errorBox = form.querySelector("#form-error-box");
-
-      fetch("{% url 'add_book' %}", {
-      method: "POST",
-      body: formData,
-      headers: {
-          "X-CSRFToken": formData.get("csrfmiddlewaretoken")
-      }
-      })
-      .then(response => {
-      const contentType = response.headers.get("content-type") || "";
-      if (!contentType.includes("application/json")) {
-          throw new Error("⚠ JSON形式のレスポンスではありません");
-      }
-      return response.json();
-      })
-      .then(data => {
-          if (data.success) {
-              if (errorBox) errorBox.style.display = "none";
-              closeModal();
-              window.location.reload();
-          } else {
-              if (errorBox) {
-              errorBox.textContent = data.error || "登録に失敗しました";
-              errorBox.style.display = "block";
-              } else {
-              alert(data.error || "登録に失敗しました");
-              }
-              }
-          })
-          .catch(error => {
-          console.error("❌ 通信エラー:", error);
-          if (errorBox) {
-              errorBox.textContent = error.message || "通信エラーが発生しました";
-              errorBox.style.display = "block";
-          }
-          });
-      };
-
-    });
+        fetch("{% url 'add_book' %}", {
+        method: "POST",
+        body: formData,
+        headers: {
+            "X-CSRFToken": formData.get("csrfmiddlewaretoken")
+        }
+        })
+        .then(response => {
+        const contentType = response.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) {
+            throw new Error("⚠ JSON形式のレスポンスではありません");
+        }
+        return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                if (errorBox) errorBox.style.display = "none";
+                closeModal();
+                window.location.reload();
+            } else {
+                if (errorBox) {
+                errorBox.textContent = data.error || "登録に失敗しました";
+                errorBox.style.display = "block";
+                } else {
+                alert(data.error || "登録に失敗しました");
+                }
+            }
+        })
+        .catch(error => {
+        console.error("❌ 通信エラー:", error);
+        if (errorBox) {
+            errorBox.textContent = error.message || "通信エラーが発生しました";
+            errorBox.style.display = "block";
+        }
+        });
+    };
+  });
 </script>
-
 {% endblock %}
 </body>
 </html>
