@@ -74,22 +74,21 @@
 
 {% block scripts %}
 <script>
-   console.log("✅ base.html の JavaScript 読み込まれた");
-
    document.addEventListener("DOMContentLoaded", function () {
-       // ボタンのクリックイベントを確認
-       const addBookButton = document.getElementById("addBookButton");
-       
-       if (addBookButton) {
-           console.log("ボタンが見つかりました");
-           addBookButton.addEventListener("click", function(event) {
-               console.log("ボタンがクリックされた");  // ログが表示されるか確認
-               event.preventDefault();  // デフォルトの動作を防止
-               loadAddBookModal('{{ selected_child_id }}');
-           });
-       } else {
-           console.error("ボタンが見つかりませんでした");
-       }
+    const menuButton = document.getElementById("menu-button");
+    const navMenu = document.getElementById("nav-menu");
+
+    console.log(menuButton, navMenu);
+
+    if (menuButton && navMenu) {
+        menuButton.addEventListener("click", function () {
+            console.log("ハンバーガーメニューがクリックされました");
+            navMenu.classList.toggle("show");  // メニューの表示/非表示を切り替え
+        });
+    } else {
+        console.error("ハンバーガーメニューの要素が見つかりませんでした");
+    }
+
 
        // モーダルを表示する関数
        window.loadAddBookModal = function (childId = null) {
