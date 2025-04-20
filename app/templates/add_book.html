@@ -4,7 +4,7 @@
   <form id="addBookForm" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
-    <input type="hidden" name="child_id" value="{{ selected_child_id }}">
+    <input type="hidden" name="child_id" value="{{ selected_child_id|default_if_none:'' }}">
     <button type="submit" class="submit-button">登録</button>
   </form>
   
