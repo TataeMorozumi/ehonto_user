@@ -247,7 +247,8 @@ def add_book(request):
             title = form.cleaned_data["title"]
             child_id = request.POST.get("child_id")
             selected_child = None
-            is_common = not child_id or child_id == "None"
+            is_common = not child_id or child_id in ["None", ""]
+            selected_child = None
 
             if is_common:
                 if Book.objects.filter(title=title, user=related_user).exists():
@@ -273,7 +274,6 @@ def add_book(request):
             book = form.save(commit=False)
             book.user = related_user
             book.save()
-            form.save_m2m()
 
             if is_common:
                 all_children = Child.objects.filter(user=related_user)
@@ -364,7 +364,9 @@ def home_view(request):
         selected_child = get_object_or_404(Child, id=selected_child_id, user=base_user)
         books_qs = Book.objects.filter(child=selected_child, user=base_user)
     else:
-        books_qs = Book.objects.filter(user=base_user, child=None)
+        books_qs = Book.objects.filter(user=base_user).annotate(
+            child_count=Count('child', distinct=True)
+        ).filter(child_count=children.count())
 
     books_qs = books_qs.exclude(image='').exclude(image=None).order_by("-created_at")
 
