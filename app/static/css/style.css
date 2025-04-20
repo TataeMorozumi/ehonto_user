@@ -1625,11 +1625,11 @@
 #addBookModal {
   display: none;
   position: fixed;
-  top: 10%;
+  top: 5%;
   left: 50%;
   transform: translate(-50%); /* 画面中央に配置 */
-  width: 90%; /* 幅の調整（お好みで） */
-  max-width: 500px; /* 最大幅の調整（お好みで） */
+  width: 80%; /* 幅の調整（お好みで） */
+  max-width: 600px; /* 最大幅の調整（お好みで） */
   background-color: white;
   z-index: 1000;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
