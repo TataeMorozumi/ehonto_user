@@ -1625,17 +1625,18 @@
 #addBookModal {
   display: none;
   position: fixed;
-  top: 50%;
+  top: 10%;
   left: 50%;
-  transform: translate(-50%, -50%); /* 画面中央に配置 */
-  width: 80%; /* 幅の調整（お好みで） */
-  max-width: 600px; /* 最大幅の調整（お好みで） */
+  transform: translate(-50%); /* 画面中央に配置 */
+  width: 90%; /* 幅の調整（お好みで） */
+  max-width: 500px; /* 最大幅の調整（お好みで） */
   background-color: white;
   z-index: 1000;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 20px; /* 内側の余白 */
   overflow: auto; 
+  max-height: 80vh;
 }
 
 /* モーダルの内容部分 */
