@@ -1623,4 +1623,22 @@
     visibility: visible;
     opacity: 1;
   }
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+    z-index: 9999;
+    font-size: 14px;
+  }
+  .toast.show {
+    display: block;
+    opacity: 1;
+  }
   
