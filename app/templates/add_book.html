@@ -15,10 +15,16 @@
     {{ form.image }}<br><br>
   
     <!-- ✅ 本棚の選択（複数可） -->
-    <!-- ✅ 本棚の選択（複数可） -->
-    <label>{{ form.children.label }}</label>
-    {{ form.children }}
     
+    <label>{{ form.children.label }}</label>
+    <div class="checkbox-inline">
+      {% for checkbox in form.children %}
+        <label class="checkbox-item">
+          {{ checkbox.tag }} {{ checkbox.choice_label }}
+        </label>
+      {% endfor %}
+    </div>
+
     <!-- ✅ hidden child_id（旧仕様）削除！ -->
     {# <input type="hidden" name="child_id" value="{{ selected_child_id|default_if_none:'' }}"> #}
   
