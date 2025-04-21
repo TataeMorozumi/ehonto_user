@@ -1521,7 +1521,7 @@
     display: none;
   }
   .more-read-page .book-image {
-    max-height: 100px; /* ← 画像の高さを調整 */
+    max-height: 180px; /* ← 画像の高さを調整 */
     object-fit: contain;
   }
   .more-read-page .book-container.more-read {
