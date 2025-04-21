@@ -139,13 +139,15 @@ def favorite(request):
         selected_child = get_object_or_404(Child, id=selected_child_id, user=user)
         favorites = Favorite.objects.filter(user=user, child=selected_child)
     else:
-        # child=None の場合は「全員のお気に入り」
-        favorites = Favorite.objects.filter(user=user, child=None)
+    # ✅ 各子どもごとのお気に入りを集めて、「全ての子に登録されている絵本」だけを抽出
+        children = Child.objects.filter(user=user)
+        book_ids = Favorite.objects.filter(
+            user=user, child__in=children
+        ).values('book').annotate(child_count=Count('child')).filter(
+            child_count=children.count()
+        ).values_list('book', flat=True)
 
-    books = Book.objects.filter(
-        id__in=favorites.values_list("book_id", flat=True),
-       
-    ).order_by("-created_at")
+    books = Book.objects.filter(id__in=book_ids, user=user).order_by("-created_at")
 
     paginator = Paginator(books, 28)
     page_number = request.GET.get('page')
