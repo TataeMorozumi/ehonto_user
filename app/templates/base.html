@@ -312,6 +312,16 @@
           });
       };
   });
+  document.addEventListener("click", function (event) {
+      const menuButton = document.getElementById("menu-button");
+      const navMenu = document.getElementById("nav-menu");
+
+      if (navMenu && navMenu.classList.contains("show") &&
+          !navMenu.contains(event.target) &&
+          !menuButton.contains(event.target)) {
+          navMenu.classList.remove("show");
+      }
+  });
 </script>
 {% endblock %}
 
