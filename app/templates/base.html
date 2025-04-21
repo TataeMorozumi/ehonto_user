@@ -198,133 +198,129 @@
 
 {% block scripts %}
 <script>
-   document.addEventListener("DOMContentLoaded", function () {
-      // ハンバーガーメニュー関連
-      const menuButton = document.getElementById("menu-button");
-      const navMenu = document.getElementById("nav-menu");
+    // ハンバーガーメニュー関連
+    const menuButton = document.getElementById("menu-button");
+    const navMenu = document.getElementById("nav-menu");
 
-      if (menuButton && navMenu) {
-          menuButton.addEventListener("click", function () {
-              console.log("ハンバーガーメニューがクリックされました");
-              navMenu.classList.toggle("show");  // メニューの表示/非表示を切り替え
-          });
-      // ✅ 枠外クリックで閉じる
-      document.addEventListener("click", function (event) {
-        if (
-          navMenu.classList.contains("show") &&
-          !navMenu.contains(event.target) &&
-          !menuButton.contains(event.target)
-        ) {
-          navMenu.classList.remove("show");
-        }
-      });
+    if (menuButton && navMenu) {
+        menuButton.addEventListener("click", function () {
+            console.log("ハンバーガーメニューがクリックされました");
+            navMenu.classList.toggle("show");  // メニューの表示/非表示を切り替え
+        });
     } else {
-      console.error("ハンバーガーメニューの要素が見つかりませんでした");
+        console.error("ハンバーガーメニューが見つかりませんでした");
     }
 
-      // モーダルを表示する関数
-      const addBookButton = document.getElementById("addBookButton");
+    // メニュー外をクリックしたときにメニューを閉じる処理
+    document.addEventListener("click", function (event) {
+        if (
+            navMenu.classList.contains("show") &&
+            !navMenu.contains(event.target) && 
+            !menuButton.contains(event.target)
+        ) {
+            navMenu.classList.remove("show");
+            console.log("メニューが閉じました");
+        }
+    });
 
-      if (addBookButton) {
-          console.log("ボタンが見つかりました");
-          addBookButton.addEventListener("click", function(event) {
-              console.log("ボタンがクリックされた");  // ログが表示されるか確認
-              event.preventDefault();  // デフォルトの動作を防止
-              loadAddBookModal('{{ selected_child_id }}');
-          });
-      } else {
-          console.error("ボタンが見つかりませんでした");
-      }
+    // モーダルを表示する関数
+    const addBookButton = document.getElementById("addBookButton");
 
-      // モーダルを表示する関数
-      window.loadAddBookModal = function (childId = null) {
-          console.log("✅ loadAddBookModal 実行", childId);
-          const modal = document.getElementById("addBookModal");
-          const modalBody = document.getElementById("modal-body");
+    if (addBookButton) {
+        console.log("ボタンが見つかりました");
+        addBookButton.addEventListener("click", function(event) {
+            console.log("ボタンがクリックされた");  // ログが表示されるか確認
+            event.preventDefault();  // デフォルトの動作を防止
+            loadAddBookModal('{{ selected_child_id }}');
+        });
+    } else {
+        console.error("ボタンが見つかりませんでした");
+    }
 
-          fetch("{% url 'add_book' %}" + (childId ? "?child_id=" + childId : ""))
-              .then(response => response.text())
-              .then(html => {
-                  console.log("フォーム読み込み成功");
-                  const parser = new DOMParser();
-                  const doc = parser.parseFromString(html, "text/html");
-                  const form = doc.querySelector("form");
+    // モーダルを表示する関数
+    window.loadAddBookModal = function (childId = null) {
+        console.log("✅ loadAddBookModal 実行", childId);
+        const modal = document.getElementById("addBookModal");
+        const modalBody = document.getElementById("modal-body");
 
-                  if (childId) {
-                      const hiddenInput = document.createElement("input");
-                      hiddenInput.type = "hidden";
-                      hiddenInput.name = "child_id";
-                      hiddenInput.value = childId;
-                      form.appendChild(hiddenInput);
-                  }
+        fetch("{% url 'add_book' %}" + (childId ? "?child_id=" + childId : ""))
+            .then(response => response.text())
+            .then(html => {
+                console.log("フォーム読み込み成功");
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, "text/html");
+                const form = doc.querySelector("form");
 
-                  form.addEventListener("submit", function (event) {
-                      event.preventDefault();
-                      submitAddBookForm(form, childId);
-                  });
+                if (childId) {
+                    const hiddenInput = document.createElement("input");
+                    hiddenInput.type = "hidden";
+                    hiddenInput.name = "child_id";
+                    hiddenInput.value = childId;
+                    form.appendChild(hiddenInput);
+                }
 
-                  modalBody.innerHTML = "";
-                  modalBody.appendChild(form);
-                  modal.style.display = "flex";
-              })
-              .catch(error => {
-                  modalBody.innerHTML = "<p>フォーム読み込み失敗</p>";
-                  console.error("❌ モーダルエラー:", error);
-              });
-      };
+                form.addEventListener("submit", function (event) {
+                    event.preventDefault();
+                    submitAddBookForm(form, childId);
+                });
 
-      window.closeModal = function () {
-          document.getElementById("addBookModal").style.display = "none";
-      };
+                modalBody.innerHTML = "";
+                modalBody.appendChild(form);
+                modal.style.display = "flex";
+            })
+            .catch(error => {
+                modalBody.innerHTML = "<p>フォーム読み込み失敗</p>";
+                console.error("❌ モーダルエラー:", error);
+            });
+    };
 
-      window.submitAddBookForm = function (form, childId) {
-          const formData = new FormData(form);
-          if (childId) {
-              formData.append("child_id", childId);
-          }
+    window.closeModal = function () {
+        document.getElementById("addBookModal").style.display = "none";
+    };
 
-          const errorBox = form.querySelector("#form-error-box");
+    window.submitAddBookForm = function (form, childId) {
+        const formData = new FormData(form);
+        if (childId) {
+            formData.append("child_id", childId);
+        }
 
-          fetch("{% url 'add_book' %}", {
-              method: "POST",
-              body: formData,
-              headers: {
-                  "X-CSRFToken": formData.get("csrfmiddlewaretoken")
-              }
-          })
-          .then(response => {
-              const contentType = response.headers.get("content-type") || "";
-              if (!contentType.includes("application/json")) {
-                  throw new Error("⚠ JSON形式のレスポンスではありません");
-              }
-              return response.json();
-          })
-          .then(data => {
-              if (data.success) {
-                  if (errorBox) errorBox.style.display = "none";
-                  closeModal();
-                  window.location.reload();
-              } else {
-                  if (errorBox) {
-                      errorBox.textContent = data.error || "登録に失敗しました";
-                      errorBox.style.display = "block";
-                  } else {
-                      alert(data.error || "登録に失敗しました");
-                  }
-              }
-          })
-          .catch(error => {
-              console.error("❌ 通信エラー:", error);
-              if (errorBox) {
-                  errorBox.textContent = error.message || "通信エラーが発生しました";
-                  errorBox.style.display = "block";
-              }
-          });
-      };
-  });
+        const errorBox = form.querySelector("#form-error-box");
 
+        fetch("{% url 'add_book' %}", {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-CSRFToken": formData.get("csrfmiddlewaretoken")
+            }
+        })
+        .then(response => {
+            const contentType = response.headers.get("content-type") || "";
+            if (!contentType.includes("application/json")) {
+                throw new Error("⚠ JSON形式のレスポンスではありません");
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                if (errorBox) errorBox.style.display = "none";
+                closeModal();
+                window.location.reload();
+            } else {
+                if (errorBox) {
+                    errorBox.textContent = data.error || "登録に失敗しました";
+                    errorBox.style.display = "block";
+                } else {
+                    alert(data.error || "登録に失敗しました");
+                }
+            }
+        })
+        .catch(error => {
+            console.error("❌ 通信エラー:", error);
+            if (errorBox) {
+                errorBox.textContent = error.message || "通信エラーが発生しました";
+                errorBox.style.display = "block";
+            }
+        });
+    };
 </script>
 {% endblock %}
-
-</body>
-</html>
