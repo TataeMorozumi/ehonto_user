@@ -138,7 +138,7 @@ def favorite(request):
         selected_child = get_object_or_404(Child, id=selected_child_id, user=user)
         favorites = Favorite.objects.filter(user=user, child=selected_child)
     else:
-        favorites = Favorite.objects.filter(user=user,child=None)
+        favorites = Favorite.objects.filter(child=None)
 
 
     books = Book.objects.filter(
