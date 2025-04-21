@@ -146,17 +146,17 @@ def favorite(request):
         children = Child.objects.filter(user=user)
         total_children = children.count()
 
+        # ✅ userを絞らず、childに基づいて「全員のお気に入り絵本」を抽出
         book_ids = (
-            Favorite.objects.filter(user=user, child__in=children)
+            Favorite.objects.filter(child__in=children)
             .values("book")
             .annotate(child_count=Count("child", distinct=True))
             .filter(child_count=total_children)
             .values_list("book", flat=True)
         )
 
-    
+    # ✅ Bookのuserも絞らず
     books = Book.objects.filter(id__in=book_ids).order_by("-created_at")
-
 
     paginator = Paginator(books, 28)
     page_number = request.GET.get("page")
@@ -171,7 +171,6 @@ def favorite(request):
         "selected_child_id": selected_child_id,
         "page_obj": page_obj,
     })
-
 
 @login_required
 def more_read(request):
