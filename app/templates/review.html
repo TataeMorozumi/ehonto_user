@@ -147,21 +147,58 @@
   .most-read-title {
     color: #d35400;
   }
-  #bookModal {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: white;
-    z-index: 1000;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    max-width: 90vw;
-    max-height: 90vh;
-    overflow-y: auto;
-  }
+  /* モーダル全体 */
+#bookModal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  z-index: 1000;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  max-width: 700px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+/* モーダル内の画像一覧 */
+#modalBookImages {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+/* 各画像 */
+#modalBookImages img {
+  width: 150px;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+#modalBookImages img:hover {
+  transform: scale(1.05);
+}
+
+/* 閉じるボタン */
+#bookModal .close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 28px;
+  font-weight: bold;
+  color: #888;
+  cursor: pointer;
+}
+#bookModal .close:hover {
+  color: black;
+}
 
 
 </style>
