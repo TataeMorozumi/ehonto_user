@@ -141,12 +141,15 @@ def favorite(request):
     else:
     # ✅ 各子どもごとのお気に入りを集めて、「全ての子に登録されている絵本」だけを抽出
         children = Child.objects.filter(user=user)
-        book_ids = Favorite.objects.filter(
-            user=user, child__in=children
-        ).values('book').annotate(child_count=Count('child')).filter(
-            child_count=children.count()
-        ).values_list('book', flat=True)
+        total_children = children.count()
 
+        book_ids = (
+            Favorite.objects.filter(user=user, child__in=children)
+            .values('book')
+            .annotate(child_count=Count('child', distinct=True))
+            .filter(child_count=total_children)
+            .values_list('book', flat=True)
+        )
     books = Book.objects.filter(id__in=book_ids, user=user).order_by("-created_at")
 
     paginator = Paginator(books, 28)
