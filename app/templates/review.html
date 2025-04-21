@@ -224,5 +224,18 @@
     const newUrl = `/app/review/${year}/${month}/` + (params.toString() ? `?${params.toString()}` : '');
     window.location.href = newUrl;
   });
+  document.addEventListener("DOMContentLoaded", function () {
+    const menuButton = document.getElementById("menu-button");
+    const navMenu = document.getElementById("nav-menu");
+
+    if (menuButton && navMenu) {
+      menuButton.addEventListener("click", function () {
+        console.log("ハンバーガーメニューがクリックされました");
+        navMenu.classList.toggle("show");
+      });
+    } else {
+      console.error("ハンバーガーメニューが見つかりませんでした");
+    }
+  });
 </script>
 {% endblock %}
