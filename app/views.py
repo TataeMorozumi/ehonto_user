@@ -138,12 +138,10 @@ def favorite(request):
     selected_child_id = request.GET.get("child_id")
     selected_child = None
 
-    # 選択した子どもが存在する場合
     if selected_child_id and selected_child_id.isdigit():
         selected_child = get_object_or_404(Child, id=selected_child_id, user=user)
         favorites = Favorite.objects.filter(user=user, child=selected_child)
         book_ids = favorites.values_list("book_id", flat=True)
-        logger.debug(f"▶ 子ども {selected_child.name} のお気に入り book_ids: {list(book_ids)}")
     else:
         children = Child.objects.filter(user=user)
         total_children = children.count()
@@ -156,21 +154,23 @@ def favorite(request):
             .values_list("book", flat=True)
         )
 
-        books = Book.objects.filter(id__in=book_ids).order_by("-created_at")
+    # ✅ user を get_related_user で絞る
+    books = Book.objects.filter(id__in=book_ids, user=user).order_by("-created_at")
 
-        paginator = Paginator(books, 28)
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
-        books_list = list(page_obj)
-        book_rows = [books_list[i:i+7] for i in range(0, len(books_list), 7)]
+    paginator = Paginator(books, 28)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    books_list = list(page_obj)
+    book_rows = [books_list[i:i + 7] for i in range(0, len(books_list), 7)]
 
-        return render(request, "favorite.html", {
-            "books": page_obj,
-            "book_rows": book_rows,
-            "children": Child.objects.filter(user=user),
-            "selected_child_id": selected_child_id,
-            "page_obj": page_obj,
-        })
+    return render(request, "favorite.html", {
+        "books": page_obj,
+        "book_rows": book_rows,
+        "children": Child.objects.filter(user=user),
+        "selected_child_id": selected_child_id,
+        "page_obj": page_obj,
+    })
+
 
 @login_required
 def more_read(request):
