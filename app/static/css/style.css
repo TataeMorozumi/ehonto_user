@@ -341,14 +341,21 @@
     text-align: left;
   }
   
+  .book-detail-wrapper {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  
   .book-detail-image {
-    max-width: 100%;
-    width: 100%;
+    width: 300px; /* または max-width: 50% にする */
     height: auto;
     object-fit: contain;
-    display: block;
-    border-radius: 10px;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0; /* 画像の縮小を防止 */
+  }
+  
+  .child-info-box {
+    flex: 1;
   }
   
   /* 子どもごとの表示ブロック */
