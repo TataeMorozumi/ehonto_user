@@ -158,18 +158,18 @@ def favorite(request):
     # ✅ Bookのuserも絞らず
     books = Book.objects.filter(id__in=book_ids).order_by("-created_at")
 
-    paginator = Paginator(books, 28)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-    books_list = list(page_obj)
+    #paginator = Paginator(books, 28)
+    #page_number = request.GET.get("page")
+    #page_obj = paginator.get_page(page_number)
+    books_list = list(books)
     book_rows = [books_list[i:i + 7] for i in range(0, len(books_list), 7)]
 
     return render(request, "favorite.html", {
-        "books": page_obj,
+        "books": books,
         "book_rows": book_rows,
         "children": Child.objects.filter(user=user),
         "selected_child_id": selected_child_id,
-        "page_obj": page_obj,
+        "page_obj": books,
     })
 
 @login_required
