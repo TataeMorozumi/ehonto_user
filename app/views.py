@@ -145,26 +145,24 @@ def favorite(request):
         book_ids = favorites.values_list("book_id", flat=True)
         logger.debug(f"▶ 子ども {selected_child.name} のお気に入り book_ids: {list(book_ids)}")
     else:
-    # ✅ 各子どもごとのお気に入りを集めて、「全ての子に登録されている絵本」だけを抽出
         children = Child.objects.filter(user=user)
         total_children = children.count()
-        logger.debug(f"▶ ユーザー {user.username} の子ども数: {total_children}")
+        print(f"👧 子ども人数: {total_children}")
 
-        favorites = Favorite.objects.filter(user=user, child__in=children)
-        logger.debug(f"▶ Favorite件数: {favorites.count()}")
-
-        for child in children:
-            favs = Favorite.objects.filter(user=user, child=child)
-            logger.debug(f"▶ {child.name} のお気に入り: {[f.book.title for f in favs]}")
+        favorites_qs = Favorite.objects.filter(user=user, child__in=children)
+        print(f"⭐ お気に入り件数（child指定あり）: {favorites_qs.count()}")
 
         book_ids = (
-            favorites.values('book')
+            favorites_qs
+            .values('book')
             .annotate(child_count=Count('child', distinct=True))
             .filter(child_count=total_children)
             .values_list('book', flat=True)
         )
-        logger.debug(f"▶ 全員がお気に入りに入れた book_ids: {list(book_ids)}")
-        
+
+        print(f"📚 全員がお気に入り登録した book_ids: {list(book_ids)}")
+
+
     books = Book.objects.filter(id__in=book_ids, user=user).order_by("-created_at")
 
     paginator = Paginator(books, 28)
