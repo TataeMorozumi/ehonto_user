@@ -127,6 +127,10 @@ def child_bookshelf(request, child_id):
 
 # ✅ お気に入りページ
 from django.core.paginator import Paginator
+from django.db.models import Count
+import logging
+
+logger = logging.getLogger(__name__)  # ログ出力用
 
 @login_required
 def favorite(request):
@@ -139,18 +143,28 @@ def favorite(request):
         selected_child = get_object_or_404(Child, id=selected_child_id, user=user)
         favorites = Favorite.objects.filter(user=user, child=selected_child)
         book_ids = favorites.values_list("book_id", flat=True)
+        logger.debug(f"▶ 子ども {selected_child.name} のお気に入り book_ids: {list(book_ids)}")
     else:
     # ✅ 各子どもごとのお気に入りを集めて、「全ての子に登録されている絵本」だけを抽出
         children = Child.objects.filter(user=user)
         total_children = children.count()
+        logger.debug(f"▶ ユーザー {user.username} の子ども数: {total_children}")
+
+        favorites = Favorite.objects.filter(user=user, child__in=children)
+        logger.debug(f"▶ Favorite件数: {favorites.count()}")
+
+        for child in children:
+            favs = Favorite.objects.filter(user=user, child=child)
+            logger.debug(f"▶ {child.name} のお気に入り: {[f.book.title for f in favs]}")
 
         book_ids = (
-            Favorite.objects.filter(user=user, child__in=children)
-            .values('book')
+            favorites.values('book')
             .annotate(child_count=Count('child', distinct=True))
             .filter(child_count=total_children)
             .values_list('book', flat=True)
         )
+        logger.debug(f"▶ 全員がお気に入りに入れた book_ids: {list(book_ids)}")
+        
     books = Book.objects.filter(id__in=book_ids, user=user).order_by("-created_at")
 
     paginator = Paginator(books, 28)
