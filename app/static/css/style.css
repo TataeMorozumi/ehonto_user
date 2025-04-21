@@ -690,7 +690,6 @@
     border-radius: 50%;
     text-decoration: none;
     box-shadow: 0 0 5px rgba(0,0,0,0.2);
-    border: 1px solid #333;
     transition: background 0.3s ease;
 }
 .add-button:hover {
