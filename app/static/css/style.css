@@ -343,10 +343,9 @@
   
   .book-detail-image {
     max-width: 100%;
-    width: 100%;
     height: auto;
-    object-fit: contain;
     display: block;
+    margin: 20px auto;
     border-radius: 10px;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
   }
@@ -1680,12 +1679,4 @@ button {
   font-size: 16px; /* ボタンの文字サイズ */
   cursor: pointer;
   border-radius: 4px; /* ボタンの角を丸くする */
-}
-.read-decrement{
-  font-size: 16px;
-  padding: 4px 8px;
-  width: auto;
-  min-width: unset;
-  max-width: 40px;
-  display: inline-block;
 }
