@@ -128,19 +128,19 @@ def child_bookshelf(request, child_id):
 # ✅ お気に入りページ
 from django.core.paginator import Paginator
 
-@login_required 
+@login_required
 def favorite(request):
     user = get_related_user(request)
     selected_child_id = request.GET.get("child_id")
     selected_child = None
 
+    # 選択した子どもが存在する場合
     if selected_child_id and selected_child_id.isdigit():
         selected_child = get_object_or_404(Child, id=selected_child_id, user=user)
         favorites = Favorite.objects.filter(user=user, child=selected_child)
     else:
-        favorites = Favorite.objects.filter(child=None)
-
-    print(favorites.query)  # ここでSQLクエリを出力します
+        # child=None の場合は「全員のお気に入り」
+        favorites = Favorite.objects.filter(user=user, child=None)
 
     books = Book.objects.filter(
         id__in=favorites.values_list("book_id", flat=True),
