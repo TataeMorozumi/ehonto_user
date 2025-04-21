@@ -71,7 +71,7 @@
       background: #555;
     }
     #nav-menu.show {
-      display: block ;
+      display: block !important;
     }
     body.more-read-page {
   overflow: hidden; /* ✅ スクロールバー非表示 */
@@ -208,9 +208,19 @@
               console.log("ハンバーガーメニューがクリックされました");
               navMenu.classList.toggle("show");  // メニューの表示/非表示を切り替え
           });
-      } else {
-          console.error("ハンバーガーメニューの要素が見つかりませんでした");
-      }
+      // ✅ 枠外クリックで閉じる
+      document.addEventListener("click", function (event) {
+        if (
+          navMenu.classList.contains("show") &&
+          !navMenu.contains(event.target) &&
+          !menuButton.contains(event.target)
+        ) {
+          navMenu.classList.remove("show");
+        }
+      });
+    } else {
+      console.error("ハンバーガーメニューの要素が見つかりませんでした");
+    }
 
       // モーダルを表示する関数
       const addBookButton = document.getElementById("addBookButton");
@@ -312,17 +322,7 @@
           });
       };
   });
-  
-  document.addEventListener("click", function (event) {
-      const menuButton = document.getElementById("menu-button");
-      const navMenu = document.getElementById("nav-menu");
 
-      if (navMenu && navMenu.classList.contains("show") &&
-          !navMenu.contains(event.target) &&
-          !menuButton.contains(event.target)) {
-          navMenu.classList.remove("show");
-      }
-  });
 </script>
 {% endblock %}
 
