@@ -144,7 +144,7 @@ def favorite(request):
 
     books = Book.objects.filter(
         id__in=favorites.values_list("book_id", flat=True),
-        user=user
+       
     ).order_by("-created_at")
 
     paginator = Paginator(books, 28)
