@@ -140,6 +140,7 @@ def favorite(request):
     else:
         favorites = Favorite.objects.filter(child=None)
 
+    print(favorites.query)  # ここでSQLクエリを出力します
 
     books = Book.objects.filter(
         id__in=favorites.values_list("book_id", flat=True),

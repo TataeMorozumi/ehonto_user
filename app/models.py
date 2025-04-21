@@ -47,7 +47,7 @@ class Memo(models.Model):
 class Favorite(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
-    child = models.ForeignKey(Child, on_delete=models.CASCADE)
+    child = models.ForeignKey(Child, null=True, blank=True, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ('user', 'book', 'child')
