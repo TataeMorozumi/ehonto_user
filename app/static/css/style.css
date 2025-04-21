@@ -686,6 +686,7 @@
     font-size: 30px;
     text-align: center;
     line-height: 50px;
+    border: none;
     outline: none;
     border-radius: 50%;
     text-decoration: none;
@@ -695,6 +696,11 @@
 .add-button:hover {
     background-color: #0056b3;
 }
+.add-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5); /* 目立たせたい場合 */
+}
+
 /* ✅ モーダル全体のデザイン */
 .modal {
   box-sizing: border-box; /* ← これが重要！ */
