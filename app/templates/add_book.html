@@ -1,5 +1,11 @@
 {% load custom_filters %}
 <style>
+
+  input[type="checkbox"][id^="id_children_"] {
+    transform: scale(1.8)!important;
+    margin: 8px;
+  }
+
   .checkbox-inline {
   display: flex;
   flex-wrap: wrap;
@@ -27,10 +33,6 @@
   border-color: #5cb85c;
 }
 
-.checkbox-item input[type="checkbox"] {
-  transform: scale(1.5)!important;  /* ✅ チェックボックスを大きく */
-  margin-right: 8px;
-}
 
 </style>
 
