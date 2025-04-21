@@ -1,43 +1,61 @@
 {% load custom_filters %}
 <style>
-.checkbox-item input[type="checkbox"] {
-  transform: scale(1.8) !important;
-  -webkit-transform: scale(1.8) !important;
-  width: 20px !important;
-  height: 20px !important;
-}
-
-.checkbox-inline {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
-  margin-top: 15px;
-}
-
-.checkbox-item {
-  display: flex;
-  align-items: center;
-  font-size: 20px;        /* ✅ 文字サイズアップ */
-  font-weight: bold;      /* ✅ 太字で見やすく */
-  gap: 8px;
-  padding: 10px 15px;     /* ✅ クリックしやすい余白 */
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.checkbox-item:hover {
-  background-color: #e6f7ff;
-  border-color: #5cb85c;
-}
-
-
-</style>
-
-
+  /* モーダル内全体 */
+  #addBookForm {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+  }
+  
+  /* 入力欄の基本スタイル */
+  #addBookForm input[type="text"],
+  #addBookForm input[type="file"] {
+    width: 80%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  /* ✅ 本棚チェックボックスを横並びに */
+  .checkbox-inline {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  /* ✅ チェックボックスの見やすさ改善 */
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    font-weight: bold;
+    gap: 8px;
+  }
+  
+  /* ✅ チェックボックスサイズを拡大 */
+  .checkbox-item input[type="checkbox"] {
+    transform: scale(1.5);
+  }
+  
+  /* ✅ 登録ボタン */
+  .submit-button {
+    background-color: #5cb85c;
+    color: white;
+    padding: 10px 30px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .submit-button:hover {
+    background-color: #4cae4c;
+  }
+  </style>
+  
   <div id="form-error-box" style="display: none; color: red; margin-bottom: 10px;"></div>
   <form id="addBookForm" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
