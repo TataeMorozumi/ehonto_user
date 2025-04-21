@@ -341,21 +341,14 @@
     text-align: left;
   }
   
-  .book-detail-wrapper {
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-  }
-  
   .book-detail-image {
-    width: 300px; /* または max-width: 50% にする */
+    max-width: 100%;
+    width: 100%;
     height: auto;
     object-fit: contain;
-    flex-shrink: 0; /* 画像の縮小を防止 */
-  }
-  
-  .child-info-box {
-    flex: 1;
+    display: block;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
   }
   
   /* 子どもごとの表示ブロック */
@@ -1687,4 +1680,12 @@ button {
   font-size: 16px; /* ボタンの文字サイズ */
   cursor: pointer;
   border-radius: 4px; /* ボタンの角を丸くする */
+}
+.read-decrement{
+  font-size: 16px;
+  padding: 4px 8px;
+  width: auto;
+  min-width: unset;
+  max-width: 40px;
+  display: inline-block;
 }
