@@ -154,8 +154,9 @@ def favorite(request):
             .values_list("book", flat=True)
         )
 
-    # ✅ user を get_related_user で絞る
-    books = Book.objects.filter(id__in=book_ids, user=user).order_by("-created_at")
+    
+    books = Book.objects.filter(id__in=book_ids).order_by("-created_at")
+
 
     paginator = Paginator(books, 28)
     page_number = request.GET.get("page")
