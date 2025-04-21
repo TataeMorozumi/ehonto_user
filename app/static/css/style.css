@@ -1672,11 +1672,3 @@
     text-decoration: none;
     cursor: pointer;
 }
-button {
-  margin-top: 20px; /* ボタンの上にスペースを追加 */
-  width: 100%; /* ボタンを横いっぱいに広げる */
-  padding: 10px; /* ボタンの高さを調整 */
-  font-size: 16px; /* ボタンの文字サイズ */
-  cursor: pointer;
-  border-radius: 4px; /* ボタンの角を丸くする */
-}
