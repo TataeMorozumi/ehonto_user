@@ -63,6 +63,7 @@
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 <script>
     function changeBookshelf() {
         const select = document.getElementById("child");
