@@ -1,4 +1,22 @@
 {% load custom_filters %}
+<style>
+  .checkbox-inline {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 15px 0;
+    align-items: flex-start;
+  }
+
+  .checkbox-item {
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+</style>
+
 
   <div id="form-error-box" style="display: none; color: red; margin-bottom: 10px;"></div>
   <form id="addBookForm" method="POST" enctype="multipart/form-data">
