@@ -1,12 +1,13 @@
 {% load custom_filters %}
 <style>
+.checkbox-item input[type="checkbox"] {
+  transform: scale(1.8) !important;
+  -webkit-transform: scale(1.8) !important;
+  width: 20px !important;
+  height: 20px !important;
+}
 
-  input[type="checkbox"][id^="id_children_"] {
-    transform: scale(1.8)!important;
-    margin: 8px;
-  }
-
-  .checkbox-inline {
+.checkbox-inline {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
