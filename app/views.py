@@ -138,6 +138,7 @@ def favorite(request):
     if selected_child_id and selected_child_id.isdigit():
         selected_child = get_object_or_404(Child, id=selected_child_id, user=user)
         favorites = Favorite.objects.filter(user=user, child=selected_child)
+        book_ids = favorites.values_list("book_id", flat=True)
     else:
     # ✅ 各子どもごとのお気に入りを集めて、「全ての子に登録されている絵本」だけを抽出
         children = Child.objects.filter(user=user)
