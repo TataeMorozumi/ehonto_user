@@ -4,9 +4,8 @@
 {% load custom_filters %}
 
 {% block content %}
-<a href="{% url 'home' %}?child_id={{ selected_child_id }}" class="back-button">
-  ← 本棚に戻る
-</a>
+<a href="javascript:history.back()" onclick="if(history.length <= 1) location.href='{% url 'home' %}'" class="back-button">← 本棚に戻る</a>
+
 
 <div class="book-detail-container">
 
