@@ -564,17 +564,12 @@ def family_invite(request):
 
     invite_url = request.build_absolute_uri(f"/signup/?code={profile.invite_code}")
 
-    # ✅ request.user が正しくログインユーザーであるか確認（int型IDが前提）
-    if not isinstance(request.user.id, int):
-        invited_users = []
-    else:
-        invited_users = User.objects.filter(userprofile__invited_by=request.user)
+     # ✅ 自分を除いた招待ユーザーだけ取得
+    invited_users = User.objects.filter(userprofile__invited_by=request.user)
+    invited_users_excluding_self = invited_users.exclude(id=request.user.id)
 
-    inviter = None
-    if profile.invited_by:
-        inviter = profile.invited_by
+    inviter = profile.invited_by if profile.invited_by else None
 
-    invited_users_excluding_self = [u for u in invited_users if u != request.user]
     return render(request, 'family_invite.html', {
         'invite_url': invite_url,
         'invited_users': invited_users,
