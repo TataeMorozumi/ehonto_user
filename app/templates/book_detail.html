@@ -119,7 +119,7 @@
       <!-- ✅ 子どもの本棚チェックボックス -->
       <div class="form-group">
         <label>本棚を選択（複数可）：</label>
-        {% for child in form.children.field.queryset %}
+        {{ form.children }}
           <label style="display: block;">
             <input type="checkbox" name="children" value="{{ child.id }}"
               {% if child in form.initial.children or child in book.child.all %}checked{% endif %}>
@@ -127,7 +127,7 @@
           </label>
         {% endfor %}
       </div>
-      
+
       <button type="submit" class="submit-button">保存</button>
     </form>
   </div>

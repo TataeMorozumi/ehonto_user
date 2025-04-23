@@ -328,6 +328,11 @@ def book_detail(request, book_id):
     
     selected_child_id = request.GET.get("child_id")
 
+    form = BookForm(instance=book)
+    form.fields['children'].queryset = Child.objects.filter(user=related_user)
+    form.initial['children'] = book.child.all()
+
+
     return render(request, 'book_detail.html', {
         'book': book,
         'registered_children': registered_children,
@@ -335,6 +340,7 @@ def book_detail(request, book_id):
         'read_counts': read_counts,
         'memos': memos,
         'selected_child_id': selected_child_id,
+        'form': form,
     })
 
 # ✅ 絵本削除ビュー
