@@ -574,10 +574,11 @@ def family_invite(request):
     if profile.invited_by:
         inviter = profile.invited_by
 
-
+    invited_users_excluding_self = [u for u in invited_users if u != request.user]
     return render(request, 'family_invite.html', {
         'invite_url': invite_url,
         'invited_users': invited_users,
+        'invited_users_excluding_self': invited_users_excluding_self, 
         'inviter': inviter,  
     })
 

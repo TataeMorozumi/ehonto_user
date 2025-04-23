@@ -27,30 +27,28 @@
 
 
   <!-- ✅ 共有中の家族一覧 -->
-<div>
-  <h2 class="text-xl font-semibold mb-2">招待済みの家族：</h2>
-
-  {% if invited_users %}
-  <ul class="invite-list text-gray-700">
-    {% for user in invited_users %}
-      <li>{{ user.first_name|default:user.email }}</li>  {# ←名前が空ならemailを表示 #}
-    {% empty %}
-      <li>まだ招待された家族はいません。</li>
-    {% endfor %}
-  </ul>
+  <div>
+    <h2 class="text-xl font-semibold mb-2">招待済みの家族：</h2>
   
-  {% else %}
-    <p class="text-gray-500 ml-6">・まだ招待された家族はいません。</p>
-  {% endif %}
-
-  {% if inviter %}
-  <p style="margin-top: 20px; color: #333;">
-    あなたは <strong>{{ inviter.first_name|default:inviter.email }}</strong> さんに招待されました。
-  </p>
-  {% endif %}
-
-</div>
-
+    {% if invited_users_excluding_self %}
+      <ul class="invite-list text-gray-700">
+        {% for u in invited_users %}
+          {% if u != user %}
+            <li>{{ u.first_name|default:u.email }}</li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-gray-500 ml-6">・まだ招待された家族はいません。</p>
+    {% endif %}
+  
+    {% if inviter %}
+      <p style="margin-top: 20px; color: #333;">
+        あなたは <strong>{{ inviter.first_name|default:inviter.email }}</strong> さんに招待されました。
+      </p>
+    {% endif %}
+  </div>
+  
   
 {% endblock %}
 
