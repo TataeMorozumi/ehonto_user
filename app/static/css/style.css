@@ -1687,3 +1687,18 @@
   border-radius: 10px;
   padding: 20px;
 }
+.modal-content {
+  background-color: #fff;
+  margin: 0 auto;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  max-width: 600px;
+  width: 90%;
+  position: relative;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
