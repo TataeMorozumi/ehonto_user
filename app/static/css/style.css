@@ -1700,7 +1700,7 @@
 #editBookModal {
   display: none; 
   position: fixed;
-  top: 40%;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 100%;
@@ -1709,7 +1709,7 @@
   justify-content: center;
   align-items: center; 
   padding-top: 50px;        /* ← 上に適度な余白 */
-  padding-bottom: 0px;     /* ✅ 下の余白を調整 */
+  padding-bottom: 30px;     /* ✅ 下の余白を調整 */
   z-index: 1000;
   box-sizing: border-box;  
 }
