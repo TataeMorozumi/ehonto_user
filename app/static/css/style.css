@@ -1700,18 +1700,22 @@
 #editBookModal {
   display: none; 
   position: fixed;
-  top: 0;
-  bottom: 50px; /* ← ここで「下端」を上に詰める */
-  left: 0;
-  right: 0;
+  top: 65%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
   background:rgba(0, 0, 0, 0.4); 
-  justify-content: center;
-  align-items: flex-start;  
   z-index: 1000;
+  
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* ← 上寄せ */
+  padding-top: 65px; /* ← モーダルの位置を調整 */
+  padding-bottom: 20px; /* ✅ 下の余白をここで調整 */
 }
 
 /* モーダルの本体 */
-.edit-book-content {
+.modal-content.edit-book-content {
   background: white;
   padding: 30px;
   border-radius: 10px;
