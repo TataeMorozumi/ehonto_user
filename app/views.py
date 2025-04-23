@@ -345,7 +345,7 @@ def delete_book(request, book_id):
 
     if request.method == "POST":
         book.delete()
-        messages.success(request, "絵本を削除しました。")
+        
         return redirect('home')
 
     return render(request, "book_detail.html", {"book": book})
