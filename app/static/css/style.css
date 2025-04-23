@@ -1719,5 +1719,6 @@
   padding: 30px;
   max-width: 400px;
   width: 100%;
+  box-sizing: border-box;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
