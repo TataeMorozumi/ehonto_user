@@ -30,18 +30,24 @@
   <div>
     <h2 class="text-xl font-semibold mb-2">招待済みの家族：</h2>
   
-    {% if invited_users_excluding_self %}
-      <ul>
+    {% if invited_users_excluding_self and invited_users_excluding_self|length > 0 %}
+    <ul class="invite-list text-gray-700">
         {% for u in invited_users_excluding_self %}
         <li>{{ u.first_name|default:u.email }}</li>
         {% endfor %}
       </ul>
-      {% elif inviter %}
-        {# 自分が招待された人なら、この行は何も表示しない #}
+      {% elif not inviter %}
+        
       {% else %}
         <p class="text-gray-500 ml-6">・まだ招待された家族はいません。</p>
       {% endif %}
   
+      {% if inviter %}
+    <p style="margin-top: 20px; color: #333;">
+      あなたは <strong>{{ inviter.first_name|default:inviter.email }}</strong> さんに招待されました。
+    </p>
+  {% endif %}
+</div>
   
 {% endblock %}
 
