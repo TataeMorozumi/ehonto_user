@@ -37,7 +37,7 @@ class BookForm(forms.ModelForm):
     children = forms.ModelMultipleChoiceField(
         queryset=Child.objects.none(),  # 初期は空、ビューで指定する
         widget=forms.CheckboxSelectMultiple,
-        required=False,
+        required=True,
         label="本棚を選択（複数可）"
     )
 

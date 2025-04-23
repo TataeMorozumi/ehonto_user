@@ -551,11 +551,9 @@ def edit_book(request, book_id):
             book.child.set(form.cleaned_data['children'])  # 子どもとの紐づけを更新
             return redirect("book_detail", book_id=book.id)
     else:
-        form = BookForm(instance=book)
-        form.fields['children'].queryset = Child.objects.filter(user=related_user)
-        form.initial['children'] = book.child.all()
+        pass 
         
-        return render(request, "edit_book_form.html", {"form": form, "book": book})
+        return redirect("book_detail", book_id=book.id)
 
 
 
