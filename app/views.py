@@ -572,7 +572,6 @@ def family_invite(request):
 
     return render(request, 'family_invite.html', {
         'invite_url': invite_url,
-        'invited_users': invited_users,
         'invited_users_excluding_self': invited_users_excluding_self, 
         'inviter': inviter,  
     })
