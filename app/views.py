@@ -411,10 +411,10 @@ def save_memo(request):
 # ✅ 子ども情報編集画面
 @login_required
 def child_edit(request): 
-    user = get_related_user(request)
-
-    list(messages.get_messages(request)) 
+    storage = messages.get_messages(request)
+    storage.used = True 
     
+    user = get_related_user(request)
     children = Child.objects.filter(user=user)
     form = ChildForm()
 
