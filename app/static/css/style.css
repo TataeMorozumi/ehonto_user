@@ -1698,19 +1698,21 @@
 }
 
 #editBookModal {
-  display: none; 
+  display: none;
   position: fixed;
-  top: 65%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
-  background:rgba(0, 0, 0, 0.4); 
-  justify-content: center;
-  align-items: flex-start;  
-  padding-top: 50px;        /* ← 上に適度な余白 */
-  padding-bottom: 20px;     /* ✅ 下の余白を調整 */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
   z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;  /* ← 上下中央に配置 */
+  padding: 20px;
+  box-sizing: border-box;
 }
+
 
 /* モーダルの本体 */
 .edit-book-content {
@@ -1719,5 +1721,6 @@
   border-radius: 10px;
   width: 90%;
   max-width: 400px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  max-height: 90vh; /* ← 長すぎるのを防ぐ */
+  overflow-y: auto;
 }
