@@ -1700,7 +1700,7 @@
 #editBookModal {
   display: none; 
   position: fixed;
-  top: 65%;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 100%;
@@ -1708,7 +1708,6 @@
   background:rgba(0, 0, 0, 0.4); 
   padding: 20px;
   z-index: 1000;
-  border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
