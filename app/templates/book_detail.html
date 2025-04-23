@@ -281,6 +281,28 @@ document.addEventListener("DOMContentLoaded", function () {
       console.error("ハンバーガーメニューが見つかりませんでした");
     }
   });
+  document.getElementById("editBookForm").addEventListener("submit", function (e) {
+  e.preventDefault(); // フォーム送信を止める
+
+  const formData = new FormData(this);
+  fetch(this.action, {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": "{{ csrf_token }}",
+    },
+    body: formData,
+  })
+    .then(res => {
+      if (res.redirected) {
+        window.location.href = res.url;  // ← リダイレクト先に遷移（book_detail など）
+      } else {
+        // モーダル閉じるだけにしたい場合はここで home に戻る or reload
+        closeEditModal();
+        window.location.href = "{% url 'home' %}";
+      }
+    });
+});
+
 
 </script>
 {% endblock %}
