@@ -553,14 +553,16 @@ def edit_book(request, book_id):
         form = BookForm(request.POST, request.FILES, instance=book)
         form.fields['children'].queryset = Child.objects.filter(user=related_user)
         if form.is_valid():
-            book = form.save()
-            book.child.set(form.cleaned_data['children'])  # 子どもとの紐づけを更新
+            book = form.save(commit=False)  # ← commit=Falseで一旦保存
+            book.save()
+            book.child.set(form.cleaned_data['children'])  # ←ここで紐づけを更新
             return redirect("book_detail", book_id=book.id)
     else:
-        pass 
-        
-        return redirect("book_detail", book_id=book.id)
+        form = BookForm(instance=book)
+        form.fields['children'].queryset = Child.objects.filter(user=related_user)
+        form.initial['children'] = book.child.all()
 
+    return render(request, "book_detail.html", {"form": form, "book": book})
 
 
 # ✅ 家族招待
