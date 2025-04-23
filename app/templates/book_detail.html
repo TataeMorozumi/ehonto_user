@@ -64,12 +64,8 @@
             🗑️
           </button>
 
-          
-
-
         </div>
 
-    
         <!-- 📝 メモ欄 -->
         <div class="memo-box-inline">
           <textarea
@@ -119,7 +115,7 @@
       <!-- ✅ 子どもの本棚チェックボックス -->
       <div class="form-group">
         <label>本棚を選択（複数可）：</label>
-        {{ form.children }}
+        {% for child in form.fields.children.queryset %}
           <label style="display: block;">
             <input type="checkbox" name="children" value="{{ child.id }}"
               {% if child in form.initial.children or child in book.child.all %}checked{% endif %}>
