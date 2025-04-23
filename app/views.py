@@ -412,6 +412,9 @@ def save_memo(request):
 @login_required
 def child_edit(request): 
     user = get_related_user(request)
+
+    list(messages.get_messages(request)) 
+    
     children = Child.objects.filter(user=user)
     form = ChildForm()
 
