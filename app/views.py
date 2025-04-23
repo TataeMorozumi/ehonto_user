@@ -743,3 +743,22 @@ def get_related_user(request):
     if hasattr(request.user, 'userprofile') and request.user.userprofile.invited_by:
         return request.user.userprofile.invited_by
     return request.user
+
+
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+
+@require_POST
+@login_required
+def remove_child_from_book(request):
+    book_id = request.POST.get('book_id')
+    child_id = request.POST.get('child_id')
+    user = get_related_user(request)
+
+    try:
+        book = Book.objects.get(id=book_id, user=user)
+        child = Child.objects.get(id=child_id, user=user)
+        book.child.remove(child)
+        return JsonResponse({'success': True})
+    except Book.DoesNotExist or Child.DoesNotExist:
+        return JsonResponse({'success': False, 'error': '対象が見つかりません'})

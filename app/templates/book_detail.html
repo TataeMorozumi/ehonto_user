@@ -57,6 +57,14 @@
                   onclick="decrementRead('{{ book.id }}', '{{ child.id }}')">
             －
           </button>
+          <button class="remove-child-btn" 
+                  data-book-id="{{ book.id }}" 
+                  data-child-id="{{ child.id }}" 
+                  title="この子どもとの紐づけを削除">
+            🗑️
+          </button>
+
+          
 
 
         </div>
@@ -270,5 +278,31 @@ document.addEventListener("DOMContentLoaded", function () {
       console.error("ハンバーガーメニューが見つかりませんでした");
     }
   });
+
+  document.querySelectorAll('.remove-child-btn').forEach(btn => {
+  btn.addEventListener('click', function () {
+    const bookId = this.dataset.bookId;
+    const childId = this.dataset.childId;
+    if (!confirm("この子どもとの登録を解除しますか？")) return;
+
+    fetch("{% url 'remove_child_from_book' %}", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": "{{ csrf_token }}",
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: `book_id=${bookId}&child_id=${childId}`
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert("削除に失敗しました");
+      }
+    });
+  });
+});
+
 </script>
 {% endblock %}
