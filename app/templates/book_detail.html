@@ -101,21 +101,26 @@
 
     <form id="editBookForm" method="POST" enctype="multipart/form-data" action="{% url 'edit_book' book.id %}">
       {% csrf_token %}
-      <div class="form-group">
-        <label>タイトル：</label>
-        <input type="text" name="title" value="{{ book.title }}">
+    
+      {{ form.title.label_tag }}
+      {{ form.title }}
+    
+      {{ form.author.label_tag }}
+      {{ form.author }}
+    
+      {{ form.image.label_tag }}
+      {{ form.image }}
+    
+      <!-- ✅ 子どもチェックボックス -->
+      <label>{{ form.children.label }}</label>
+      <div class="checkbox-inline">
+        {% for checkbox in form.children %}
+          <label class="checkbox-item">
+            {{ checkbox.tag }} {{ checkbox.choice_label }}
+          </label>
+        {% endfor %}
       </div>
-
-      <div class="form-group">
-        <label>作者：</label>
-        <input type="text" name="author" value="{{ book.author }}">
-      </div>
-
-      <div class="form-group">
-        <label>画像：</label>
-        <input type="file" name="image">
-      </div>
-
+    
       <button type="submit" class="submit-button">保存</button>
     </form>
   </div>

@@ -544,12 +544,19 @@ def edit_book(request, book_id):
     book = get_object_or_404(Book, id=book_id, user=related_user)
 
     if request.method == "POST":
-        book.title = request.POST.get("title")
-        book.author = request.POST.get("author")
-        if 'image' in request.FILES:
-            book.image = request.FILES['image']
-        book.save()
-        return redirect("book_detail", book_id=book.id)
+        form = BookForm(request.POST, request.FILES, instance=book)
+        form.fields['children'].queryset = Child.objects.filter(user=related_user)
+        if form.is_valid():
+            book = form.save()
+            book.child.set(form.cleaned_data['children'])  # 子どもとの紐づけを更新
+            return redirect("book_detail", book_id=book.id)
+    else:
+        form = BookForm(instance=book)
+        form.fields['children'].queryset = Child.objects.filter(user=related_user)
+        form.initial['children'] = book.child.all()
+        
+        return render(request, "edit_book_form.html", {"form": form, "book": book})
+
 
 
 # ✅ 家族招待
