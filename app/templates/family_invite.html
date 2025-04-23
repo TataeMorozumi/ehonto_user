@@ -32,10 +32,8 @@
   
     {% if invited_users_excluding_self %}
       <ul class="invite-list text-gray-700">
-        {% for u in invited_users %}
-          {% if u != user %}
-            <li>{{ u.first_name|default:u.email }}</li>
-          {% endif %}
+        {% for u in invited_users_excluding_self %}
+        <li>{{ u.first_name|default:u.email }}</li>
         {% endfor %}
       </ul>
     {% else %}
