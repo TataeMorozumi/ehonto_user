@@ -73,8 +73,6 @@ urlpatterns = [
     # ✅ ログアウト
     path('logout/confirm/', views.logout_confirm_view, name='logout_confirm'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
-
-    path('remove_child_from_book/', views.remove_child_from_book, name='remove_child_from_book'),
 ]
 
 # ✅ メディアファイルの配信設定（画像を正しく表示するために必要）

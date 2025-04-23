@@ -1723,18 +1723,3 @@
   max-width: 400px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
-.remove-child-btn {
-  background: none;          /* 背景なし */
-  border: none;              /* 枠なし */
-  font-size: 20px;           /* アイコンサイズ */
-  cursor: pointer;           /* カーソルをポインターに */
-  padding: 4px;              /* クリックしやすいように少し余白 */
-  margin-left: 5px;          /* よんだボタンとの間隔 */
-  color: #555;               /* お好みで色指定 */
-  transition: color 0.2s ease;
-}
-
-.remove-child-btn:hover {
-  color: #c0392b;            /* ホバー時に赤っぽく */
-}
-

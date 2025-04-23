@@ -57,12 +57,6 @@
                   onclick="decrementRead('{{ book.id }}', '{{ child.id }}')">
             －
           </button>
-          <button class="remove-child-btn" 
-                  data-book-id="{{ book.id }}" 
-                  data-child-id="{{ child.id }}" 
-                  title="こどもの本棚から削除">
-            🗑️
-          </button>
 
         </div>
 
@@ -115,13 +109,14 @@
       <!-- ✅ 子どもの本棚チェックボックス -->
       <div class="form-group">
         <label>本棚を選択（複数可）：</label>
-        {% for child in form.fields.children.queryset %}
-          <label style="display: block;">
-            <input type="checkbox" name="children" value="{{ child.id }}"
-              {% if child in form.initial.children or child in book.child.all %}checked{% endif %}>
-            {{ child.name }}
-          </label>
-        {% endfor %}
+        <ul class="checkbox-inline">
+          {% for checkbox in form.children %}
+            <label class="checkbox-item">
+              {{ checkbox.tag }}
+              {{ checkbox.choice_label }}
+            </label>
+          {% endfor %}
+        </ul>
       </div>
 
       <button type="submit" class="submit-button">保存</button>
@@ -286,31 +281,6 @@ document.addEventListener("DOMContentLoaded", function () {
       console.error("ハンバーガーメニューが見つかりませんでした");
     }
   });
-
-  document.querySelectorAll('.remove-child-btn').forEach(btn => {
-  btn.addEventListener('click', function () {
-    const bookId = this.dataset.bookId;
-    const childId = this.dataset.childId;
-    if (!confirm("この子どもとの登録を解除しますか？")) return;
-
-    fetch("{% url 'remove_child_from_book' %}", {
-      method: "POST",
-      headers: {
-        "X-CSRFToken": "{{ csrf_token }}",
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: `book_id=${bookId}&child_id=${childId}`
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        location.reload();
-      } else {
-        alert("削除に失敗しました");
-      }
-    });
-  });
-});
 
 </script>
 {% endblock %}
