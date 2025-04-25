@@ -442,8 +442,9 @@
   .child-meta {
     display: flex;
     align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
+    gap: 8px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
   }
   
   /* ✅ メモを横並びの右側に表示 */
@@ -1032,7 +1033,8 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;  /* ← ここが重要！ */
+    white-space: nowrap;
 }
 .child-icon {
     font-size: 20px;
