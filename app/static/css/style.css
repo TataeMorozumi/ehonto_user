@@ -1309,7 +1309,7 @@
   }
   
   .read-minus-button:hover {
-    background-color: #f5f5f5;
+    background-color: #d9534f;
   }
   .child-read-list {
     list-style-position: inside;  /* ・の位置をテキストに近づける */
