@@ -1724,6 +1724,9 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 .read-button.read-decrement {
-  background-color: #f8d7da;  /* 淡い赤ピンク */
-  color: #721c24;                 /* 濃いグレー文字 */
+  background-color: #e57373;  /* 淡くやさしい赤 */
+  color: #fff;               /* 濃いグレー文字 */
+}
+.read-button.read-decrement:hover {
+  background-color: #d32f2f;  /* 少し濃い赤で反応感 */
 }
