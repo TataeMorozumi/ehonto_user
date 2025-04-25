@@ -1724,6 +1724,6 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 .read-button.read-decrement {
-  background-color: #e0e0e0;  /* グレー系（控えめ） */
-  color: #333;                /* 濃いグレー文字 */
+  background-color: #f8d7da;  /* 淡い赤ピンク */
+  color: #721c24;                 /* 濃いグレー文字 */
 }
