@@ -48,14 +48,14 @@
           <button class="read-button"
                   data-book-id="{{ book.id }}"
                   data-child-id="{{ child.id }}">
-            よんだ＋
+            よんだ＋1
           </button>
           <span class="read-count" id="read-count-{{ child.id }}">
             {{ read_counts|get_item:child.id|default:"0" }} 回
           </span>
           <button class="read-decrement"
                   onclick="decrementRead('{{ book.id }}', '{{ child.id }}')">
-            －
+            －1
           </button>
 
         </div>
