@@ -1723,3 +1723,7 @@
   max-width: 400px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
+.read-button.read-decrement {
+  background-color: #e0e0e0;  /* グレー系（控えめ） */
+  color: #333;                /* 濃いグレー文字 */
+}
