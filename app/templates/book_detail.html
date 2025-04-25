@@ -69,11 +69,12 @@
             class="memo-textarea">{{ memos|get_item:child.id|default_if_none:"" }}</textarea>
 
             <button
-              class="memo-save-btn"
+              class="memo-save-btn read-button"
               data-book-id="{{ book.id }}"
               data-child-id="{{ child.id }}">
               保存
-          </button>
+            </button>
+
         </div>
         
       </div>
