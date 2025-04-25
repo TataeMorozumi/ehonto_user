@@ -245,7 +245,7 @@
     flex-direction: column;
     gap: 15px;
     justify-content: flex-start;
-    margin-left: 15%;
+    margin-left: 10%;
     display: flex;
     flex-direction: column;
     align-items: flex-start;   /* ✅ 子ども名を右端に寄せる */
@@ -1088,6 +1088,7 @@
     border-radius: 8px;
     border: 1px solid #ddd;
     position: relative;
+    margin: 0 auto;
 }
   
 .memo-box-inline textarea {
